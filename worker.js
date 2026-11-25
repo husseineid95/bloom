@@ -119,22 +119,24 @@ async function handleBloomAction(body = {}, env) {
 
 function parseTutorEnvelope(raw, fallbackRate = 1.0) {
   try {
-    const obj = JSON.parse(raw);
-    return { reply: String(obj.reply || '').trim() || raw, speechRate: Number(obj.speechRate) || fallbackRate };
+    const cleaned = String(raw || '').replace(/```json|```/gi, '').trim();
+    const obj = JSON.parse(cleaned);
+    return { reply: String(obj.reply || '').trim() || cleaned, speechRate: Number(obj.speechRate) || fallbackRate };
   } catch (_) {
-    return { reply: String(raw || '').trim(), speechRate: fallbackRate };
+    return { reply: String(raw || '').replace(/```json|```/gi, '').trim(), speechRate: fallbackRate };
   }
 }
+
 
 
 
 async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {
   let lastErr = '';
   if (env.GEMINI_API_KEY) {
-    const geminiModels = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash-lite'];
+    const geminiModels = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
     for (const model of geminiModels) {
       try {
-        return await callGemini(env.GEMINI_API_KEY, model, systemPrompt, userPrompt, history, expectJson);
+        return await callGemini(env.GEMINI_API_KEY, model, systemPrompt, userPrompt, history);
       } catch (err) {
         lastErr = err && err.message ? err.message : 'Gemini busy';
       }
@@ -146,7 +148,7 @@ async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = 
       ...history.map((h) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.text })),
       { role: 'user', content: userPrompt }
     ];
-    const cfModels = ['@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/meta/llama-3.2-3b-instruct', '@cf/qwen/qwen2.5-7b-instruct-fp8'];
+    const cfModels = ['@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/meta/llama-3.2-3b-instruct', '@cf/google/gemma-3-12b-it'];
     for (const cfModel of cfModels) {
       try {
         const res = await env.AI.run(cfModel, { messages });
@@ -156,11 +158,10 @@ async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = 
       }
     }
   }
-  throw new Error(lastErr || 'AI tutors are temporarily busy. Please tap again.');
+  throw new Error(lastErr || 'AI tutors are temporarily busy. Please try again.');
 }
 
-
-async function callGemini(apiKey, model, systemPrompt, userPrompt, history = [], expectJson = false) {
+async function callGemini(apiKey, model, systemPrompt, userPrompt, history = []) {
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');
   const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
   const contents = [];
@@ -175,16 +176,13 @@ async function callGemini(apiKey, model, systemPrompt, userPrompt, history = [],
   }
   contents.push({ role: 'user', parts: [{ text: userPrompt }] });
 
-  const generationConfig = { temperature: expectJson ? 0.3 : 0.75, maxOutputTokens: 350 };
-  if (expectJson) generationConfig.responseMimeType = 'application/json';
-
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt }] },
       contents,
-      generationConfig
+      generationConfig: { temperature: 0.75, maxOutputTokens: 350 }
     })
   });
 
@@ -200,6 +198,7 @@ async function callGemini(apiKey, model, systemPrompt, userPrompt, history = [],
   if (!text) throw new Error('Empty response');
   return text;
 }
+
 
 
 

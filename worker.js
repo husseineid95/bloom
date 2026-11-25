@@ -2,69 +2,74 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/api/speak" && request.method === "POST") {
+    if (url.pathname === "/api/bloom" && request.method === "POST") {
       try {
         const body = await request.json();
         const {
-          mode = "general",
-          tutorName = "Clara",
-          tutorAccent = "British English",
-          scenarioType = "",
-          situation = "",
-          topic = "",
-          message = "",
-          videoTranscript = "",
-          savedWords = [],
-          crosstalk = true,
-          corrections = "Gentle",
-          nativeLang = "Arabic",
+          lang = "en",
           level = "B2",
-          userName = "Hussein"
+          tutorGender = "female",
+          tutorName = "Claire",
+          action = "chat",
+          message = "",
+          videoTitle = "",
+          videoContext = "",
+          topic = "",
+          word = "",
+          history = [],
+          userName = "Learner"
         } = body;
 
-        const cleanName = String(tutorName || "Clara").replace(/\s*(🇺🇸|🇬🇧|🇦🇺).*/u, "").trim() || "Clara";
-        const wordsList = Array.isArray(savedWords) && savedWords.length ? savedWords.join(", ") : "stroll, peckish, fair enough";
+        const LANG_META = {
+          en: { name: "English", female: "Claire", male: "Julian" },
+          de: { name: "German", female: "Hannah", male: "Lukas" },
+          fr: { name: "French", female: "Camille", male: "Julien" },
+          es: { name: "Spanish", female: "Sofia", male: "Mateo" }
+        };
 
-        let modeInstruction = `Have a warm, natural conversation on whatever topic ${userName} brings up.`;
-        if (mode === "role_play") {
-          modeInstruction = `Role Play mode — Scenario category: "${scenarioType || "Everyday Life"}", Situation: "${situation || "A real-life conversation"}". Stay in character as the other person in this situation and keep the dialogue natural and engaging.`;
-        } else if (mode === "photo_chit_chat") {
-          modeInstruction = `Photo Chit Chat mode — Scene context: "${topic || "A photograph"}". Respond naturally to how ${userName} describes the photo, ask a natural follow-up question about what they see, and keep it conversational.`;
-        } else if (mode === "discuss_video") {
-          modeInstruction = `Discuss a Video mode — Context: "${videoTranscript || "A video lesson"}". Talk about the video's ideas or story, ask what ${userName} thinks, and invite them to use words from their Vocab Garden (${wordsList}).`;
-        } else if (mode === "shadowing") {
-          modeInstruction = `Shadowing mode — Topic: "${topic || "everyday life"}". Provide ONE natural ${tutorAccent} sentence (around 10–16 words) for ${userName} to repeat. If they already repeated a sentence, briefly note natural stress/rhythm and give the next sentence.`;
-        } else if (mode === "exercises") {
-          modeInstruction = `Speaking Exercises mode — Vocab Garden words: [${wordsList}]. Give a short speaking prompt or Word Link challenge using these words in context.`;
-        } else if (topic) {
-          modeInstruction = `Conversation mode focused on: "${topic}".`;
+        const lm = LANG_META[lang] || LANG_META.en;
+        const activeTutor = tutorName || (tutorGender === "male" ? lm.male : lm.female);
+
+        let taskPrompt = "";
+        if (action === "video_vocab") {
+          taskPrompt = `Extract 6 high-utility, practical words or short phrases directly relevant to the video "${videoTitle}" (${videoContext || "general immersion video"}) at CEFR level ${level}. Return STRICT JSON only with this exact shape: {"words":[{"term":"...","meaningInLang":"...","example":"..."}]}. No markdown fences.`;
+        } else if (action === "discuss_video") {
+          taskPrompt = `You are discussing the video "${videoTitle}" (${videoContext || ""}) with ${userName} in a natural conversation (or live voice call). Ask engaging questions, build on what they watched, and keep responses concise and natural in ${lm.name} at level ${level}.`;
+        } else if (action === "photo_chit_chat") {
+          taskPrompt = `The learner just described a photo (${topic || "scene"}) for up to 1 minute. Give: 1) brief encouraging feedback, 2) clear written corrections if needed, and 3) 2-3 natural phrasing ideas at CEFR ${level} in ${lm.name}.`;
+        } else if (action === "topic_talk") {
+          taskPrompt = `The learner spoke for up to 1 minute on the topic "${topic}". Provide concise written corrections on grammar/phrasing and one natural follow-up question in ${lm.name} at CEFR ${level}.`;
+        } else if (action === "word_link") {
+          taskPrompt = `The learner played 1-minute Word Link starting from "${word}". Check any linked words they gave, briefly note any corrections, and suggest a clean chain of 4 related ${lm.name} words at CEFR ${level}.`;
+        } else if (action === "shadowing") {
+          if (!message || message === "__NEXT_SENTENCE__") {
+            taskPrompt = `Give ONE natural ${lm.name} sentence (8-15 words) suited to CEFR ${level} for pronunciation shadowing. Reply with ONLY the sentence.`;
+          } else {
+            taskPrompt = `Compare the learner's shadowing attempt "${message}" against the target sentence "${topic || "the sentence"}". Point out any pronunciation/word/grammar issue clearly and concisely in ${lm.name}, then provide the next ${lm.name} sentence at CEFR ${level}.`;
+          }
+        } else if (action === "role_play") {
+          taskPrompt = `Stay in character for the role-play scenario "${topic || "everyday situation"}". Speak naturally in ${lm.name} at CEFR ${level} and keep the scene moving.`;
+        } else {
+          taskPrompt = `Have a helpful, natural conversation with ${userName} in ${lm.name} adapted to CEFR level ${level} (vocabulary complexity, sentence length, and clarity suited to ${level}).`;
         }
 
-        const crosstalkRule = crosstalk
-          ? `Crosstalk is ON: ${userName} may speak or write in ${nativeLang} or English. Understand ${nativeLang} or English smoothly, and ALWAYS reply in natural ${tutorAccent}.`
-          : `Reply in natural ${tutorAccent}.`;
+        const systemInstruction = `You are ${activeTutor}, a ${tutorGender === "male" ? "male" : "female"} language coach on Bloom.
+Target language: ${lm.name} (code: ${lang}). Learner CEFR level: ${level}.
+Be accurate, encouraging, and free of mistakes. Write naturally in ${lm.name} unless translating into ${lm.name} for video vocabulary meanings.
+${taskPrompt}`;
 
-        const correctionRule =
-          corrections === "Gentle"
-            ? `Corrections are Gentle: Reply naturally first, then if there is a clear grammar or phrasing mistake, add a brief "💡 Tip:" at the end.`
-            : corrections === "Direct"
-            ? `Corrections are Direct: Briefly and clearly point out any grammar or phrasing mistake, then continue naturally.`
-            : `Corrections are Off: Do not correct grammar; focus purely on natural conversation.`;
+        const safeHistory = Array.isArray(history)
+          ? history.slice(-8).map(m => ({
+              role: m.role === "assistant" ? "assistant" : "user",
+              content: String(m.content || "").slice(0, 1200)
+            }))
+          : [];
 
-        const systemPrompt = `You are ${cleanName}, a human-like immersion language tutor speaking ${tutorAccent}, inside the Bloom app.
-Never call yourself "Bloom" or say you are an AI unless directly asked how the app works. Stay in character as ${cleanName} at all times.
-Target learner level: ${level}.
-${modeInstruction}
-${crosstalkRule}
-${correctionRule}
-Keep responses concise, natural, and conversational (2–4 sentences), without robotic lists unless asked.`;
-
-        const payload = {
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: message || "Hello!" }
-          ]
-        };
+        const messages = [
+          { role: "system", content: systemInstruction },
+          ...safeHistory,
+          { role: "user", content: message || "Hello" }
+        ];
 
         const models = [
           "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
@@ -72,29 +77,29 @@ Keep responses concise, natural, and conversational (2–4 sentences), without r
           "@cf/meta/llama-3.2-3b-instruct"
         ];
 
-        let replyText = "";
-        let lastError = "";
+        let reply = "";
+        let lastErr = "";
 
-        for (const modelName of models) {
+        for (const model of models) {
           try {
-            const aiResponse = await env.AI.run(modelName, payload);
-            const candidate = aiResponse?.response || aiResponse?.result || aiResponse?.output_text || "";
-            if (typeof candidate === "string" && candidate.trim()) {
-              replyText = candidate.trim();
+            const out = await env.AI.run(model, { messages });
+            const text = out?.response || out?.result || out?.output_text || "";
+            if (typeof text === "string" && text.trim()) {
+              reply = text.trim();
               break;
             }
-          } catch (err) {
-            lastError = err?.message || String(err);
+          } catch (e) {
+            lastErr = e?.message || String(e);
           }
         }
 
-        if (!replyText) {
-          return Response.json({ error: `Workers AI unavailable: ${lastError || "No model responded"}` }, { status: 500 });
+        if (!reply) {
+          return Response.json({ error: lastErr || "AI model unavailable" }, { status: 500 });
         }
 
-        return Response.json({ reply: replyText, tutor: cleanName });
+        return Response.json({ reply, tutor: activeTutor, gender: tutorGender, lang, level });
       } catch (err) {
-        return Response.json({ error: err?.message || "Invalid request" }, { status: 500 });
+        return Response.json({ error: err?.message || "Bad request" }, { status: 400 });
       }
     }
 

@@ -13,7 +13,6 @@
       --bg-surface: #FFFFFF;
       --bg-sky-soft: #E5F1FF;
       --primary: #0284C7;
-      --primary-dark: #0369A1;
       --primary-deep: #0C4A6E;
       --accent-ice: #38BDF8;
       --success: #0D9488;
@@ -293,7 +292,7 @@
     <script src="https://youtube.com"></script>
   <script>
     const LANG_LOCALE = { en: 'en-US', de: 'de-DE', fr: 'fr-FR', es: 'es-ES' };
-    const savedRaw = JSON.parse(localStorage.getItem('bloom_v3_state') || 'null') || {};
+    const savedRaw = JSON.parse(localStorage.getItem('bloom_v4_state') || 'null') || {};
     const state = {
       user: savedRaw.user || null,
       lang: savedRaw.lang || 'en',
@@ -308,12 +307,12 @@
     };
 
     let speakMode = 'general', chatHistory = [], lastTutorText = '', lastAudioUrl = null, currentAudio = null;
-    let isRecording = false, isRealCall = false, recognition = null, recCountdown = null, recSecLeft = 120;
+    let isRecording = false, isRealCall = false, recCountdown = null, recSecLeft = 120;
     let authMode = 'signin', gmailFastMode = false, ytPlayer = null, ytTimer = null;
-    let speechRate = 1.0, silenceTimer = null, accumulatedTranscript = '', isTutorSpeaking = false;
+    let speechRate = 1.0, isTutorSpeaking = false;
 
     function saveState() {
-      localStorage.setItem('bloom_v3_state', JSON.stringify(state));
+      localStorage.setItem('bloom_v4_state', JSON.stringify(state));
       renderTopStats();
       if (state.user && state.user.email) {
         fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'sync', email: state.user.email, progress: state }) }).catch(() => {});
@@ -367,7 +366,7 @@
       const finishSpeech = () => {
         isTutorSpeaking = false;
         if (btnInt) btnInt.style.display = 'none';
-        if (statusEl) statusEl.textContent = isRealCall ? 'Listening... Speak as long as you want' : 'Voice Ready';
+        if (statusEl) statusEl.textContent = isRealCall ? 'Hands-Free Call • Speak as long as you want...' : 'Voice Ready';
         if (onDone) onDone();
       };
 
@@ -409,72 +408,7 @@
       if (data.speechRate) speechRate = Number(data.speechRate) || speechRate;
       return data.reply;
     }
-        function updateTimerUI(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, '0');
-      const s = String(sec % 60).padStart(2, '0');
-      document.getElementById('speakTimerDisplay').textContent = m + ':' + s;
-    }
-
-    function stopRecorderTimer() {
-      if (recCountdown) { clearInterval(recCountdown); recCountdown = null; }
-      recSecLeft = 120;
-      updateTimerUI(120);
-    }
-
-    async function handleUserSpokenText(text) {
-      if (!text || !text.trim()) return;
-      chatHistory.push({ role: 'user', text });
-      document.getElementById('suggestionsBox').style.display = 'none';
-      document.getElementById('voiceStatusPill').textContent = state.tutorName + ' is thinking...';
-      try {
-        const vid = state.videos.find(v => v.id === state.activeVideoId);
-        const reply = await callBloomAI({
-          action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
-          message: text,
-          videoTitle: vid ? vid.title : '',
-          videoContext: vid ? vid.transcript : ''
-        });
-        chatHistory.push({ role: 'assistant', text: reply });
-        document.getElementById('latestTutorNote').textContent = reply;
-        state.speakSec += 20;
-        saveState();
-        speakHumanVoice(reply, () => { if (isRealCall) startListening(true); });
-      } catch (err) {
-        document.getElementById('voiceStatusPill').textContent = 'Error: ' + err.message;
-      }
-    }
-
-    function finalizeUserSpeech(autoLoop) {
-      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
-      isRecording = false;
-      stopRecorderTimer();
-      document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
-      if (recognition) { try { recognition.onend = null; recognition.stop(); } catch (_) {} }
-      const spoken = accumulatedTranscript.trim();
-      accumulatedTranscript = '';
-      if (spoken) handleUserSpokenText(spoken);
-      else if (isRealCall && autoLoop) startListening(true);
-    }
-
-    function startListening(autoLoop = false) {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { document.getElementById('voiceStatusPill').textContent = 'Speech recognition not supported on this browser.'; return; }
-      if (recognition) { try { recognition.onend = null; recognition.abort(); } catch (_) {} }
-      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
-      accumulatedTranscript = '';
-      recognition = new SR();
-      recognition.lang = LANG_LOCALE[state.lang] || 'en-US';
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      isRecording = true;
-
-      if (!autoLoop) {
-        document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
-        document.getElementById('voiceStatusPill').textContent = 'Recording (up to 2m)... Tap "Stop & Send" when finished';
-        recSecLeft = 120;
-        updateTimerUI(120);
-        recCountdown = setInterval(() => {
-    let mediaStream = null, mediaRecorder = null, audioChunks = [], vadInterval = null, audioCtx = null;
+        let mediaStream = null, mediaRecorder = null, audioChunks = [], vadInterval = null, audioCtx = null;
 
     function updateTimerUI(sec) {
       const m = String(Math.floor(sec / 60)).padStart(2, '0');
@@ -509,20 +443,13 @@
         });
         const vid = state.videos.find(v => v.id === state.activeVideoId);
         const res = await fetch('/api/bloom', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            lang: state.lang,
-            tutorName: state.tutorName,
-            tutorGender: state.tutorGender,
-            correctionMode: state.correctionMode,
-            speechRate,
-            history: chatHistory,
+            lang: state.lang, tutorName: state.tutorName, tutorGender: state.tutorGender,
+            correctionMode: state.correctionMode, speechRate, history: chatHistory,
             action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
-            audioBase64: base64,
-            audioMime: mimeType || 'audio/webm',
-            videoTitle: vid ? vid.title : '',
-            videoContext: vid ? vid.transcript : ''
+            audioBase64: base64, audioMime: mimeType || 'audio/webm',
+            videoTitle: vid ? vid.title : '', videoContext: vid ? vid.transcript : ''
           })
         });
         const data = await res.json();
@@ -545,7 +472,7 @@
       audioChunks = [];
       try {
         mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (err) {
+      } catch (_) {
         document.getElementById('voiceStatusPill').textContent = 'Microphone permission denied — please allow mic access.';
         return;
       }
@@ -568,7 +495,7 @@
 
       if (!autoLoop) {
         document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
-        document.getElementById('voiceStatusPill').textContent = 'Recording (up to 2m)... Speak freely, tap "Stop & Send" when done';
+        document.getElementById('voiceStatusPill').textContent = 'Recording (up to 2m)... Tap "Stop & Send" when done';
         recSecLeft = 120;
         updateTimerUI(120);
         recCountdown = setInterval(() => {
@@ -579,22 +506,19 @@
       } else {
         document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
         document.getElementById('voiceStatusPill').textContent = 'Hands-Free Call • Speak as long as you want...';
-        // Voice Activity Detection: wait until user speaks, then auto-send after 2.6s of silence
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const src = audioCtx.createMediaStreamSource(mediaStream);
         const analyser = audioCtx.createAnalyser();
         analyser.fftSize = 512;
         src.connect(analyser);
         const dataArr = new Uint8Array(analyser.frequencyBinCount);
-        let hasSpoken = false;
-        let lastSoundTime = Date.now();
+        let hasSpoken = false, lastSoundTime = Date.now();
 
         vadInterval = setInterval(() => {
           analyser.getByteFrequencyData(dataArr);
           let sum = 0;
           for (let i = 0; i < dataArr.length; i++) sum += dataArr.at(i);
-          const avg = sum / dataArr.length;
-          if (avg > 14) {
+          if ((sum / dataArr.length) > 14) {
             hasSpoken = true;
             lastSoundTime = Date.now();
             document.getElementById('voiceStatusPill').textContent = 'Hearing you... Keep speaking as long as you want';
@@ -606,11 +530,8 @@
     }
 
     function toggleRecordTurn() {
-      if (isRecording && !isRealCall && mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-      } else if (!isRealCall) {
-        startListening(false);
-      }
+      if (isRecording && !isRealCall && mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+      else if (!isRealCall) startListening(false);
     }
 
     async function toggleRealCall() {
@@ -625,8 +546,7 @@
           const greet = await callBloomAI({
             action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
             message: speakMode === 'video' ? '__START_VIDEO_TALK__' : '__GREET__',
-            videoTitle: vid ? vid.title : '',
-            videoContext: vid ? vid.transcript : ''
+            videoTitle: vid ? vid.title : '', videoContext: vid ? vid.transcript : ''
           });
           chatHistory.push({ role: 'assistant', text: greet });
           document.getElementById('latestTutorNote').textContent = greet;
@@ -647,7 +567,6 @@
         document.getElementById('voiceStatusPill').textContent = 'Call ended';
       }
     }
-
         async function getReplySuggestions() {
       const box = document.getElementById('suggestionsBox');
       box.style.display = 'block';

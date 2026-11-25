@@ -130,36 +130,40 @@ function parseTutorEnvelope(raw, fallbackRate = 1.0) {
 
 
 
-async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {
-  let lastErr = '';
+async function runLLM(env, systemPrompt, userPrompt, history = []) {
+  const errors = [];
   if (env.GEMINI_API_KEY) {
     const geminiModels = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
     for (const model of geminiModels) {
       try {
         return await callGemini(env.GEMINI_API_KEY, model, systemPrompt, userPrompt, history);
       } catch (err) {
-        lastErr = err && err.message ? err.message : 'Gemini busy';
+        errors.push(model + ': ' + (err && err.message ? err.message : 'failed'));
       }
     }
+  } else {
+    errors.push('No GEMINI_API_KEY');
   }
+
   if (env.AI && typeof env.AI.run === 'function') {
     const messages = [
       { role: 'system', content: systemPrompt },
       ...history.map((h) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.text })),
       { role: 'user', content: userPrompt }
     ];
-    const cfModels = ['@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/meta/llama-3.2-3b-instruct', '@cf/google/gemma-3-12b-it'];
+    const cfModels = ['@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/meta/llama-3.1-8b-instruct-fast', '@cf/meta/llama-3.2-3b-instruct'];
     for (const cfModel of cfModels) {
       try {
         const res = await env.AI.run(cfModel, { messages });
         if (res && res.response) return res.response.trim();
       } catch (err) {
-        lastErr = err && err.message ? err.message : lastErr;
+        errors.push(cfModel + ': ' + (err && err.message ? err.message : 'failed'));
       }
     }
   }
-  throw new Error(lastErr || 'AI tutors are temporarily busy. Please try again.');
+  throw new Error(errors.slice(0, 2).join(' | ') || 'AI tutors busy');
 }
+
 
 async function callGemini(apiKey, model, systemPrompt, userPrompt, history = []) {
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');

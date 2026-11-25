@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloom — English Immersion</title>
+  <script src="https://tailwindcss.com"></script>
+  <script src="https://unpkg.com"></script>
+  <style>
+    body {
+      background-color: #F5F4EE;
+      color: #1E4638;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="pb-24 min-h-screen">
+
+  <!-- Top Floating Bar -->
+  <header class="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#F5F4EE]/90 backdrop-blur-sm max-w-2xl mx-auto">
+    <div class="font-bold text-xl tracking-tight flex items-center gap-1.5">
+      <span class="text-2xl">🌸</span> Bloom
+    </div>
+
+    <!-- Daily Goal Pill -->
+    <div class="flex items-center gap-3 bg-white px-4 py-1.5 rounded-full shadow-sm border border-stone-200/60">
+      <span id="goalText" class="text-xs font-semibold text-stone-600">0/60 min</span>
+      <div class="w-24 h-2 bg-stone-200 rounded-full overflow-hidden">
+        <div id="goalBar" class="h-full bg-[#65A30D] transition-all" style="width: 0%"></div>
+      </div>
+      <button onclick="addMinutes(10)" title="Add 10 min" class="text-stone-500 hover:text-[#1E4638]">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Streak Pill -->
+    <div class="flex items-center gap-1 bg-white px-3 py-1.5 rounded-full shadow-sm border border-stone-200/60 text-sm font-bold">
+      <i data-lucide="flame" class="w-4 h-4 text-orange-500 fill-orange-500"></i>
+      <span id="streakCount">0</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="appContent" class="max-w-2xl mx-auto px-4 pt-3">
+    <!-- Loaded dynamically by JS -->
+  </main>
+
+  <!-- Bottom 5-Tab Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-stone-200/80 py-2 px-4 z-20">
+    <div class="max-w-2xl mx-auto flex justify-around items-center">
+      <button onclick="switchTab('home')" id="tab-home" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span class="text-[11px]">Home</span>
+      </button>
+      <button onclick="switchTab('watch')" id="tab-watch" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
+        <i data-lucide="play" class="w-5 h-5"></i>
+        <span class="text-[11px]">Watch</span>
+      </button>
+      <button onclick="switchTab('learn')" id="tab-learn" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+        <span class="text-[11px]">Learn</span>
+      </button>
+      <button onclick="switchTab('speak')" id="tab-speak" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl bg-[#E6EFEA] text-[#1E4638] font-bold">
+        <i data-lucide="message-square" class="w-5 h-5"></i>
+        <span class="text-[11px]">Speak</span>
+      </button>
+      <button onclick="switchTab('progress')" id="tab-progress" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
+        <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+        <span class="text-[11px]">More</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    let minutesToday = 0;
+    const dailyGoal = 60;
+
+    function addMinutes(mins) {
+      minutesToday += mins;
+      document.getElementById('goalText').innerText = `${minutesToday}/${dailyGoal} min`;
+      document.getElementById('goalBar').style.width = `${Math.min(100, (minutesToday / dailyGoal) * 100)}%`;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.className = "nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500";
+      });
+      document.getElementById(`tab-${tab}`).className = "nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl bg-[#E6EFEA] text-[#1E4638] font-bold";
+
+      const main = document.getElementById('appContent');
+      if (tab === 'speak') {
+        main.innerHTML = `
+          <div class="text-center mb-4">
+            <p class="text-xs uppercase tracking-widest text-stone-400 font-semibold">AI Tutor</p>
+            <h1 class="text-lg font-bold mt-1">🇬🇧 Bloom Tutor</h1>
+          </div>
+          <div class="space-y-3">
+            ${[
+              { title: "General Conversation", desc: "Choose any topic to improve your speaking", icon: "message-square" },
+              { title: "Role Play", desc: "Practice a real-life situation", icon: "users" },
+              { title: "Discuss a Video", desc: "Master the topic and vocabulary", icon: "video" },
+              { title: "Shadowing", desc: "Listen and repeat to improve pronunciation", icon: "repeat" },
+              { title: "Exercises", desc: "Speaking exercises with words from your vocab garden", icon: "dumbbell" }
+            ].map(item => `
+              <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200/50 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="p-2.5 rounded-xl bg-[#F5F4EE] text-[#65A30D]">
+                    <i data-lucide="${item.icon}" class="w-6 h-6"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-base">${item.title}</h3>
+                    <p class="text-xs text-stone-500 mt-0.5">${item.desc}</p>
+                  </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-5 h-5 text-stone-400"></i>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        main.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl shadow-sm text-center">
+            <h2 class="font-bold text-lg capitalize">${tab} Section</h2>
+            <p class="text-sm text-stone-500 mt-1">Ready for Step 3!</p>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    switchTab('speak');
+  </script>
+</body>
+</html>

@@ -131,8 +131,8 @@ async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = 
 
 async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expectJson = false) {
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');
-  const endpoint = 'https://' + host + '/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(apiKey);
-  const contents = [];
+  const endpoint = 'https://' + host + '/v1beta/models/gemini-3.8-flash:generateContent?key=' + encodeURIComponent(apiKey);
+const contents = [];
 
   for (const turn of history) {
     if (turn && turn.text) {
@@ -175,7 +175,8 @@ async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expect
 async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 'en') {
   const voiceName = tutorGender === 'female' ? 'Aoede' : 'Charon';
   const cleanText = text.replace(/[*#_`~]/g, '').trim();
-  const models = ['gemini-2.5-flash-preview-tts', 'gemini-2.5-flash'];
+  const models = ['gemini-3.8-flash', 'gemini-2.5-flash-preview-tts'];
+
 
   for (const model of models) {
     try {

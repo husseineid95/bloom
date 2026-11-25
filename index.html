@@ -255,4 +255,68 @@ function reviewFlashcardWithRating(term, rating) {
   addSpeakMin(1);
   openLearnTool('flashcards');
 }
+ // Explicit Real Call state machine so audio never overlaps or loops unintentionally
+const CALL_STATE = { IDLE: 'IDLE', SPEAKING: 'SPEAKING', THINKING: 'THINKING', LISTENING: 'LISTENING' };
+let callState = CALL_STATE.IDLE;
+
+function setCallState(nextState) {
+  callState = nextState;
+  const lbl = document.getElementById('realCallLabel');
+  if (!lbl) return;
+  if (callState === CALL_STATE.IDLE) lbl.textContent = 'Real Call';
+  else lbl.textContent = `In Call (${callState.toLowerCase()}) • End`;
+}
+
+function validateWordChain(startWord, spokenText) {
+  const tokens = String(spokenText || '')
+    .toLowerCase()
+    .replace(/[^a-zäöüßéèêàçñ\s-]/gi, ' ')
+    .split(/\s+/)
+    .map(w => w.trim())
+    .filter(Boolean);
+
+  if (!tokens.length) return { validCount: 0, chainSummary: 'No words detected.' };
+  let prevLast = String(startWord || '').trim().slice(-1).toLowerCase();
+  const linked = [];
+  for (const tok of tokens) {
+    if (!prevLast || tok.startsWith(prevLast)) {
+      linked.push(tok);
+      prevLast = tok.slice(-1);
+    }
+  }
+  return {
+    validCount: linked.length,
+    chainSummary: linked.length ? `Valid chain (${linked.length}): ${linked.join(' → ')}` : 'No words matched the starting-letter chain rule.'
+  };
+}
+
+async function handleRealCallToggle() {
+  if (callState !== CALL_STATE.IDLE) {
+    setCallState(CALL_STATE.IDLE);
+    stopAllAudioAndVideo();
+    return;
+  }
+  setCallState(CALL_STATE.LISTENING);
+  startTimedVoiceCapture(120, 'speakTextInput', async (spoken) => {
+    if (callState === CALL_STATE.IDLE || !spoken) {
+      if (callState !== CALL_STATE.IDLE) setCallState(CALL_STATE.IDLE);
+      return;
+    }
+    setCallState(CALL_STATE.THINKING);
+    await sendSpeakMessage(spoken);
+    if (callState !== CALL_STATE.IDLE) {
+      setCallState(CALL_STATE.SPEAKING);
+      const lastMsg = [...speakHistory].reverse().find(m => m.role === 'assistant')?.content || '';
+      speakCoachLine(lastMsg, () => {
+        if (callState !== CALL_STATE.IDLE) {
+          setCallState(CALL_STATE.LISTENING);
+          startTimedVoiceCapture(120, 'speakTextInput', (nextSpoken) => {
+            if (nextSpoken && callState !== CALL_STATE.IDLE) sendSpeakMessage(nextSpoken);
+            else if (callState !== CALL_STATE.IDLE) setCallState(CALL_STATE.IDLE);
+          });
+        }
+      });
+    }
+  });
+}
     

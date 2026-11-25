@@ -129,7 +129,7 @@ async function handleBloomAction(body = {}, env) {
     : 'Learner said in ' + langName + ': "' + (body.message || '') + '". Reply professionally and naturally like a real human tutor in ' + langName + ' (2-3 spoken sentences) and keep the dialogue flowing.';
 
   return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
-}
+
 async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {
   let lastErr = '';
   if (env.GEMINI_API_KEY) {

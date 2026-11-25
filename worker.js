@@ -114,13 +114,14 @@ async function handleBloomAction(body = {}, env) {
   return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
 }
 async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {
+  let lastErr = '';
   if (env.GEMINI_API_KEY) {
-    const geminiModels = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+    const geminiModels = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash-lite'];
     for (const model of geminiModels) {
       try {
         return await callGemini(env.GEMINI_API_KEY, model, systemPrompt, userPrompt, history, expectJson);
       } catch (err) {
-        // Automatically fail over to next model on high demand, 429, 503, or model availability error
+        lastErr = err && err.message ? err.message : 'Gemini busy';
       }
     }
   }
@@ -130,11 +131,19 @@ async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = 
       ...history.map((h) => ({ role: h.role === 'assistant' ? 'assistant' : 'user', content: h.text })),
       { role: 'user', content: userPrompt }
     ];
-    const res = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', { messages });
-    if (res && res.response) return res.response.trim();
+    const cfModels = ['@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/meta/llama-3.2-3b-instruct', '@cf/qwen/qwen2.5-7b-instruct-fp8'];
+    for (const cfModel of cfModels) {
+      try {
+        const res = await env.AI.run(cfModel, { messages });
+        if (res && res.response) return res.response.trim();
+      } catch (err) {
+        lastErr = err && err.message ? err.message : lastErr;
+      }
+    }
   }
-  throw new Error('All AI providers are temporarily busy. Please try again in a moment.');
+  throw new Error(lastErr || 'AI tutors are temporarily busy. Please tap again.');
 }
+
 
 async function callGemini(apiKey, model, systemPrompt, userPrompt, history = [], expectJson = false) {
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');

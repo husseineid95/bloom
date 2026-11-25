@@ -164,11 +164,20 @@
     .msg-actions { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--forest); }
     .msg-actions span { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: var(--bg-soft); padding: 3px 8px; border-radius: 999px; }
 
+    .listening-bar {
+      display: none; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 14px; background: var(--bg-green-tint); border-top: 1px solid var(--border);
+      font-size: 12px; font-weight: 700; color: var(--forest);
+    }
+    .listening-bar.active { display: flex; }
+
     .chat-input-bar { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--border); background: var(--bg-card); }
     .chat-input-bar input { flex: 1; border: 1px solid var(--border); border-radius: 999px; padding: 10px 16px; font-family: inherit; font-size: 14px; outline: none; }
     .icon-circle-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-soft); color: var(--forest); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
     .icon-circle-btn.recording { background: #EF4444; color: #FFF; border-color: #EF4444; }
-
+  </style>
+</head>
+  <style>
     .menu-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 18px; }
     .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; font-weight: 600; }
     .menu-item:last-child { border-bottom: none; }
@@ -229,7 +238,7 @@
           <div class="banner-icon"><i data-lucide="sparkles" size="18"></i></div>
           <div>
             <div style="font-size: 14px; font-weight: 700;">Easier ways to learn English</div>
-            <div style="font-size: 12px; color: var(--forest); text-decoration: underline; cursor: pointer;" onclick="switchTab('speak')">Try Crosstalk & Voice AI Tutor</div>
+            <div style="font-size: 12px; color: var(--forest); text-decoration: underline; cursor: pointer;" onclick="switchTab('speak')">Up to 2 min speaking window & natural voice</div>
           </div>
         </div>
         <button style="background:none;border:none;cursor:pointer;color:var(--text-muted);" onclick="document.getElementById('welcomeBanner').style.display='none'">
@@ -244,20 +253,11 @@
       <p class="subtitle">Watch the video, learn the words, then speak.</p>
 
       <div class="lesson-steps">
-        <div class="step-node active" id="stepNode1" onclick="setLessonStep(1)">
-          <div class="step-circle"><i data-lucide="play" size="24"></i></div>
-          <span class="step-label">1. Watch</span>
-        </div>
+        <div class="step-node active" id="stepNode1" onclick="setLessonStep(1)"><div class="step-circle"><i data-lucide="play" size="24"></i></div><span class="step-label">1. Watch</span></div>
         <div class="step-line" id="stepLine1"></div>
-        <div class="step-node" id="stepNode2" onclick="setLessonStep(2)">
-          <div class="step-circle"><i data-lucide="book-open" size="24"></i></div>
-          <span class="step-label">2. Learn</span>
-        </div>
+        <div class="step-node" id="stepNode2" onclick="setLessonStep(2)"><div class="step-circle"><i data-lucide="book-open" size="24"></i></div><span class="step-label">2. Learn</span></div>
         <div class="step-line" id="stepLine2"></div>
-        <div class="step-node" id="stepNode3" onclick="setLessonStep(3)">
-          <div class="step-circle"><i data-lucide="message-square" size="24"></i></div>
-          <span class="step-label">3. Speak</span>
-        </div>
+        <div class="step-node" id="stepNode3" onclick="setLessonStep(3)"><div class="step-circle"><i data-lucide="message-square" size="24"></i></div><span class="step-label">3. Speak</span></div>
       </div>
 
       <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
@@ -266,9 +266,7 @@
       </div>
 
       <div class="current-video-card">
-        <div class="video-embed-wrap">
-          <iframe id="currentVideoFrame" src="https://www.youtube.com/embed/aqz-KE-bpKQ" allowfullscreen></iframe>
-        </div>
+        <div class="video-embed-wrap"><iframe id="currentVideoFrame" src="https://www.youtube.com/embed/aqz-KE-bpKQ" allowfullscreen></iframe></div>
         <div style="padding: 18px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
           <div>
             <span style="font-size:11px;font-weight:800;color:var(--forest);background:var(--bg-green-tint);padding:4px 10px;border-radius:999px;" id="currentVideoLevel">B2 Level</span>
@@ -300,10 +298,7 @@
           <div class="switch" id="hideWatchedSwitch"></div>
           <span>Hide watched</span>
         </label>
-        <div class="search-wrap">
-          <i data-lucide="search"></i>
-          <input type="text" class="search-input" id="videoSearchInput" placeholder="Search videos..." oninput="renderVideos()" />
-        </div>
+        <div class="search-wrap"><i data-lucide="search"></i><input type="text" class="search-input" id="videoSearchInput" placeholder="Search videos..." oninput="renderVideos()" /></div>
       </div>
       <div class="video-grid" id="videoGrid"></div>
     </section>
@@ -313,7 +308,6 @@
         <h1 class="page-title">Learn</h1>
         <button class="icon-circle-btn" onclick="switchTab('more')"><i data-lucide="settings" size="18"></i></button>
       </div>
-
       <div style="margin: 12px 0 18px;">
         <div class="pill-toggle">
           <button class="active" id="learnSubPractice" onclick="toggleLearnSub('practice')">Practice</button>
@@ -353,12 +347,9 @@
         </div>
       </div>
 
-      <div id="learnHistoryView" style="display:none;">
-        <div class="card" id="sessionHistoryList"></div>
-      </div>
-    </section>
-
-    <section id="tab-speak" class="tab-view">
+      <div id="learnHistoryView" style="display:none;"><div class="card" id="sessionHistoryList"></div></div>
+                                                                                                          </section>
+                                                                                                              <section id="tab-speak" class="tab-view">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div class="pill-toggle">
           <button class="active" onclick="closeChatPanel()">New</button>
@@ -395,12 +386,21 @@
             <div style="font-weight:800;font-size:14px;color:var(--forest);" id="chatModeTitle">General Conversation</div>
             <div style="font-size:11px;color:var(--text-muted);" id="chatSettingsBadge"></div>
           </div>
-          <button class="btn-pill" style="padding:6px 12px;font-size:12px;" onclick="endChatSession()">End & Log (+5m)</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-pill" style="padding:6px 10px;font-size:11px;" id="autoVoiceBtn" onclick="toggleAutoVoice()">🔊 Auto Voice: ON</button>
+            <button class="btn-pill" style="padding:6px 12px;font-size:12px;" onclick="endChatSession()">End (+5m)</button>
+          </div>
         </div>
         <div class="chat-messages" id="chatMessages"></div>
+
+        <div class="listening-bar" id="listeningBar">
+          <span id="listeningTimerText">🎙️ Your floor is open (0s / 120s max) — take your time!</span>
+          <button class="btn-pill btn-lime" style="padding:5px 12px;font-size:12px;" onclick="finishSpeakingNow()">Done Speaking →</button>
+        </div>
+
         <div class="chat-input-bar">
-          <button class="icon-circle-btn" id="micBtn" onclick="toggleVoiceInput()"><i data-lucide="mic" size="18"></i></button>
-          <input type="text" id="chatInput" placeholder="Type or tap mic (English or Arabic)..." onkeydown="if(event.key==='Enter') sendChatMessage()" />
+          <button class="icon-circle-btn" id="micBtn" onclick="toggleVoiceInput()" title="Speak up to 2 minutes without interruption"><i data-lucide="mic" size="18"></i></button>
+          <input type="text" id="chatInput" placeholder="Tap mic (up to 2 min) or type in English/Arabic..." onkeydown="if(event.key==='Enter') sendChatMessage()" />
           <button class="icon-circle-btn" style="background:var(--lime);color:var(--forest-dark);border-color:var(--lime);" onclick="sendChatMessage()"><i data-lucide="send" size="18"></i></button>
         </div>
       </div>
@@ -421,7 +421,7 @@
       <h2 style="font-size:18px;font-weight:800;color:var(--forest);margin:18px 0 10px;">Settings for learning English</h2>
       <div class="menu-card">
         <div class="menu-item"><span>AI Transcript</span><select class="filter-select" id="settingTranscript" onchange="saveSettings()"><option value="always">Always visible</option><option value="click">Click to show</option></select></div>
-        <div class="menu-item"><span>AI Voice Speed</span><select class="filter-select" id="settingSpeed" onchange="saveSettings()"><option value="0.85">Relaxed (0.85x)</option><option value="1.0" selected>Normal (1.0x)</option><option value="1.15">Faster (1.15x)</option></select></div>
+        <div class="menu-item"><span>AI Voice Speed</span><select class="filter-select" id="settingSpeed" onchange="saveSettings()"><option value="0.88">Relaxed (0.88x)</option><option value="0.96" selected>Natural (0.96x)</option><option value="1.06">Lively (1.06x)</option></select></div>
         <div class="menu-item" onclick="toggleCrosstalkSetting()"><div><div>Crosstalk</div><div style="font-size:11px;color:var(--text-muted);font-weight:400;">Tutor speaks English, you reply in Arabic or English.</div></div><div class="switch on" id="crosstalkSwitch"></div></div>
         <div class="menu-item"><span>Corrections</span><select class="filter-select" id="settingCorrections" onchange="saveSettings()"><option value="Gentle" selected>Gentle</option><option value="Direct">Direct</option><option value="Off">Off</option></select></div>
         <div class="menu-item" onclick="editDailyGoal()"><span>Daily goal</span><span style="text-decoration:underline;color:var(--forest);font-weight:700;" id="dailyGoalLabel">60 min / day</span></div>
@@ -470,7 +470,7 @@
     <button class="nav-btn" id="nav-more" onclick="switchTab('more')"><div class="nav-icon-pill"><i data-lucide="more-horizontal" size="20"></i></div><span>More</span></button>
   </nav>
 
-    <div class="modal-backdrop" id="outsideModal">
+  <div class="modal-backdrop" id="outsideModal">
     <div class="modal-card">
       <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Add Time Outside Bloom</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('outsideModal')"><i data-lucide="x"></i></button></div>
       <div class="activity-type-grid">
@@ -548,12 +548,20 @@
       userName: 'Hussein', dailyGoal: 60, todayMinutes: 0, totalMinutes: 48000,
       streak: 1, activeDays: [new Date().getDate()],
       tutor: { name: 'Jay-i 🇬🇧', initial: 'J', voice: 'en-GB' },
-      settings: { transcript: 'always', speed: '1.0', crosstalk: true, corrections: 'Gentle', nativeLang: 'Arabic' },
+      settings: { transcript: 'always', speed: '0.96', crosstalk: true, corrections: 'Gentle', nativeLang: 'Arabic', autoVoice: true },
       videos: DEFAULT_VIDEOS, currentVideo: DEFAULT_VIDEOS[0], words: DEFAULT_WORDS,
       outsideLogs: [], sessionHistory: []
     };
+    if (typeof state.settings.autoVoice !== 'boolean') state.settings.autoVoice = true;
 
     let hideWatched = false, selectedOutsideType = 'Watching', currentChatMode = 'general', flashcardIndex = 0;
+
+    // 2-minute continuous speaking controller (prevents early cutoffs on pauses)
+    let activeRecognition = null;
+    let isListeningSession = false;
+    let listenSeconds = 0;
+    let listenTicker = null;
+    let collectedTranscript = '';
 
     function saveState() { localStorage.setItem('bloom_app_state', JSON.stringify(state)); updateAllUI(); }
     function switchTab(tabName) {
@@ -682,6 +690,12 @@
     function toggleTutorMenu() { document.getElementById('tutorDropdown').classList.toggle('open'); }
     function selectTutor(name, initial, voice) { state.tutor = { name, initial, voice }; document.getElementById('tutorDropdown').classList.remove('open'); saveState(); }
 
+    function toggleAutoVoice() {
+      state.settings.autoVoice = !state.settings.autoVoice;
+      if (!state.settings.autoVoice && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+      saveState();
+    }
+
     const MODE_TITLES = { general: 'General Conversation', role_play: 'Role Play', discuss_video: 'Discuss a Video', shadowing: 'Shadowing', exercises: 'Exercises' };
     function launchSpeakMode(mode, starterMessage = null) {
       currentChatMode = mode;
@@ -693,7 +707,13 @@
       sendChatMessage(starterMessage || `Hi ${state.tutor.name.split(' ')[0]}! Let's start ${MODE_TITLES[mode]}.`, true);
     }
 
-    function closeChatPanel() { document.getElementById('liveChatPanel').classList.remove('active'); document.getElementById('speakModesList').style.display = 'block'; }
+    function closeChatPanel() {
+      stopListeningSession(false);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      document.getElementById('liveChatPanel').classList.remove('active');
+      document.getElementById('speakModesList').style.display = 'block';
+    }
+
     function endChatSession() {
       addImmersionMinutes(5);
       state.sessionHistory.unshift({ mode: MODE_TITLES[currentChatMode], date: new Date().toLocaleDateString(), tutor: state.tutor.name });
@@ -701,6 +721,7 @@
     }
 
     async function sendChatMessage(overrideText = null, isAutoStarter = false) {
+      stopListeningSession(false);
       const input = document.getElementById('chatInput');
       const text = overrideText || input.value.trim();
       if (!text) return;
@@ -725,31 +746,152 @@
         const hidden = state.settings.transcript === 'click';
         document.getElementById(loadingId).innerHTML = `
           <div style="${hidden ? 'filter:blur(5px);cursor:pointer;' : ''}" onclick="this.style.filter='none'">${escapeHtml(reply)}</div>
-          <div class="msg-actions"><span onclick="speakText(${JSON.stringify(reply)})">🔊 Listen</span>${hidden ? `<span onclick="this.parentElement.previousElementSibling.style.filter='none'">👁 Show</span>` : ''}</div>
+          <div class="msg-actions"><span onclick="speakText(${JSON.stringify(reply)}, true)">🔊 Listen</span>${hidden ? `<span onclick="this.parentElement.previousElementSibling.style.filter='none'">👁 Show</span>` : ''}</div>
         `;
-        speakText(reply);
+        if (state.settings.autoVoice) speakText(reply, false);
       } catch (e) {
         document.getElementById(loadingId).textContent = 'Check /api/speak in your Cloudflare Worker.';
       }
       box.scrollTop = box.scrollHeight;
     }
 
-    function speakText(text) {
+    // Pick a more natural / human-sounding voice when available
+    function pickNaturalVoice(langPref) {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices() || [];
+      if (!voices.length) return null;
+
+      const langCode = (langPref || 'en-GB').slice(0, 2).toLowerCase();
+      const matching = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langCode));
+      const pool = matching.length ? matching : voices;
+
+      // Prefer neural / natural / enhanced / Google voices over basic robotic ones
+      const naturalScored = pool.map(v => {
+        const label = `${v.name} ${v.voiceURI}`.toLowerCase();
+        let score = 0;
+        if (label.includes('natural') || label.includes('neural') || label.includes('premium') || label.includes('enhanced')) score += 5;
+        if (label.includes('google')) score += 3;
+        if (label.includes('siri') || label.includes('daniel') || label.includes('serena') || label.includes('oliver') || label.includes('ava')) score += 2;
+        if (v.localService === false) score += 1;
+        return { voice: v, score };
+      }).sort((a, b) => b.score - a.score);
+
+      return naturalScored[0]?.voice || null;
+    }
+
+    function speakText(text, force = true) {
       if (!('speechSynthesis' in window)) return;
+      if (!force && !state.settings.autoVoice) return;
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text.replace(/💡 Tip:.*/s, '').trim());
-      utter.lang = state.tutor.voice || 'en-GB'; utter.rate = parseFloat(state.settings.speed || '1.0');
+
+      const clean = text.replace(/💡 Tip:.*/s, '').trim();
+      const utter = new SpeechSynthesisUtterance(clean);
+      const chosen = pickNaturalVoice(state.tutor.voice);
+      if (chosen) utter.voice = chosen;
+      utter.lang = state.tutor.voice || 'en-GB';
+      utter.rate = parseFloat(state.settings.speed || '0.96');
+      // Slight tutor personality pitch variation
+      utter.pitch = state.tutor.initial === 'H' ? 1.06 : (state.tutor.initial === 'K' ? 0.96 : 1.0);
       window.speechSynthesis.speak(utter);
     }
 
+    if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = () => pickNaturalVoice(state.tutor.voice);
+    }
+
+    // 2-minute uninterrupted speaking window (auto-restarts on brief thinking pauses up to 120s)
     function toggleVoiceInput() {
+      if (isListeningSession) {
+        finishSpeakingNow();
+        return;
+      }
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return alert('Use keyboard or Chrome voice typing.');
-      const btn = document.getElementById('micBtn'), rec = new SR();
-      rec.lang = 'en-US'; btn.classList.add('recording');
-      rec.onresult = (e) => { document.getElementById('chatInput').value = e.results[0][0].transcript; btn.classList.remove('recording'); sendChatMessage(); };
-      rec.onerror = rec.onend = () => btn.classList.remove('recording');
-      rec.start();
+      if (!SR) return alert('Speech recognition is not supported here—you can type or use your keyboard mic.');
+
+      // Stop AI from talking over you when you start speaking
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+      isListeningSession = true;
+      listenSeconds = 0;
+      collectedTranscript = '';
+      document.getElementById('micBtn').classList.add('recording');
+      document.getElementById('listeningBar').classList.add('active');
+      updateListeningLabel();
+
+      listenTicker = setInterval(() => {
+        listenSeconds += 1;
+        updateListeningLabel();
+        if (listenSeconds >= 120) {
+          finishSpeakingNow();
+        }
+      }, 1000);
+
+      startRecognitionInstance(SR);
+    }
+
+    function startRecognitionInstance(SR) {
+      if (!isListeningSession) return;
+      const rec = new SR();
+      activeRecognition = rec;
+      rec.lang = state.settings.crosstalk ? 'en-US' : (state.tutor.voice || 'en-US');
+      rec.interimResults = true;
+      rec.continuous = true;
+
+      let segmentFinal = '';
+      rec.onresult = (event) => {
+        let interim = '';
+        segmentFinal = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const piece = event.results[i][0].transcript;
+          if (event.results[i].isFinal) segmentFinal += piece + ' ';
+          else interim += piece;
+        }
+        const combined = `${collectedTranscript} ${segmentFinal} ${interim}`.trim();
+        document.getElementById('chatInput').value = combined;
+      };
+
+      rec.onend = () => {
+        if (segmentFinal.trim()) {
+          collectedTranscript = `${collectedTranscript} ${segmentFinal}`.trim();
+        } else if (document.getElementById('chatInput').value.trim()) {
+          collectedTranscript = document.getElementById('chatInput').value.trim();
+        }
+        // Keep listening automatically if under 120 seconds so brief pauses do not cut you off!
+        if (isListeningSession && listenSeconds < 120) {
+          try { startRecognitionInstance(SR); } catch (_) { finishSpeakingNow(); }
+        }
+      };
+
+      rec.onerror = (ev) => {
+        if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+          alert('Please allow microphone permission in your browser settings.');
+          stopListeningSession(false);
+        }
+      };
+
+      try { rec.start(); } catch (_) {}
+    }
+
+    function updateListeningLabel() {
+      const el = document.getElementById('listeningTimerText');
+      if (el) el.textContent = `🎙️ Your turn (${listenSeconds}s / 120s) — pause freely, tap Done when ready`;
+    }
+
+    function stopListeningSession(clearTicker = true) {
+      isListeningSession = false;
+      if (clearTicker && listenTicker) { clearInterval(listenTicker); listenTicker = null; }
+      if (activeRecognition) {
+        try { activeRecognition.onend = null; activeRecognition.stop(); } catch (_) {}
+        activeRecognition = null;
+      }
+      document.getElementById('micBtn')?.classList.remove('recording');
+      document.getElementById('listeningBar')?.classList.remove('active');
+    }
+
+    function finishSpeakingNow() {
+      const finalText = document.getElementById('chatInput').value.trim();
+      stopListeningSession(true);
+      if (finalText) sendChatMessage(finalText);
     }
 
     function addImmersionMinutes(mins) {
@@ -816,6 +958,7 @@
       document.getElementById('currentVideoDesc').textContent = state.currentVideo.notes || '';
       document.getElementById('activeTutorName').textContent = state.tutor.name;
       document.getElementById('activeTutorAvatar').textContent = state.tutor.initial;
+      document.getElementById('autoVoiceBtn').textContent = `🔊 Auto Voice: ${state.settings.autoVoice ? 'ON' : 'OFF'}`;
       document.getElementById('profileNameDisplay').textContent = `${state.userName} ✏️`;
       document.getElementById('dailyGoalLabel').textContent = `${state.dailyGoal} min / day`;
       document.getElementById('crosstalkSwitch').classList.toggle('on', state.settings.crosstalk);

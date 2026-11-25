@@ -17,10 +17,13 @@ export default {
           : await callOpenAI(env.OPENAI_API_KEY, systemPrompt, userPrompt, expectJson);
         return json({ reply: raw });
       } catch (err) {
-        return json({ error: err.message || 'Worker error' }, 500);
+        return json({ error: err?.message || 'Worker error' }, 500);
       }
     }
-    return env.ASSETS ? env.ASSETS.fetch(request) : new Response('Not found', { status: 404 });
+    if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
+      return env.ASSETS.fetch(request);
+    }
+    return new Response('Not found', { status: 404 });
   }
 };
 
@@ -47,16 +50,16 @@ function buildPrompt(body) {
   const tutorGender = body.tutorGender || 'female';
 
   const systemPrompt = [
-    `You are ${tutorName}, a${tutorGender === 'female' ? 'woman' : 'man'} language coach inside Bloom.`,
+    `You are ${tutorName}, a ${tutorGender === 'female' ? 'woman' : 'man'} language coach inside Bloom.`,
     `Target language: ${langName}. Learner CEFR level: ${level}.`,
-    `Never chat casually in text logs or mention being an AI unless asked. Give gentle, brief corrections on mistakes in ${langName} when speaking/writing, then keep practice moving smoothly.`
+    `Focus on speaking, listening, and gentle, clear corrections on mistakes in ${langName}. Keep responses concise and natural.`
   ].join(' ');
 
   if (body.action === 'video_vocab') {
     return {
       expectJson: true,
       systemPrompt,
-      userPrompt: `Extract 6 authentic, useful vocabulary words/phrases that fit inside a ${langName}${level} video titled "${body.videoTitle \vert{}\vert{} 'Video'}" (${body.videoContext || ''}). For each item provide "term" (in ${langName}), "meaningInLang" (clear meaning in ${langName}), and "example" (natural sentence using the term in ${langName}). Return ONLY valid JSON: {"words":[{"term":"","meaningInLang":"","example":""}]}`
+      userPrompt: `Create 6 useful vocabulary items matching a ${langName} ${level} video titled "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Each object must have "term" (in ${langName}), "meaningInLang" (clear meaning in ${langName}), and "example" (natural example sentence in ${langName}). Return ONLY valid JSON: {"words":[{"term":"","meaningInLang":"","example":""}]}`
     };
   }
 
@@ -64,7 +67,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Spoken video discussion for "${body.videoTitle \vert{}\vert{} 'Video'}" (${body.videoContext || ''}). Learner said: "${body.message || ''}". Gently correct any mistake in 1 short line if needed, then respond naturally in 1-2 short spoken sentences and ask one focused follow-up question in ${langName}.`
+      userPrompt: `Spoken video discussion for "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Learner said: "${body.message || ''}". Gently correct any mistake in 1 brief line if needed, reply in 1-2 short spoken sentences, and ask one focused follow-up question in ${langName}.`
     };
   }
 
@@ -80,7 +83,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Learner described a photo (${body.topic \vert{}\vert{} ''}) in${langName} at ${level}: "${body.message || ''}". Give gentle corrections on mistakes, 2 natural phrasing upgrades, and 2 quick conversation ideas in ${langName}.`
+      userPrompt: `Learner described a photo (${body.topic || ''}) in ${langName} at ${level}: "${body.message || ''}". Give gentle corrections on mistakes, 2 natural phrasing upgrades, and 2 quick conversation ideas in ${langName}.`
     };
   }
 
@@ -88,7 +91,38 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Learner spoke on "${body.topic \vert{}\vert{} ''}" in ${langName} at ${level}: "${body.message || ''}". Provide gentle written corrections for mistakes, a clean improved version, and one next point to explore in ${langName}.`
+      userPrompt: `Learner spoke on "${body.topic || ''}" in ${langName} at ${level}: "${body.message || ''}". Provide gentle written corrections for mistakes, a clean improved version, and one next point to explore in ${langName}.`
+    };
+  }
+
+  if (body.action === 'word_link') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Word Link starting with "${body.word || ''}" in ${langName} at ${level}. Learner spoke: "${body.message || ''}". Gently note any word-linking or grammar mistakes in ${langName} and give 3 strong next words.`
+    };
+  }
+
+  if (body.action === 'shadowing') {
+    if (body.message === '__NEXT_SENTENCE__') {
+      return {
+        expectJson: false,
+        systemPrompt,
+        userPrompt: `Give ONE natural, clear ${langName} sentence at CEFR ${level} for shadowing practice. Output ONLY the sentence.`
+      };
+    }
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Target sentence: "${body.topic || ''}". Learner shadowed: "${body.message || ''}". Give a brief, gentle pronunciation or wording correction if needed, then give ONE next ${langName} sentence at ${level}.`
+    };
+  }
+
+  if (body.action === 'role_play') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Live voice role-play scenario: "${body.topic || 'Everyday situation'}" at ${level} in ${langName}. Learner said: "${body.message || ''}". Gently correct any mistake in 1 brief clause, reply in character in 1-2 short spoken sentences, and stay in the scene.`
     };
   }
 

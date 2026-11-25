@@ -474,45 +474,143 @@
         recSecLeft = 120;
         updateTimerUI(120);
         recCountdown = setInterval(() => {
+    let mediaStream = null, mediaRecorder = null, audioChunks = [], vadInterval = null, audioCtx = null;
+
+    function updateTimerUI(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      document.getElementById('speakTimerDisplay').textContent = m + ':' + s;
+    }
+
+    function stopRecorderTimer() {
+      if (recCountdown) { clearInterval(recCountdown); recCountdown = null; }
+      recSecLeft = 120;
+      updateTimerUI(120);
+    }
+
+    function cleanupMicHardware() {
+      if (vadInterval) { clearInterval(vadInterval); vadInterval = null; }
+      if (audioCtx) { try { audioCtx.close(); } catch (_) {} audioCtx = null; }
+      if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+    }
+
+    async function handleUserAudioBlob(blob, mimeType) {
+      if (!blob || blob.size < 1500) {
+        if (isRealCall) startListening(true);
+        return;
+      }
+      document.getElementById('suggestionsBox').style.display = 'none';
+      document.getElementById('voiceStatusPill').textContent = state.tutorName + ' is listening to your voice & thinking...';
+      try {
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(String(reader.result || '').split(',').at(1) || '');
+          reader.readAsDataURL(blob);
+        });
+        const vid = state.videos.find(v => v.id === state.activeVideoId);
+        const res = await fetch('/api/bloom', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lang: state.lang,
+            tutorName: state.tutorName,
+            tutorGender: state.tutorGender,
+            correctionMode: state.correctionMode,
+            speechRate,
+            history: chatHistory,
+            action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
+            audioBase64: base64,
+            audioMime: mimeType || 'audio/webm',
+            videoTitle: vid ? vid.title : '',
+            videoContext: vid ? vid.transcript : ''
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'Tutor connection failed');
+        if (data.speechRate) speechRate = Number(data.speechRate) || speechRate;
+        if (data.transcript) chatHistory.push({ role: 'user', text: data.transcript });
+        chatHistory.push({ role: 'assistant', text: data.reply });
+        document.getElementById('latestTutorNote').textContent = data.reply;
+        state.speakSec += 20;
+        saveState();
+        speakHumanVoice(data.reply, () => { if (isRealCall) startListening(true); });
+      } catch (err) {
+        document.getElementById('voiceStatusPill').textContent = 'Error: ' + err.message;
+        if (isRealCall) setTimeout(() => startListening(true), 1500);
+      }
+    }
+
+    async function startListening(autoLoop = false) {
+      cleanupMicHardware();
+      audioChunks = [];
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        document.getElementById('voiceStatusPill').textContent = 'Microphone permission denied — please allow mic access.';
+        return;
+      }
+
+      const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+      mediaRecorder = mime ? new MediaRecorder(mediaStream, { mimeType: mime }) : new MediaRecorder(mediaStream);
+      isRecording = true;
+
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+        cleanupMicHardware();
+        isRecording = false;
+        stopRecorderTimer();
+        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
+        handleUserAudioBlob(blob, blob.type);
+      };
+
+      mediaRecorder.start(250);
+
+      if (!autoLoop) {
+        document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
+        document.getElementById('voiceStatusPill').textContent = 'Recording (up to 2m)... Speak freely, tap "Stop & Send" when done';
+        recSecLeft = 120;
+        updateTimerUI(120);
+        recCountdown = setInterval(() => {
           recSecLeft -= 1;
           updateTimerUI(recSecLeft);
-          if (recSecLeft <= 0) finalizeUserSpeech(false);
+          if (recSecLeft <= 0 && mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
         }, 1000);
       } else {
         document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
-        document.getElementById('voiceStatusPill').textContent = 'Listening... Speak as long as you want';
+        document.getElementById('voiceStatusPill').textContent = 'Hands-Free Call • Speak as long as you want...';
+        // Voice Activity Detection: wait until user speaks, then auto-send after 2.6s of silence
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = audioCtx.createMediaStreamSource(mediaStream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;
+        src.connect(analyser);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        let hasSpoken = false;
+        let lastSoundTime = Date.now();
+
+        vadInterval = setInterval(() => {
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr.at(i);
+          const avg = sum / dataArr.length;
+          if (avg > 14) {
+            hasSpoken = true;
+            lastSoundTime = Date.now();
+            document.getElementById('voiceStatusPill').textContent = 'Hearing you... Keep speaking as long as you want';
+          } else if (hasSpoken && (Date.now() - lastSoundTime) > 2600) {
+            if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+          }
+        }, 150);
       }
-
-      recognition.onresult = (e) => {
-        let finalChunk = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const resItem = e.results.item(i);
-          if (resItem && resItem.isFinal) finalChunk += ' ' + resItem.item(0).transcript;
-        }
-        if (finalChunk.trim()) accumulatedTranscript += ' ' + finalChunk.trim();
-        if (autoLoop && accumulatedTranscript.trim()) {
-          if (silenceTimer) clearTimeout(silenceTimer);
-          silenceTimer = setTimeout(() => finalizeUserSpeech(true), 3500);
-        }
-      };
-
-      recognition.onend = () => {
-        if (isRecording) {
-          try { recognition.start(); } catch (_) {}
-        }
-      };
-
-      recognition.onerror = () => {
-        if (isRecording && isRealCall && autoLoop) {
-          setTimeout(() => { try { recognition.start(); } catch (_) {} }, 600);
-        }
-      };
-      recognition.start();
     }
 
     function toggleRecordTurn() {
-      if (isRecording && !isRealCall) finalizeUserSpeech(false);
-      else if (!isRealCall) startListening(false);
+      if (isRecording && !isRealCall && mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      } else if (!isRealCall) {
+        startListening(false);
+      }
     }
 
     async function toggleRealCall() {
@@ -540,14 +638,16 @@
         btn.textContent = 'Start Real Call';
         btn.className = 'btn btn-success';
         isRecording = false;
-        if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
-        if (recognition) { try { recognition.onend = null; recognition.abort(); } catch (_) {} }
+        stopRecorderTimer();
+        if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.onstop = null; mediaRecorder.stop(); }
+        cleanupMicHardware();
         if (currentAudio) { currentAudio.pause(); currentAudio = null; }
         window.speechSynthesis?.cancel();
         document.getElementById('btnInterrupt').style.display = 'none';
         document.getElementById('voiceStatusPill').textContent = 'Call ended';
       }
     }
+
         async function getReplySuggestions() {
       const box = document.getElementById('suggestionsBox');
       box.style.display = 'block';

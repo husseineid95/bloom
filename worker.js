@@ -84,7 +84,7 @@ async function handleBloomAction(body = {}, env) {
       ? 'Only if the learner makes a clear grammar error, warmly model the fix and ask them to repeat it once.'
       : correctionMode === 'none'
       ? 'Do not correct grammar at all; focus 100% on natural conversation.'
-      : 'Never nitpick valid or understandable phrasing. Only if there is an obvious grammar mistake, briefly model the natural way in 5-8 words without lecturing, then continue chatting.';
+      : 'Never nitpick valid phrasing. Only if there is an obvious grammar mistake, briefly model the natural way in 5-8 words without lecturing, then continue chatting.';
 
   const systemPrompt = [
     'You are ' + tutorName + ', a warm, friendly human conversation partner (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live phone call in Bloom.',
@@ -115,20 +115,6 @@ async function handleBloomAction(body = {}, env) {
   return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
 }
 
-
-  if (body.action === 'discuss_video') {
-    const context = (body.videoContext || '').slice(0, 3200);
-    const prompt = body.message === '__START_VIDEO_TALK__'
-      ? 'The learner just finished watching a ' + langName + ' video titled "' + (body.videoTitle || 'Video') + '". Video transcript/summary: "' + context + '". Open a thoughtful, engaging voice discussion about the core ideas or key moments in this video, and ask one insightful opening question in ' + langName + '.'
-      : 'Voice discussion on the video "' + (body.videoTitle || 'Video') + '" (context: "' + context + '"). Learner said: "' + (body.message || '') + '". Respond professionally like a real human tutor in ' + langName + ' (2-3 spoken sentences), connecting to the video themes and asking one natural follow-up question.';
-    return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
-  }
-
-  const prompt = body.message === '__GREET__'
-    ? 'Start a live voice call in ' + langName + '. Greet the learner warmly as ' + tutorName + ' and ask an engaging, natural conversation opener in ' + langName + '.'
-    : 'Learner said in ' + langName + ': "' + (body.message || '') + '". Reply professionally and naturally like a real human tutor in ' + langName + ' (2-3 spoken sentences) and keep the dialogue flowing.';
-
-  return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
 
 async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {
   let lastErr = '';

@@ -135,11 +135,12 @@ async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expect
   const contents = [];
 
   for (const turn of history) {
-    if (!turn?.text) continue;
-    contents.push({
-      role: turn.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: String(turn.text) }]
-    });
+    if (turn && turn.text) {
+      contents.push({
+        role: turn.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: String(turn.text) }]
+      });
+    }
   }
   contents.push({ role: 'user', parts: [{ text: userPrompt }] });
 
@@ -159,9 +160,9 @@ async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expect
   const rawText = await res.text();
   let data = null;
   try { data = JSON.parse(rawText); } catch (_) {
-    throw new Error('Upstream response (' + res.status + '): ' + rawText.slice(0, 120));
+    throw new Error('Upstream (' + res.status + '): ' + rawText.slice(0, 120));
   }
-  if (!res.ok) throw new Error(data?.error?.message || 'Gemini API error (' + res.status + ')');
+  if (!res.ok) throw new Error(data?.error?.message || 'Gemini error (' + res.status + ')');
   const firstCandidate = Array.isArray(data?.candidates) ? data.candidates.at(0) : null;
   const parts = Array.isArray(firstCandidate?.content?.parts) ? firstCandidate.content.parts : [];
   const text = parts.map((p) => p.text || '').join('').trim();
@@ -169,28 +170,6 @@ async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expect
   return text;
 }
 
-  contents.push({ role: 'user', parts: [{ text: userPrompt }] });
-
-  const generationConfig = { temperature: expectJson ? 0.3 : 0.75, maxOutputTokens: 350 };
-  if (expectJson) generationConfig.responseMimeType = 'application/json';
-
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      contents,
-      generationConfig
-    })
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error?.message || 'Gemini API error (' + res.status + ')');
-  const firstCandidate = Array.isArray(data?.candidates) ? data.candidates.at(0) : null;
-  const parts = Array.isArray(firstCandidate?.content?.parts) ? firstCandidate.content.parts : [];
-  const text = parts.map((p) => p.text || '').join('').trim();
-  if (!text) throw new Error('Empty response from Gemini.');
-  return text;
 
 
 async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 'en') {

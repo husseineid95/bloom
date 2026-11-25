@@ -111,9 +111,9 @@ function parseTutorEnvelope(raw, fallbackRate = 1.0) {
   }
 }
 
-async function callGeminiSmart(apiKey, systemPrompt, userPrompt, history = [], audioBase64 = null, audioMime = 'audio/webm') {
+async function callGeminiSmart(apiKey, systemPrompt, userPrompt, history = [], audioBase64 = null, audioMime = 'audio/webm', env = null) {
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');
-  const models = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash'];
+  const models = ['gemini-3.8-flash', 'gemini-3.8-flash-lite', 'gemini-3.0-flash', 'gemini-2.5-flash-lite'];
   const contents = [];
 
   for (const turn of history) {
@@ -125,23 +125,30 @@ async function callGeminiSmart(apiKey, systemPrompt, userPrompt, history = [], a
 
   let lastError = 'Gemini busy';
   for (const model of models) {
-    try {
-      const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents, generationConfig: { temperature: 0.75, maxOutputTokens: 350 } })
-      });
-      const data = await res.json();
-      if (!res.ok) { lastError = data?.error?.message || ('HTTP ' + res.status); continue; }
-      const firstCand = Array.isArray(data?.candidates) ? data.candidates.at(0) : null;
-      const parts = Array.isArray(firstCand?.content?.parts) ? firstCand.content.parts : [];
-      const text = parts.map((p) => p.text || '').join('').trim();
-      if (text) return text;
-    } catch (e) { lastError = e?.message || lastError; }
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents, generationConfig: { temperature: 0.75, maxOutputTokens: 350 } })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          lastError = data?.error?.message || ('HTTP ' + res.status);
+          if (res.status === 503 || res.status === 429) { await new Promise((r) => setTimeout(r, 450)); continue; }
+          break;
+        }
+        const firstCand = Array.isArray(data?.candidates) ? data.candidates.at(0) : null;
+        const parts = Array.isArray(firstCand?.content?.parts) ? firstCand.content.parts : [];
+        const text = parts.map((p) => p.text || '').join('').trim();
+        if (text) return text;
+      } catch (e) { lastError = e?.message || lastError; }
+    }
   }
   throw new Error(lastError);
-                              }
+}
+
 async function generateHumanSpeech(apiKey, text, tutorGender = 'female') {
   const voiceName = tutorGender === 'female' ? 'Aoede' : 'Charon';
   const cleanText = String(text || '').replace(/[*#_`~]/g, '').trim();

@@ -77,43 +77,55 @@ async function handleBloomAction(body = {}, env) {
   const tutorName = body.tutorName || 'Claire';
   const tutorGender = body.tutorGender || 'female';
   const correctionMode = body.correctionMode || 'gentle';
-  const history = Array.isArray(body.history) ? body.history.slice(-10) : [];
+  const history = Array.isArray(body.history) ? body.history.slice(-14) : [];
+  const currentRate = Number(body.speechRate) || 1.0;
 
   const correctionRule =
     correctionMode === 'repeat'
-      ? 'Only if the learner makes a clear grammar error, warmly model the fix and ask them to repeat it once.'
+      ? 'Only if the learner makes a clear grammar mistake, warmly model the fix and ask them to repeat it once.'
       : correctionMode === 'none'
       ? 'Do not correct grammar at all; focus 100% on natural conversation.'
-      : 'Never nitpick valid phrasing. Only if there is an obvious grammar mistake, briefly model the natural way in 5-8 words without lecturing, then continue chatting.';
+      : 'Never nitpick valid phrasing. Only if there is an obvious grammar error, briefly recast the natural phrasing in a few words without lecturing, then continue the discussion.';
 
   const systemPrompt = [
-    'You are ' + tutorName + ', a warm, friendly human conversation partner (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live phone call in Bloom.',
-    'Language: ' + langName + '.',
-    'CRITICAL RULE: Keep every reply to 1 or 2 short, natural spoken sentences (maximum 30 words total). Never give long speeches or lists.',
-    'Sound like a real human friend talking on the phone: use natural contractions, warmth, and ask ONE short, engaging follow-up question.',
-    'Never use markdown, asterisks, bullet points, or emojis.',
-    correctionRule
+    'You are ' + tutorName + ', an intelligent, warm, well-read human conversation partner (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live voice call in Bloom.',
+    'Primary language: ' + langName + '.',
+    'KNOWLEDGE & PERSONALITY: You have broad, deep knowledge across technology, AI, science, history, geography, cities, cultures, websites, current world affairs, and everyday life. Discuss any topic thoughtfully like a smart, curious friend.',
+    'ADAPTABILITY: Follow the user\'s live instructions immediately. If they ask for simpler words, simplify your vocabulary. If they ask for more detail, give a clear 3-5 sentence explanation. Otherwise keep replies natural and concise (1-3 spoken sentences) with one engaging follow-up question.',
+    'Never use markdown, asterisks, bullet symbols, or emojis because your text is read aloud by a human voice synthesizer.',
+    correctionRule,
+    'Return ONLY valid JSON: {"reply":"your spoken response","speechRate":' + currentRate + '}. If the user asks you to speak slower, set speechRate to 0.8. If faster, set 1.15. If normal speed, set 1.0. Otherwise keep ' + currentRate + '.'
   ].join(' ');
 
   if (body.action === 'suggest_reply') {
-    const prompt = 'Give 3 short, natural spoken reply ideas in ' + langName + ' to: "' + (body.lastTutorMessage || '') + '". Return ONLY JSON: {"suggestions":[{"text":""}]}';
+    const prompt = 'Give 3 natural spoken reply ideas in ' + langName + ' to: "' + (body.lastTutorMessage || '') + '". Return ONLY JSON: {"suggestions":[{"text":""}]}';
     return { reply: await runLLM(env, systemPrompt, prompt, [], true) };
   }
 
   if (body.action === 'discuss_video') {
-    const context = (body.videoContext || '').slice(0, 3000);
+    const context = (body.videoContext || '').slice(0, 3200);
     const prompt = body.message === '__START_VIDEO_TALK__'
-      ? 'We just watched "' + (body.videoTitle || 'Video') + '" (' + context + '). In 1-2 short spoken sentences in ' + langName + ', share one quick reaction to the video and ask what stood out to the learner.'
-      : 'Discussing video "' + (body.videoTitle || 'Video') + '" (' + context + '). Learner said: "' + (body.message || '') + '". Reply in 1-2 short, natural spoken sentences in ' + langName + ' and ask one follow-up question.';
-    return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
+      ? 'We just watched "' + (body.videoTitle || 'Video') + '" (' + context + '). Share a thoughtful reaction to the video in ' + langName + ' and ask an opening question. Return ONLY JSON: {"reply":"...","speechRate":' + currentRate + '}'
+      : 'Discussing video "' + (body.videoTitle || 'Video') + '" (' + context + '). Learner said: "' + (body.message || '') + '". Respond thoughtfully in ' + langName + '. Return ONLY JSON: {"reply":"...","speechRate":' + currentRate + '}';
+    return parseTutorEnvelope(await runLLM(env, systemPrompt, prompt, history, true), currentRate);
   }
 
   const prompt = body.message === '__GREET__'
-    ? 'Say a warm, casual 1-sentence hello as ' + tutorName + ' in ' + langName + ' and ask a fun, easy question to start the call.'
-    : 'Learner said: "' + (body.message || '') + '". Reply in 1-2 short, natural spoken sentences in ' + langName + ' (under 30 words) like a real friend on a call.';
+    ? 'Say a warm, natural hello as ' + tutorName + ' in ' + langName + ' and ask an engaging opening question. Return ONLY JSON: {"reply":"...","speechRate":' + currentRate + '}'
+    : 'Learner said: "' + (body.message || '') + '". Respond naturally, intelligently, and adaptively in ' + langName + '. Return ONLY JSON: {"reply":"...","speechRate":' + currentRate + '}';
 
-  return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
+  return parseTutorEnvelope(await runLLM(env, systemPrompt, prompt, history, true), currentRate);
 }
+
+function parseTutorEnvelope(raw, fallbackRate = 1.0) {
+  try {
+    const obj = JSON.parse(raw);
+    return { reply: String(obj.reply || '').trim() || raw, speechRate: Number(obj.speechRate) || fallbackRate };
+  } catch (_) {
+    return { reply: String(raw || '').trim(), speechRate: fallbackRate };
+  }
+}
+
 
 
 async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {

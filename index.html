@@ -823,6 +823,67 @@
     document.getElementById('langSwitcher').addEventListener('change', (e) => { stopAllAudioAndVideo(true); app.lang = e.target.value; saveBloom(); });
     if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
     renderAll();
+      <script>
+  window.addEventListener('error', (ev) => {
+    console.error('Bloom runtime error:', ev.message);
+  });
+
+  function ensureAuthModalReady() {
+    const modal = document.getElementById('authModal');
+    if (!modal) return;
+    if (!app.user) {
+      modal.classList.add('open');
+    }
+  }
+
+  (function patchAuthAndBoot() {
+    const origHandleAuth = typeof handleAuthSubmit === 'function' ? handleAuthSubmit : null;
+
+    window.handleAuthSubmit = async function () {
+      const nameEl = document.getElementById('authNameInput');
+      const emailEl = document.getElementById('authEmailInput');
+      const passEl = document.getElementById('authPassInput');
+      const name = (nameEl?.value || '').trim();
+      const email = (emailEl?.value || '').trim().toLowerCase();
+      const pass = passEl?.value || '';
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk) {
+        alert('Please enter a valid email or Gmail address (e.g. name@gmail.com).');
+        return;
+      }
+      if (pass.length < 6) {
+        alert('Password must be at least 6 characters.');
+        return;
+      }
+
+      if (origHandleAuth) {
+        await origHandleAuth();
+      } else {
+        app.user = { name: name || email.split('@')[0], email };
+        document.getElementById('authModal')?.classList.remove('open');
+        if (typeof saveBloom === 'function') saveBloom();
+      }
+    };
+
+    const origRenderAll = typeof renderAll === 'function' ? renderAll : null;
+    window.renderAll = function () {
+      try {
+        if (origRenderAll) origRenderAll();
+      } catch (err) {
+        console.error('Render error:', err);
+      } finally {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          try { window.lucide.createIcons(); } catch (_) {}
+        }
+      }
+    };
+
+    window.renderAll();
+    ensureAuthModalReady();
+  })();
+</script>
+  
   </script>
 </body>
 </html>

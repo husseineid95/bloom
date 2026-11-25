@@ -16,6 +16,7 @@
       --bg-card: #FFFFFF;
       --bg-soft: #EFECE3;
       --bg-green-tint: #ECF7D8;
+      --bg-deep-green: #143D2B;
       --bg-amber-tint: #FDF2E4;
       --forest: #174B36;
       --forest-dark: #0F3526;
@@ -28,7 +29,7 @@
       --flame: #D96B27;
       --shadow-sm: 0 2px 8px rgba(23, 75, 54, 0.05);
       --shadow-md: 0 6px 20px rgba(23, 75, 54, 0.08);
-      --shadow-lg: 0 12px 32px rgba(23, 75, 54, 0.14);
+      --shadow-lg: 0 14px 36px rgba(23, 75, 54, 0.15);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -38,18 +39,72 @@
       background-color: var(--bg-cream);
       color: var(--text-main);
       min-height: 100vh;
-      padding-top: 78px;
-      padding-bottom: 92px;
+      padding-top: 112px;
+      padding-bottom: 96px;
       overflow-x: hidden;
     }
 
-    .top-bar { position: fixed; top: 12px; left: 0; right: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 0 16px; pointer-events: none; }
+    .live-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 48;
+      background: var(--lime);
+      color: var(--forest-dark);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+    .live-banner.hidden { display: none; }
+    .live-banner a { color: var(--forest-dark); font-weight: 800; text-decoration: underline; cursor: pointer; }
+    .live-banner-close {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--forest-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 46px;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      pointer-events: none;
+      transition: top 0.2s ease;
+    }
+    body.banner-dismissed { padding-top: 76px; }
+    body.banner-dismissed .top-bar { top: 12px; }
+
     .top-bar-inner { width: 100%; max-width: 960px; display: flex; align-items: center; justify-content: center; position: relative; }
 
     .goal-pill {
-      pointer-events: auto; background: var(--bg-card); border: 1px solid var(--border);
-      box-shadow: var(--shadow-md); border-radius: 999px; padding: 9px 16px;
-      display: flex; align-items: center; gap: 12px; width: 100%; max-width: 420px;
+      pointer-events: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 420px;
     }
 
     .goal-text { font-size: 13px; font-weight: 700; color: var(--forest); white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -58,13 +113,24 @@
     .goal-add-btn { background: none; border: none; color: var(--text-main); font-size: 18px; font-weight: 600; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
     .streak-pill {
-      pointer-events: auto; position: absolute; right: 0; background: var(--bg-card);
-      border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: 999px;
-      padding: 8px 14px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; cursor: pointer;
+      pointer-events: auto;
+      position: absolute;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 999px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
     }
     .streak-pill svg { color: var(--flame); }
 
-    .container { max-width: 780px; margin: 0 auto; padding: 8px 20px 24px; }
+    .container { max-width: 820px; margin: 0 auto; padding: 8px 20px 24px; }
     .tab-view { display: none; animation: fadeIn 0.2s ease; }
     .tab-view.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -77,15 +143,27 @@
     .pill-toggle button { border: none; background: transparent; padding: 7px 18px; border-radius: 999px; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
     .pill-toggle button.active { background: var(--bg-card); color: var(--forest); box-shadow: var(--shadow-sm); }
 
-    .btn-pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease;
+    }
+    .btn-pill:active { transform: scale(0.98); }
     .btn-lime { background: var(--lime); border-color: var(--lime); color: var(--forest-dark); }
     .btn-lime:hover { background: var(--lime-hover); }
 
-    .announcement-banner { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
-    .banner-left { display: flex; align-items: center; gap: 14px; }
-    .banner-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-amber-tint); color: var(--flame); display: flex; align-items: center; justify-content: center; }
-
-    .lesson-steps { display: flex; align-items: center; justify-content: space-between; max-width: 520px; margin: 28px auto 24px; }
+    .lesson-steps { display: flex; align-items: center; justify-content: space-between; max-width: 540px; margin: 24px auto 20px; }
     .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 12px 24px; }
     .step-line.done { background: var(--lime); }
     .step-node { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
@@ -94,33 +172,90 @@
     .step-node.completed .step-circle { background: var(--bg-green-tint); border-color: var(--lime); color: var(--forest); }
     .step-label { font-size: 13px; font-weight: 700; }
 
-    .current-video-card { margin-top: 22px; border-radius: 22px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+    .current-video-card { margin-top: 20px; border-radius: 22px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-md); }
     .video-embed-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #111; }
     .video-embed-wrap iframe { width: 100%; height: 100%; border: 0; }
 
-    .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 18px 0; }
-    .filter-select, .search-input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; }
+    .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0; position: relative; }
+    .filter-select, .search-input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; }
     .search-wrap { flex: 1; min-width: 180px; position: relative; }
-    .search-wrap input { width: 100%; padding-left: 36px; }
+    .search-wrap input { width: 100%; padding-left: 36px; cursor: text; }
     .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
 
+    .popover-menu {
+      display: none;
+      position: absolute;
+      top: 44px;
+      left: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow-lg);
+      padding: 12px;
+      width: 265px;
+      z-index: 35;
+    }
+    .popover-menu.open { display: block; }
+    .popover-item { padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+    .popover-item:hover { background: var(--bg-soft); }
+    .popover-item.selected { background: var(--bg-green-tint); color: var(--forest); font-weight: 700; }
+    .mode-pill-switch { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-soft); border-radius: 999px; padding: 3px; margin-bottom: 10px; }
+    .mode-pill-switch button { border: none; background: transparent; padding: 5px; border-radius: 999px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--text-muted); }
+    .mode-pill-switch button.active { background: var(--lime); color: var(--forest-dark); }
+
     .switch-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .switch { width: 42px; height: 24px; background: #D6D3C9; border-radius: 999px; position: relative; transition: background 0.2s; }
+    .switch { width: 42px; height: 24px; background: #D6D3C9; border-radius: 999px; position: relative; transition: background 0.2s; flex-shrink: 0; }
     .switch.on { background: var(--lime); }
     .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #FFF; border-radius: 50%; transition: transform 0.2s; }
     .switch.on::after { transform: translateX(18px); }
 
-    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 16px; }
-    .video-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); cursor: pointer; }
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+    .video-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.15s ease; }
+    .video-card:hover { transform: translateY(-2px); }
     .thumb-box { position: relative; aspect-ratio: 16 / 9; background: #23332B; overflow: hidden; }
     .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
     .level-badge { position: absolute; top: 10px; left: 10px; background: #F59E0B; color: #FFF; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
     .level-badge.b1 { background: #10B981; }
     .level-badge.c1 { background: #6366F1; }
-    .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #FFF; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+    .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.78); color: #FFF; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
     .video-card-body { padding: 14px; }
     .video-card-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
     .video-card-meta { font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; }
+  </style>
+</head>
+  <style>
+    .deep-study-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 55;
+      background: var(--bg-deep-green);
+      color: #FFFFFF;
+      overflow-y: auto;
+      padding: 20px 20px 44px;
+    }
+    .deep-study-overlay.open { display: block; }
+    .deep-inner { max-width: 740px; margin: 0 auto; }
+    .deep-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .deep-icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: #FFF; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .vocab-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; font-size: 13px; }
+    .vocab-chip-row u { cursor: pointer; }
+    .study-word-card { background: var(--bg-card); color: var(--text-main); border-radius: 22px; padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow-lg); }
+    .study-word-top { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; }
+    .study-word-center { text-align: center; padding: 14px 0 18px; font-size: 26px; font-weight: 800; color: var(--forest); display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .study-subtabs { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--border); padding-top: 12px; gap: 6px; text-align: center; }
+    .study-subtab { background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px; border-radius: 10px; }
+    .study-subtab.active { color: var(--forest); background: var(--bg-green-tint); }
+    .study-detail-box { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--bg-soft); font-size: 13px; line-height: 1.5; color: var(--text-main); }
+
+    .photo-stage { position: relative; border-radius: 20px; overflow: hidden; background: #0c2218; aspect-ratio: 16 / 9; max-height: 310px; width: 100%; }
+    .photo-stage img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-pill-btn { position: absolute; background: rgba(15, 36, 26, 0.78); color: #FFF; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 6px 12px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .chit-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    @media (max-width: 520px) { .chit-cards-row { grid-template-columns: 1fr; } }
+    .chit-mode-card { border-radius: 18px; padding: 16px; cursor: pointer; border: 1px solid rgba(255,255,255,0.16); }
+    .chit-mode-card.listen { background: rgba(255,255,255,0.08); color: #FFF; }
+    .chit-mode-card.speak { background: var(--lime); color: var(--forest-dark); border-color: var(--lime); }
 
     .exercise-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
     @media (max-width: 520px) { .exercise-grid { grid-template-columns: 1fr; } }
@@ -141,27 +276,27 @@
     .word-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); display: inline-block; margin-right: 10px; }
     .word-dot.learned { background: #F59E0B; }
 
-    .tutor-selector-wrap { display: flex; flex-direction: column; align-items: center; margin: 12px 0 22px; position: relative; }
+    .tutor-selector-wrap { display: flex; flex-direction: column; align-items: center; margin: 12px 0 20px; position: relative; }
     .tutor-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px; }
     .tutor-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 18px 8px 10px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); cursor: pointer; font-weight: 700; font-size: 16px; }
     .tutor-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--forest); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
-    .tutor-dropdown { display: none; position: absolute; top: 76px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-lg); padding: 8px; width: 240px; z-index: 30; }
+    .tutor-dropdown { display: none; position: absolute; top: 76px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-lg); padding: 8px; width: 255px; z-index: 30; }
     .tutor-dropdown.open { display: block; }
     .tutor-option { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 14px; }
     .tutor-option:hover { background: var(--bg-soft); }
 
     .speak-mode-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; box-shadow: var(--shadow-sm); cursor: pointer; }
     .speak-mode-left { display: flex; align-items: center; gap: 16px; }
-    .speak-mode-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-green-tint); color: var(--forest); display: flex; align-items: center; justify-content: center; }
+    .speak-mode-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-green-tint); color: var(--forest); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
     .chat-panel { display: none; background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-md); overflow: hidden; margin-top: 12px; }
     .chat-panel.active { display: block; }
-    .chat-header { background: var(--bg-soft); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .chat-header { background: var(--bg-soft); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); gap: 8px; flex-wrap: wrap; }
     .chat-messages { height: 340px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #FCFBF7; }
-    .msg-bubble { max-width: 82%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+    .msg-bubble { max-width: 82%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
     .msg-bubble.ai { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border); }
     .msg-bubble.user { align-self: flex-end; background: var(--forest); color: #FFF; }
-    .msg-actions { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--forest); }
+    .msg-actions { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--forest); flex-wrap: wrap; }
     .msg-actions span { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: var(--bg-soft); padding: 3px 8px; border-radius: 999px; }
 
     .listening-bar {
@@ -175,16 +310,15 @@
     .chat-input-bar input { flex: 1; border: 1px solid var(--border); border-radius: 999px; padding: 10px 16px; font-family: inherit; font-size: 14px; outline: none; }
     .icon-circle-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-soft); color: var(--forest); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
     .icon-circle-btn.recording { background: #EF4444; color: #FFF; border-color: #EF4444; }
-  </style>
-</head>
-  <style>
+
     .menu-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 18px; }
-    .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; font-weight: 600; }
+    .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; font-weight: 600; gap: 12px; }
     .menu-item:last-child { border-bottom: none; }
     .menu-item-left { display: flex; align-items: center; gap: 12px; color: var(--forest); }
 
     .progress-hero { background: var(--bg-amber-tint); border-radius: 18px; padding: 22px; text-align: center; margin-bottom: 14px; }
     .progress-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 520px) { .progress-grid-2 { grid-template-columns: 1fr; } }
     .progress-green-box { background: var(--bg-green-tint); border-radius: 18px; padding: 18px; }
 
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 14px; }
@@ -204,7 +338,7 @@
 
     .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15, 53, 38, 0.45); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
     .modal-backdrop.open { display: flex; }
-    .modal-card { background: var(--bg-cream); border: 1px solid var(--border); border-radius: 26px; width: 100%; max-width: 460px; padding: 22px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+    .modal-card { background: var(--bg-cream); border: 1px solid var(--border); border-radius: 26px; width: 100%; max-width: 470px; padding: 22px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
     .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
 
     .activity-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
@@ -217,12 +351,18 @@
   </style>
 </head>
 <body>
+  <div class="live-banner" id="topLiveBanner">
+    <span>🟢 Immersion Session Ready with <strong id="bannerTutorName">Clara</strong>!</span>
+    <a onclick="switchTab('speak')">Start talking now</a>
+    <button class="live-banner-close" onclick="dismissLiveBanner()" aria-label="Dismiss banner"><i data-lucide="x" size="16"></i></button>
+  </div>
+
   <header class="top-bar">
     <div class="top-bar-inner">
       <div class="goal-pill">
         <span class="goal-text" id="goalDisplayText" onclick="switchTab('more')">0/60 min</span>
         <div class="goal-track"><div class="goal-fill" id="goalFillBar"></div></div>
-        <button class="goal-add-btn" onclick="openModal('outsideModal')">+</button>
+        <button class="goal-add-btn" onclick="openModal('outsideModal')" aria-label="Log time outside Bloom">+</button>
       </div>
       <div class="streak-pill" onclick="switchTab('more')">
         <i data-lucide="flame" size="18"></i>
@@ -233,24 +373,16 @@
 
   <main class="container">
     <section id="tab-home" class="tab-view active">
-      <div class="announcement-banner" id="welcomeBanner">
-        <div class="banner-left">
-          <div class="banner-icon"><i data-lucide="sparkles" size="18"></i></div>
-          <div>
-            <div style="font-size: 14px; font-weight: 700;">Easier ways to learn English</div>
-            <div style="font-size: 12px; color: var(--forest); text-decoration: underline; cursor: pointer;" onclick="switchTab('speak')">Up to 2 min speaking window & natural voice</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h1 class="page-title">Current Lesson</h1>
+            <i data-lucide="info" size="18" style="color:var(--text-muted);" title="Watch in context, learn vocabulary, then speak"></i>
           </div>
+          <p class="subtitle">Watch the video, learn the words, then speak.</p>
         </div>
-        <button style="background:none;border:none;cursor:pointer;color:var(--text-muted);" onclick="document.getElementById('welcomeBanner').style.display='none'">
-          <i data-lucide="x" size="18"></i>
-        </button>
+        <button class="btn-pill" onclick="openModal('lessonSettingsModal')"><i data-lucide="settings" size="15"></i> Lesson Settings</button>
       </div>
-
-      <div style="display:flex; align-items:center; gap:8px;">
-        <h1 class="page-title">Current Lesson</h1>
-        <i data-lucide="info" size="18" style="color:var(--text-muted);"></i>
-      </div>
-      <p class="subtitle">Watch the video, learn the words, then speak.</p>
 
       <div class="lesson-steps">
         <div class="step-node active" id="stepNode1" onclick="setLessonStep(1)"><div class="step-circle"><i data-lucide="play" size="24"></i></div><span class="step-label">1. Watch</span></div>
@@ -261,19 +393,22 @@
       </div>
 
       <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-        <button class="btn-pill" onclick="openModal('addVideoModal')"><i data-lucide="video" size="16"></i> Add a YouTube video</button>
+        <button class="btn-pill" onclick="openModal('addVideoModal')"><i data-lucide="video" size="16"></i> Add a video</button>
         <button class="btn-pill btn-lime" onclick="completeCurrentWatch()"><i data-lucide="check-circle" size="16"></i> Mark Watched (+10 min)</button>
       </div>
 
       <div class="current-video-card">
-        <div class="video-embed-wrap"><iframe id="currentVideoFrame" src="https://www.youtube.com/embed/aqz-KE-bpKQ" allowfullscreen></iframe></div>
-        <div style="padding: 18px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div class="video-embed-wrap"><iframe id="currentVideoFrame" src="about:blank" data-src="https://www.youtube.com/embed/aqz-KE-bpKQ?rel=0" allowfullscreen></iframe></div>
+        <div style="padding: 18px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
           <div>
-            <span style="font-size:11px;font-weight:800;color:var(--forest);background:var(--bg-green-tint);padding:4px 10px;border-radius:999px;" id="currentVideoLevel">B2 Level</span>
-            <h3 style="font-size:18px;font-weight:800;margin-top:8px;" id="currentVideoTitle">BBC Earth — Natural English Immersion</h3>
+            <span style="font-size:11px;font-weight:800;color:var(--forest);background:var(--bg-green-tint);padding:4px 10px;border-radius:999px;" id="currentVideoLevel">B2 Upper Intermediate</span>
+            <h3 style="font-size:18px;font-weight:800;margin-top:8px;" id="currentVideoTitle">An Adventure Through Africa in 4K | BBC Earth</h3>
             <p style="font-size:13px;color:var(--text-muted);margin-top:4px;" id="currentVideoDesc"></p>
           </div>
-          <button class="btn-pill" onclick="startDiscussCurrentVideo()"><i data-lucide="mic" size="16"></i> Discuss</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-pill" onclick="openVideoVocabOverlay()"><i data-lucide="book-open" size="15"></i> 2. Vocabulary</button>
+            <button class="btn-pill btn-lime" onclick="startDiscussCurrentVideo()"><i data-lucide="mic" size="15"></i> 3. Speak</button>
+          </div>
         </div>
       </div>
     </section>
@@ -284,29 +419,50 @@
           <button class="active" id="watchSubBrowse" onclick="toggleWatchSub('browse')">Browse Videos</button>
           <button id="watchSubHistory" onclick="toggleWatchSub('history')">History</button>
         </div>
-        <button class="btn-pill btn-lime" onclick="openModal('addVideoModal')"><i data-lucide="plus" size="16"></i> Import YouTube URL</button>
+        <button class="btn-pill btn-lime" onclick="openModal('addVideoModal')"><i data-lucide="plus" size="16"></i> Add a video</button>
       </div>
 
       <div class="filter-bar">
-        <select class="filter-select" id="levelFilter" onchange="renderVideos()">
-          <option value="ALL">All Levels</option>
-          <option value="B1">B1 Intermediate</option>
-          <option value="B2">B2 Upper Intermediate</option>
-          <option value="C1">C1 Advanced</option>
+        <button class="filter-select" id="sortFilterBtn" onclick="togglePopover('sortPopover')">Featured ⇅</button>
+        <button class="filter-select" id="levelFilterBtn" onclick="togglePopover('levelPopover')">All Levels ▾</button>
+        <button class="filter-select" id="countryFilterBtn" onclick="togglePopover('countryPopover')">All Countries ▾</button>
+        <select class="filter-select" id="tutorCreatorFilter" onchange="renderVideos()">
+          <option value="ALL">All Tutors</option>
+          <option value="Clara">Clara 🇬🇧</option>
+          <option value="Liam">Liam 🇺🇸</option>
+          <option value="Callum">Callum 🇦🇺</option>
         </select>
         <label class="switch-wrap" onclick="toggleHideWatched()">
           <div class="switch" id="hideWatchedSwitch"></div>
           <span>Hide watched</span>
         </label>
         <div class="search-wrap"><i data-lucide="search"></i><input type="text" class="search-input" id="videoSearchInput" placeholder="Search videos..." oninput="renderVideos()" /></div>
+
+        <div class="popover-menu" id="sortPopover"></div>
+        <div class="popover-menu" id="levelPopover"></div>
+        <div class="popover-menu" id="countryPopover"></div>
       </div>
+
+      <div id="activeVideoLessonPanel" style="display:none; margin-bottom:20px;" class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <button class="btn-pill" onclick="closeActiveVideoLesson()">← Browse Videos</button>
+          <button class="btn-pill" onclick="playNextVideo()">My Next Video →</button>
+        </div>
+        <div class="video-embed-wrap" style="border-radius:16px;overflow:hidden;"><iframe id="watchLessonFrame" src="about:blank" allowfullscreen></iframe></div>
+        <h3 style="font-size:18px;font-weight:800;margin-top:12px;" id="watchLessonTitle"></h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <button class="btn-pill" style="flex:1;min-width:160px;" onclick="openVideoVocabOverlay()"><i data-lucide="book-open" size="16"></i> 2. Learn Vocabulary</button>
+          <button class="btn-pill btn-lime" style="flex:1;min-width:160px;" onclick="startDiscussCurrentVideo()"><i data-lucide="message-square" size="16"></i> 3. Speak about Video</button>
+        </div>
+      </div>
+
       <div class="video-grid" id="videoGrid"></div>
     </section>
 
-    <section id="tab-learn" class="tab-view">
+      <section id="tab-learn" class="tab-view">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <h1 class="page-title">Learn</h1>
-        <button class="icon-circle-btn" onclick="switchTab('more')"><i data-lucide="settings" size="18"></i></button>
+        <button class="icon-circle-btn" onclick="openModal('lessonSettingsModal')"><i data-lucide="settings" size="18"></i></button>
       </div>
       <div style="margin: 12px 0 18px;">
         <div class="pill-toggle">
@@ -319,9 +475,9 @@
         <div class="card" style="margin-bottom: 18px;">
           <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:var(--forest);"><i data-lucide="dumbbell" size="18"></i> Exercises</div>
           <div class="exercise-grid">
-            <div class="exercise-tile" onclick="openFlashcards()"><i data-lucide="layers" size="20"></i><h4>Flashcards</h4><p>Review your saved words</p></div>
-            <div class="exercise-tile" onclick="launchSpeakMode('general', 'Let us do Photo Chit Chat! Ask me to describe a lively street scene.')"><i data-lucide="image" size="20"></i><h4>Photo Chit Chat</h4><p>Describe a scene with AI</p></div>
-            <div class="exercise-tile" onclick="launchSpeakMode('general', 'Give me an interesting Topic Talk question so I can speak for 1 minute.')"><i data-lucide="message-circle" size="20"></i><h4>Topic Talk</h4><p>Speak about a topic</p></div>
+            <div class="exercise-tile" onclick="openFlashcardMenu()"><i data-lucide="layers" size="20"></i><h4>Flashcards</h4><p>Recall, Listen & Produce modes</p></div>
+            <div class="exercise-tile" onclick="openPhotoChitChat()"><i data-lucide="image" size="20"></i><h4>Photo Chit Chat</h4><p>Listen & describe scenes</p></div>
+            <div class="exercise-tile" onclick="launchSpeakMode('general', '', 'Give me an engaging Topic Talk question so I can speak and share my thoughts.')"><i data-lucide="message-circle" size="20"></i><h4>Topic Talk</h4><p>Speak freely on a topic</p></div>
             <div class="exercise-tile" onclick="launchSpeakMode('exercises')"><i data-lucide="git-branch" size="20"></i><h4>Word Link</h4><p>Build a chain of words</p></div>
           </div>
           <div class="menu-item" style="margin-top:12px; padding:12px 4px 2px;" onclick="launchSpeakMode('general')">
@@ -348,36 +504,64 @@
       </div>
 
       <div id="learnHistoryView" style="display:none;"><div class="card" id="sessionHistoryList"></div></div>
-                                                                                                          </section>
-                                                                                                              <section id="tab-speak" class="tab-view">
+    </section>
+        <section id="tab-speak" class="tab-view">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div class="pill-toggle">
-          <button class="active" onclick="closeChatPanel()">New</button>
-          <button onclick="switchTab('learn'); toggleLearnSub('history')">History</button>
+          <button class="active" id="speakSubNew" onclick="resetSpeakView()">New</button>
+          <button id="speakSubHistory" onclick="switchTab('learn'); toggleLearnSub('history')">History</button>
         </div>
-        <button class="icon-circle-btn" onclick="switchTab('more')"><i data-lucide="sliders-horizontal" size="18"></i></button>
+        <button class="icon-circle-btn" onclick="openModal('lessonSettingsModal')"><i data-lucide="sliders-horizontal" size="18"></i></button>
       </div>
 
       <div class="tutor-selector-wrap">
         <div class="tutor-label">AI TUTOR</div>
         <div class="tutor-pill" onclick="toggleTutorMenu()">
-          <div class="tutor-avatar" id="activeTutorAvatar">J</div>
-          <span id="activeTutorName">Jay-i 🇬🇧</span>
+          <div class="tutor-avatar" id="activeTutorAvatar">C</div>
+          <span id="activeTutorName">Clara 🇬🇧</span>
           <i data-lucide="chevron-down" size="18"></i>
         </div>
         <div class="tutor-dropdown" id="tutorDropdown">
-          <div class="tutor-option" onclick="selectTutor('Jay-i 🇬🇧', 'J', 'en-GB')"><div class="tutor-avatar">J</div> Jay-i 🇬🇧 (British)</div>
-          <div class="tutor-option" onclick="selectTutor('Miss Honey 🇺🇸', 'H', 'en-US')"><div class="tutor-avatar" style="background:#2E6F54;">H</div> Miss Honey 🇺🇸 (US)</div>
-          <div class="tutor-option" onclick="selectTutor('Kyle 🇦🇺', 'K', 'en-AU')"><div class="tutor-avatar" style="background:#467A4B;">K</div> Kyle 🇦🇺 (Australian)</div>
+          <div class="tutor-option" onclick="selectTutor('Clara 🇬🇧', 'C', 'en-GB', 'British English')"><div class="tutor-avatar">C</div> Clara 🇬🇧 (British • Female)</div>
+          <div class="tutor-option" onclick="selectTutor('Liam 🇺🇸', 'L', 'en-US', 'American English')"><div class="tutor-avatar" style="background:#2E6F54;">L</div> Liam 🇺🇸 (American • Male)</div>
+          <div class="tutor-option" onclick="selectTutor('Callum 🇦🇺', 'K', 'en-AU', 'Australian English')"><div class="tutor-avatar" style="background:#3F7A4A;">K</div> Callum 🇦🇺 (Australian • Male)</div>
         </div>
       </div>
 
       <div id="speakModesList">
         <div class="speak-mode-card" onclick="launchSpeakMode('general')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="message-square"></i></div><div><div style="font-weight:700;font-size:15px;">General Conversation</div><div style="font-size:12px;color:var(--text-muted);">Choose any topic to improve your speaking</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="speak-mode-card" onclick="launchSpeakMode('role_play')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="users"></i></div><div><div style="font-weight:700;font-size:15px;">Role Play</div><div style="font-size:12px;color:var(--text-muted);">Practice a real-life situation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="speak-mode-card" onclick="openRolePlayCategories()"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="users"></i></div><div><div style="font-weight:700;font-size:15px;">Role Play</div><div style="font-size:12px;color:var(--text-muted);">Practice a real-life situation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
         <div class="speak-mode-card" onclick="launchSpeakMode('discuss_video')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="video"></i></div><div><div style="font-weight:700;font-size:15px;">Discuss a Video</div><div style="font-size:12px;color:var(--text-muted);">Master the topic and vocabulary</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="speak-mode-card" onclick="launchSpeakMode('shadowing')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="repeat"></i></div><div><div style="font-weight:700;font-size:15px;">Shadowing</div><div style="font-size:12px;color:var(--text-muted);">Listen and repeat to improve pronunciation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="speak-mode-card" onclick="openShadowingSetup()"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="repeat"></i></div><div><div style="font-weight:700;font-size:15px;">Shadowing</div><div style="font-size:12px;color:var(--text-muted);">Listen and repeat to improve pronunciation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
         <div class="speak-mode-card" onclick="launchSpeakMode('exercises')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="dumbbell"></i></div><div><div style="font-weight:700;font-size:15px;">Exercises</div><div style="font-size:12px;color:var(--text-muted);">Speaking exercises with words from your vocab garden</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+      </div>
+
+      <div id="rolePlayCategoriesView" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <button class="btn-pill" onclick="resetSpeakView()">← Back</button>
+          <h3 style="font-size:18px;font-weight:800;color:var(--forest);">Choose a Scenario Type</h3>
+        </div>
+        <div id="scenarioCategoryCards"></div>
+      </div>
+
+      <div id="rolePlaySituationsView" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <button class="btn-pill" onclick="openRolePlayCategories()">← Back</button>
+          <h3 style="font-size:18px;font-weight:800;color:var(--forest);">Choose a Situation</h3>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" id="selectedScenarioTypeLabel"></div>
+        <div id="scenarioSituationCards"></div>
+      </div>
+
+      <div id="shadowingSetupView" style="display:none;" class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <button class="btn-pill" onclick="resetSpeakView()">← Back</button>
+          <h3 style="font-size:18px;font-weight:800;color:var(--forest);">Shadowing set up</h3>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" id="shadowingHelperText">Your tutor will say a sentence, and then you will repeat that sentence. Mimic their speech as closely as possible.</p>
+        <label class="form-label">What topic would you like to practice? It can be any topic.</label>
+        <textarea class="form-control" id="shadowingTopicInput" rows="3" placeholder="Examples: work situations, meeting someone new, sports, ..."></textarea>
+        <button class="btn-pill btn-lime" style="width:100%;margin-top:14px;" onclick="startShadowingSession()">Start Shadowing</button>
       </div>
 
       <div class="chat-panel" id="liveChatPanel">
@@ -386,7 +570,7 @@
             <div style="font-weight:800;font-size:14px;color:var(--forest);" id="chatModeTitle">General Conversation</div>
             <div style="font-size:11px;color:var(--text-muted);" id="chatSettingsBadge"></div>
           </div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn-pill" style="padding:6px 10px;font-size:11px;" id="autoVoiceBtn" onclick="toggleAutoVoice()">🔊 Auto Voice: ON</button>
             <button class="btn-pill" style="padding:6px 12px;font-size:12px;" onclick="endChatSession()">End (+5m)</button>
           </div>
@@ -394,7 +578,7 @@
         <div class="chat-messages" id="chatMessages"></div>
 
         <div class="listening-bar" id="listeningBar">
-          <span id="listeningTimerText">🎙️ Your floor is open (0s / 120s max) — take your time!</span>
+          <span id="listeningTimerText">🎙️ Your turn (0s / 120s) — pause freely, tap Done when ready</span>
           <button class="btn-pill btn-lime" style="padding:5px 12px;font-size:12px;" onclick="finishSpeakingNow()">Done Speaking →</button>
         </div>
 
@@ -421,7 +605,7 @@
       <h2 style="font-size:18px;font-weight:800;color:var(--forest);margin:18px 0 10px;">Settings for learning English</h2>
       <div class="menu-card">
         <div class="menu-item"><span>AI Transcript</span><select class="filter-select" id="settingTranscript" onchange="saveSettings()"><option value="always">Always visible</option><option value="click">Click to show</option></select></div>
-        <div class="menu-item"><span>AI Voice Speed</span><select class="filter-select" id="settingSpeed" onchange="saveSettings()"><option value="0.88">Relaxed (0.88x)</option><option value="0.96" selected>Natural (0.96x)</option><option value="1.06">Lively (1.06x)</option></select></div>
+        <div class="menu-item"><span>AI Voice Speed</span><select class="filter-select" id="settingSpeed" onchange="saveSettings()"><option value="0.86">Relaxed (0.86x)</option><option value="0.96" selected>Natural (0.96x)</option><option value="1.06">Lively (1.06x)</option></select></div>
         <div class="menu-item" onclick="toggleCrosstalkSetting()"><div><div>Crosstalk</div><div style="font-size:11px;color:var(--text-muted);font-weight:400;">Tutor speaks English, you reply in Arabic or English.</div></div><div class="switch on" id="crosstalkSwitch"></div></div>
         <div class="menu-item"><span>Corrections</span><select class="filter-select" id="settingCorrections" onchange="saveSettings()"><option value="Gentle" selected>Gentle</option><option value="Direct">Direct</option><option value="Off">Off</option></select></div>
         <div class="menu-item" onclick="editDailyGoal()"><span>Daily goal</span><span style="text-decoration:underline;color:var(--forest);font-weight:700;" id="dailyGoalLabel">60 min / day</span></div>
@@ -456,7 +640,8 @@
       </div>
 
       <div class="card">
-        <div style="font-weight:800;color:var(--forest);margin-bottom:14px;">Your Path to Fluency</div>
+        <div style="font-weight:800;color:var(--forest);margin-bottom:6px;">Your Path to Fluency</div>
+        <p class="subtitle" style="margin-bottom:14px;">Hours of immersion drive natural acquisition from A0 to C2. Tap any stage to see how to learn there.</p>
         <div id="fluencyPathList"></div>
       </div>
     </section>
@@ -470,116 +655,310 @@
     <button class="nav-btn" id="nav-more" onclick="switchTab('more')"><div class="nav-icon-pill"><i data-lucide="more-horizontal" size="20"></i></div><span>More</span></button>
   </nav>
 
-  <div class="modal-backdrop" id="outsideModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Add Time Outside Bloom</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('outsideModal')"><i data-lucide="x"></i></button></div>
-      <div class="activity-type-grid">
-        <button class="activity-type-btn selected" onclick="selectOutsideType(this, 'Watching')"><i data-lucide="video" size="20"></i> Watching</button>
-        <button class="activity-type-btn" onclick="selectOutsideType(this, 'Listening')"><i data-lucide="headphones" size="20"></i> Listening</button>
-        <button class="activity-type-btn" onclick="selectOutsideType(this, 'Talking')"><i data-lucide="message-square" size="20"></i> Talking</button>
+  <div class="deep-study-overlay" id="videoVocabOverlay">
+    <div class="deep-inner">
+      <div class="deep-topbar">
+        <button class="deep-icon-btn" onclick="closeVideoVocabOverlay()"><i data-lucide="arrow-left" size="18"></i></button>
+        <div style="font-weight:800;font-size:15px;" id="vocabOverlayTitle">Lesson Vocabulary</div>
+        <button class="deep-icon-btn" onclick="openModal('lessonSettingsModal')"><i data-lucide="settings" size="18"></i></button>
       </div>
-      <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="outsideDate" /></div>
-      <div class="form-group"><label class="form-label">Time Amount</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><input type="number" class="form-control" id="outsideHours" placeholder="Hours" min="0" /><input type="number" class="form-control" id="outsideMins" placeholder="Minutes" min="0" /></div></div>
-      <div class="form-group"><label class="form-label">Description (optional)</label><input type="text" class="form-control" id="outsideDesc" placeholder="E.g. podcast, YouTube, book..." /></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;"><button class="btn-pill" onclick="closeModal('outsideModal')">Cancel</button><button class="btn-pill btn-lime" onclick="saveOutsideTime()">Save</button></div>
+      <div class="vocab-chip-row" id="vocabJumpChips"></div>
+      <div id="videoVocabCardsContainer"></div>
+      <div style="display:grid;gap:10px;margin-top:18px;">
+        <button class="btn-pill btn-lime" style="width:100%;padding:13px;" onclick="addSelectedVideoWordsToGarden()">Add selected to Vocab Garden</button>
+        <button class="btn-pill" style="width:100%;padding:12px;" onclick="closeVideoVocabOverlay(); startDiscussCurrentVideo();">Finish & Speak about Video ✓</button>
+      </div>
     </div>
   </div>
 
-  <div class="modal-backdrop" id="outsideHistoryModal"><div class="modal-card"><div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Outside Bloom Log</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('outsideHistoryModal')"><i data-lucide="x"></i></button></div><div id="outsideLogList"></div></div></div>
+  <div class="deep-study-overlay" id="photoChitChatOverlay">
+    <div class="deep-inner">
+      <div class="deep-topbar">
+        <button class="deep-icon-btn" onclick="closePhotoChitChat()"><i data-lucide="x" size="18"></i></button>
+        <div style="font-weight:800;font-size:16px;">Photo Chit Chat</div>
+        <button class="deep-icon-btn" onclick="openModal('lessonSettingsModal')"><i data-lucide="settings" size="18"></i></button>
+      </div>
 
-  <div class="modal-backdrop" id="addVideoModal">
+      <div class="photo-stage">
+        <img id="chitChatPhotoImg" src="" alt="Scene for conversation" />
+        <button class="photo-pill-btn" style="top:12px;left:12px;" onclick="cycleChitChatPhoto()">Random ↻</button>
+        <button class="photo-pill-btn" style="bottom:12px;left:12px;" onclick="togglePhotoLabels()">🏷️ See labels</button>
+      </div>
+      <div id="photoLabelsBox" style="display:none;margin-top:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.1);font-size:13px;"></div>
+
+      <button class="btn-pill" style="width:100%;margin-top:12px;background:rgba(255,255,255,0.08);color:#FFF;border-color:rgba(255,255,255,0.2);" onclick="document.getElementById('customPhotoFile').click()">📷 Add your own image</button>
+      <input type="file" id="customPhotoFile" accept="image/*" style="display:none;" onchange="handleCustomPhotoUpload(event)" />
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:13px;cursor:pointer;" onclick="toggleUsefulVocab()">
+        <span>› Useful vocab</span>
+        <span id="usefulVocabCount">6 words</span>
+      </div>
+      <div id="usefulVocabBox" style="display:none;margin-top:8px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.08);font-size:13px;"></div>
+
+      <div class="chit-cards-row">
+        <div class="chit-mode-card listen" onclick="triggerChitChatListen()">
+          <div style="font-weight:800;font-size:16px;">Listen</div>
+          <div style="font-size:12px;opacity:0.85;margin-top:2px;" id="chitListenSub">Tutor describes it</div>
+        </div>
+        <div class="chit-mode-card speak" onclick="triggerChitChatSpeak()">
+          <div style="font-weight:800;font-size:16px;">Speak</div>
+          <div style="font-size:12px;opacity:0.9;margin-top:2px;">Describe it yourself</div>
+        </div>
+      </div>
+
+      <div id="chitChatDescriptionBox" style="display:none;margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.1);font-size:13px;line-height:1.5;"></div>
+    </div>
+  </div>
+
+  <div class="deep-study-overlay" id="flashcardOverlay">
+    <div class="deep-inner">
+      <div class="deep-topbar">
+        <button class="deep-icon-btn" onclick="closeFlashcardOverlay()"><i data-lucide="x" size="18"></i></button>
+        <div style="background:rgba(255,255,255,0.14);padding:5px 14px;border-radius:999px;font-weight:800;font-size:13px;" id="fcCounterBadge">1 / 6</div>
+        <button class="deep-icon-btn" onclick="openModal('lessonSettingsModal')"><i data-lucide="settings" size="18"></i></button>
+      </div>
+      <div id="flashcardModeChooser" class="card" style="color:var(--text-main);margin-bottom:16px;">
+        <h3 style="font-size:17px;font-weight:800;color:var(--forest);margin-bottom:4px;">Flashcards</h3>
+        <p class="subtitle" style="margin-bottom:12px;">Choose a review mode for your Vocab Garden words:</p>
+        <div class="menu-item" onclick="startFlashcardMode('recall')"><div><strong>Recall</strong><div style="font-size:12px;color:var(--text-muted);font-weight:400;">See the word in English, recall its meaning in your language.</div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="menu-item" onclick="startFlashcardMode('listen')"><div><strong>Listen</strong><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Hear the word in English, recall its meaning in your language.</div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="menu-item" onclick="startFlashcardMode('produce')"><div><strong>Produce</strong><div style="font-size:12px;color:var(--text-muted);font-weight:400;">See the word in your language, produce it in English.</div></div><i data-lucide="chevron-right" size="18"></i></div>
+      </div>
+      <div id="flashcardActiveStage" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="lessonSettingsModal">
     <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Import YouTube Video</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('addVideoModal')"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">YouTube Link</label><input type="text" class="form-control" id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=..." /></div>
-      <div class="form-group"><label class="form-label">Video Title</label><input type="text" class="form-control" id="newVideoTitle" placeholder="E.g. Atomic Habits Summary" /></div>
-      <div class="form-group"><label class="form-label">Level</label><select class="form-control" id="newVideoLevel"><option value="B1">B1 Intermediate</option><option value="B2" selected>B2 Upper Intermediate</option><option value="C1">C1 Advanced</option></select></div>
-      <div class="form-group"><label class="form-label">Topic / Notes</label><textarea class="form-control" id="newVideoNotes" rows="3"></textarea></div>
-      <button class="btn-pill btn-lime" style="width:100%;" onclick="importCustomVideo()">Load into Current Lesson</button>
+      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Settings</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('lessonSettingsModal')"><i data-lucide="x"></i></button></div>
+      <div class="form-group">
+        <label class="form-label">AI Tutor</label>
+        <select class="form-control" id="modalTutorSelect" onchange="syncTutorFromModal()">
+          <option value="Clara 🇬🇧|C|en-GB|British English">Clara 🇬🇧 (British • Female)</option>
+          <option value="Liam 🇺🇸|L|en-US|American English">Liam 🇺🇸 (American • Male)</option>
+          <option value="Callum 🇦🇺|K|en-AU|Australian English">Callum 🇦🇺 (Australian • Male)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Translation Language</label>
+        <select class="form-control" id="modalNativeLang" onchange="syncLangFromModal()">
+          <option value="Arabic">العربية - Arabic</option>
+          <option value="German">Deutsch - German</option>
+          <option value="French">Français - French</option>
+        </select>
+      </div>
+      <button class="btn-pill btn-lime" style="width:100%;" onclick="closeModal('lessonSettingsModal')">Done</button>
     </div>
   </div>
-
-  <div class="modal-backdrop" id="addWordModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Plant Word in Vocab Garden</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('addWordModal')"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">English Word or Phrase</label><input type="text" class="form-control" id="newWordText" placeholder="e.g. fair enough, ominous" /></div>
-      <div class="form-group"><label class="form-label">Meaning / Arabic Note</label><input type="text" class="form-control" id="newWordMeaning" placeholder="e.g. معقول / مقنع" /></div>
-      <button class="btn-pill btn-lime" style="width:100%;" onclick="addNewWord()">Save Word</button>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="flashcardModal"><div class="modal-card" style="text-align:center;"><div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Vocab Flashcards</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('flashcardModal')"><i data-lucide="x"></i></button></div><div id="flashcardBody" style="padding:24px 12px;"></div></div></div>
 
   <div class="modal-backdrop" id="languageModal">
     <div class="modal-card">
       <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Language</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('languageModal')"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">I AM LEARNING...</label><input type="text" class="form-control" value="🇬🇧 🇺🇸 English" disabled /></div>
+      <div class="form-group"><label class="form-label">I AM LEARNING...</label><input type="text" class="form-control" value="🇬🇧 🇺🇸 🇦🇺 English" disabled /></div>
       <div class="form-group"><label class="form-label">MY NATIVE LANGUAGE IS...</label><select class="form-control" id="nativeLangSelect" onchange="saveSettings()"><option value="Arabic" selected>العربية Arabic</option><option value="German">Deutsch German</option><option value="French">Français French</option></select></div>
+      <div class="form-group"><label class="form-label">DISPLAY THE APP IN...</label><select class="form-control" id="displayLangSelect" onchange="saveSettings()"><option value="en" selected>🇺🇸 🇬🇧 English</option><option value="ar">🇸🇦 العربية</option></select></div>
       <button class="btn-pill btn-lime" style="width:100%;margin-top:8px;" onclick="closeModal('languageModal')">Done</button>
     </div>
   </div>
     <script>
     const DEFAULT_VIDEOS = [
-      { id: 'aqz-KE-bpKQ', title: 'BBC Earth — Big Buck Bunny Nature Clip', level: 'B2', duration: '10:34', creator: 'BBC Earth', watched: false, notes: 'A peaceful forest story about nature, animals, and standing up to bullies.' },
-      { id: 'UF8uR6Z6KLc', title: 'Steve Jobs Stanford Commencement Speech', level: 'C1', duration: '15:04', creator: 'Stanford', watched: false, notes: 'Connecting the dots, love and loss, and staying hungry and foolish.' },
-      { id: 'H14bBuluwB8', title: 'Grit: The Power of Passion and Perseverance', level: 'B2', duration: '06:12', creator: 'Angela Duckworth', watched: false, notes: 'Why long-term perseverance and passion matter more than raw talent.' },
-      { id: 'arj7oStGLkU', title: 'Inside the Mind of a Master Procrastinator', level: 'B1', duration: '14:03', creator: 'Tim Urban', watched: false, notes: 'The Instant Gratification Monkey and the Panic Monster.' }
+      { id: 'aqz-KE-bpKQ', title: 'An Adventure Through Africa in 4K | BBC Earth', level: 'B2', duration: '10:34', creator: 'Clara', country: 'United Kingdom', sortOrder: 'Featured', difficulty: 'Hard', watched: false, notes: 'A vivid nature story following wildlife, movement, and unexpected moments.' },
+      { id: 'UF8uR6Z6KLc', title: 'Steve Jobs Stanford Commencement Speech', level: 'C1', duration: '15:04', creator: 'Liam', country: 'United States', sortOrder: 'Featured', difficulty: 'Hard', watched: false, notes: 'Connecting the dots, following curiosity, and staying hungry.' },
+      { id: 'H14bBuluwB8', title: 'Grit: The Power of Passion and Perseverance', level: 'B2', duration: '06:12', creator: 'Callum', country: 'Australia', sortOrder: 'New', difficulty: 'Easy', watched: false, notes: 'Why long-term commitment and daily practice shape real progress.' },
+      { id: 'arj7oStGLkU', title: 'Inside the Mind of a Master Procrastinator', level: 'B1', duration: '14:03', creator: 'Liam', country: 'United States', sortOrder: 'New', difficulty: 'Easy', watched: false, notes: 'Everyday habits, decision-making, and beating procrastination.' }
     ];
 
     const DEFAULT_WORDS = [
-      { text: 'alley', meaning: 'زقاق / ممر ضيق', status: 'learning' },
-      { text: 'garment', meaning: 'قطعة ملابس / ثوب', status: 'learning' },
-      { text: 'ominous', meaning: 'نذير شؤم / مقلق', status: 'learning' },
-      { text: 'stuffed', meaning: 'ممتلئ / محشو', status: 'learning' },
-      { text: 'coastline', meaning: 'خط الساحل', status: 'learning' },
-      { text: 'fair enough', meaning: 'معقول / مقنع', status: 'learned' }
+      { text: 'alley', meaning: 'زقاق / ممر ضيق', example: 'They walked down a quiet alley behind the market.', conjugation: 'alley / alleys', status: 'learning' },
+      { text: 'stroll', meaning: 'نزهة / يتمشى ببطء', example: 'We took a slow stroll along the coast after dinner.', conjugation: 'stroll / strolled / strolling', status: 'learning' },
+      { text: 'peckish', meaning: 'جائع قليلاً / يشتهي خفيفاً', example: 'I am feeling a bit peckish before lunch.', conjugation: 'adjective (informal)', status: 'learning' },
+      { text: 'run out of', meaning: 'ينفد منه', example: 'We ran out of coffee before guests arrived.', conjugation: 'run out of / ran out of / running out of', status: 'learning' },
+      { text: 'startle', meaning: 'يفاجئ / يذهل فجأة', example: 'The sudden noise startled the birds on the roof.', conjugation: 'startle / startled / startling', status: 'learning' },
+      { text: 'fair enough', meaning: 'معقول / مقنع', example: 'Fair enough, that makes a lot of sense.', conjugation: 'idiomatic phrase', status: 'learned' }
     ];
 
+    const PHOTO_CHIT_CHAT_SCENES = [
+      {
+        url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80',
+        labels: 'Celebration hall, tiered cake, guests seated at tables, waiters carrying dessert',
+        vocab: 'celebration, balance, carefully, gather around, laughter, centerpiece',
+        description: 'Two servers are carrying a tall white tiered cake across a crowded celebration room while guests watch closely from round tables.'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1000&q=80',
+        labels: 'Suspension bridge, waterfront bay, clear sky, city skyline',
+        vocab: 'landmark, overlook, breezy, scenery, commute, horizon',
+        description: 'A wide suspension bridge stretches across calm water on a bright day with a breezy coastal view.'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80',
+        labels: 'Team collaboration, laptops, open notebook, friendly discussion',
+        vocab: 'brainstorm, point out, wrap up, perspective, align, takeaway',
+        description: 'People sit around a table sharing ideas and working together on a project with laptops and notes.'
+      }
+    ];
+
+    const ROLE_PLAY_SCENARIOS = {
+      'Travel': [
+        'Ordering at a café', 'Ordering at a restaurant', 'Checking into a hotel', 'Checking in at the airport',
+        'Buying a train ticket', 'Buying ticket to a tourist attraction', 'Booking a tour', 'Renting a car',
+        'Asking for directions', 'Asking for local recommendations', 'Negotiating prices at a street market',
+        'Complaining about a problem at your hotel', 'Dealing with a flight delay', 'Talking to the police'
+      ],
+      'Living in a New Country': [
+        'Buying a metro pass', 'Getting your mobile phone working', 'Mailing a package',
+        'Asking a supermarket employee for help', 'Joining a gym', 'Opening a bank account',
+        'Meeting your neighbor', 'Calling a plumber', 'Explaining a problem with your car',
+        'Going to the doctor', 'Registering as a resident', 'Setting up internet and utilities',
+        'Calling a real estate agent', 'Enrolling your children in school',
+        'Asking your landlord to fix a problem', 'Talking with friends about living abroad'
+      ],
+      'Work & Business': [
+        'Interviewing for a new job', 'Small talk with coworkers', 'Requesting time off with your boss',
+        'Discussing work with a colleague', 'Introducing yourself on your first day',
+        'Meeting with HR to request remote work', 'Discussing work-life balance',
+        'Receiving a performance review', 'Giving feedback to your employee',
+        'Getting help from a career advisor', 'Attending a networking event',
+        'Dealing with an unhappy client', 'Pitching a business idea'
+      ],
+      'Social & Family Life': [
+        'Making weekend plans with a friend', 'Getting a haircut', 'Grocery shopping with your partner',
+        'Making a reservation at a restaurant', 'Catching up with an old friend', 'Going on a first date',
+        'Hosting friends for dinner', 'Returning an item for a refund', 'Calling to reschedule an appointment',
+        'Telling your child to do their homework', 'Discussing your child with their teacher'
+      ],
+      'Custom': [
+        'Custom real-life situation'
+      ]
+    };
+
     const FLUENCY_LEVELS = [
-      { code: 'A0', name: 'Complete Beginner', hours: 0, words: 0 },
-      { code: 'A1', name: 'Beginner', hours: 100, words: 800 },
-      { code: 'A2', name: 'Upper Beginner', hours: 225, words: 2000 },
-      { code: 'B1', name: 'Intermediate', hours: 400, words: 3700 },
-      { code: 'B2', name: 'Upper Intermediate', hours: 800, words: 6500 },
-      { code: 'C1', name: 'Advanced', hours: 1200, words: 8000 },
-      { code: 'C2', name: 'Native-Like', hours: 2000, words: 12000 }
+      { code: 'A0', name: 'Complete Beginner', hours: 0, words: 0, tip: 'Focus on visual context in videos, Photo Chit Chat descriptions, and Crosstalk.' },
+      { code: 'A1', name: 'Beginner', hours: 100, words: 800, tip: 'Follow simple learner videos and start mixing familiar phrases into Crosstalk.' },
+      { code: 'A2', name: 'Upper Beginner', hours: 225, words: 2000, tip: 'Watch longer stories/vlogs, practice vocab examples, and speak in simple sentences.' },
+      { code: 'B1', name: 'Intermediate', hours: 400, words: 3700, tip: 'Enjoy everyday conversations, describe photos/topics freely, and practice speaking regularly.' },
+      { code: 'B2', name: 'Upper Intermediate', hours: 800, words: 6500, tip: 'Discuss varied topics, do role plays, and use gentle feedback to refine phrasing.' },
+      { code: 'C1', name: 'Advanced', hours: 1200, words: 8000, tip: 'Explore complex topics, import custom videos, and polish natural rhythm and nuance.' },
+      { code: 'C2', name: 'Native-Like', hours: 2000, words: 12000, tip: 'Use English effortlessly across work, social life, and nuanced discussions.' }
     ];
 
     let state = JSON.parse(localStorage.getItem('bloom_app_state')) || {
-      userName: 'Hussein', dailyGoal: 60, todayMinutes: 0, totalMinutes: 48000,
-      streak: 1, activeDays: [new Date().getDate()],
-      tutor: { name: 'Jay-i 🇬🇧', initial: 'J', voice: 'en-GB' },
-      settings: { transcript: 'always', speed: '0.96', crosstalk: true, corrections: 'Gentle', nativeLang: 'Arabic', autoVoice: true },
-      videos: DEFAULT_VIDEOS, currentVideo: DEFAULT_VIDEOS[0], words: DEFAULT_WORDS,
-      outsideLogs: [], sessionHistory: []
+      userName: 'Hussein',
+      dailyGoal: 60,
+      todayMinutes: 0,
+      totalMinutes: 48000,
+      streak: 1,
+      activeDays: [new Date().getDate()],
+      bannerDismissed: false,
+      tutor: { name: 'Clara 🇬🇧', initial: 'C', voice: 'en-GB', accent: 'British English' },
+      settings: { transcript: 'always', speed: '0.96', crosstalk: true, corrections: 'Gentle', nativeLang: 'Arabic', displayLang: 'en', autoVoice: true },
+      videos: DEFAULT_VIDEOS,
+      currentVideo: DEFAULT_VIDEOS[0],
+      words: DEFAULT_WORDS,
+      outsideLogs: [],
+      sessionHistory: []
     };
-    if (typeof state.settings.autoVoice !== 'boolean') state.settings.autoVoice = true;
 
-    let hideWatched = false, selectedOutsideType = 'Watching', currentChatMode = 'general', flashcardIndex = 0;
+    // Normalize legacy tutor state so male/female names & voices stay matched
+    if (state.tutor?.name?.includes('Jay')) {
+      state.tutor = { name: 'Clara 🇬🇧', initial: 'C', voice: 'en-GB', accent: 'British English' };
+    }
+    if (typeof state.settings?.autoVoice !== 'boolean') state.settings.autoVoice = true;
 
-    // 2-minute continuous speaking controller (prevents early cutoffs on pauses)
+    let hideWatched = false;
+    let sortMode = 'Featured';
+    let levelFilterMode = 'Include';
+    let selectedLevels = [];
+    let countryFilterMode = 'Include';
+    let selectedCountries = [];
+    let selectedOutsideType = 'Watching';
+    let currentChatMode = 'general';
+    let currentScenarioCategory = '';
+    let currentScenarioSituation = '';
+    let currentShadowingTopic = '';
+    let chitChatIndex = 0;
+    let cardSubTabMap = {};
+    let selectedVocabIndices = new Set([0, 1, 2]);
+    let flashcardMode = 'recall';
+    let flashcardDeck = [];
+    let flashcardIdx = 0;
+    let flashcardRevealed = false;
+
+    // 120-second speaking controller
     let activeRecognition = null;
     let isListeningSession = false;
     let listenSeconds = 0;
     let listenTicker = null;
     let collectedTranscript = '';
 
-    function saveState() { localStorage.setItem('bloom_app_state', JSON.stringify(state)); updateAllUI(); }
+    // Immediate stop for any video or AI voice when leaving a screen/tab
+    function stopAllMediaAndSpeech() {
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      stopListeningSession(true);
+      const homeFrame = document.getElementById('currentVideoFrame');
+      const watchFrame = document.getElementById('watchLessonFrame');
+      if (homeFrame && homeFrame.src !== 'about:blank') homeFrame.src = 'about:blank';
+      if (watchFrame && watchFrame.src !== 'about:blank') watchFrame.src = 'about:blank';
+    }
+
+    function activateHomeVideoIfNeeded() {
+      const homeFrame = document.getElementById('currentVideoFrame');
+      if (homeFrame && state.currentVideo?.id) {
+        homeFrame.src = `https://www.youtube.com/embed/${state.currentVideo.id}?rel=0`;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('bloom_app_state', JSON.stringify(state));
+      updateAllUI();
+    }
+
+    function dismissLiveBanner() {
+      state.bannerDismissed = true;
+      saveState();
+    }
+
     function switchTab(tabName) {
+      stopAllMediaAndSpeech();
+      closeAllPopovers();
       document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       document.getElementById('tab-' + tabName).classList.add('active');
       document.getElementById('nav-' + tabName).classList.add('active');
+      if (tabName === 'home') activateHomeVideoIfNeeded();
+      if (tabName === 'speak') resetSpeakView(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
     function openModal(id) {
       if (id === 'outsideModal') document.getElementById('outsideDate').valueAsDate = new Date();
       if (id === 'outsideHistoryModal') renderOutsideLogs();
+      if (id === 'lessonSettingsModal') {
+        document.getElementById('modalTutorSelect').value = `${state.tutor.name}|${state.tutor.initial}|${state.tutor.voice}|${state.tutor.accent}`;
+        document.getElementById('modalNativeLang').value = state.settings.nativeLang;
+      }
       document.getElementById(id).classList.add('open');
     }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function syncTutorFromModal() {
+      const [name, initial, voice, accent] = document.getElementById('modalTutorSelect').value.split('|');
+      state.tutor = { name, initial, voice, accent };
+      saveState();
+    }
+
+    function syncLangFromModal() {
+      state.settings.nativeLang = document.getElementById('modalNativeLang').value;
+      saveState();
+    }
 
     function setLessonStep(step) {
-      [1,2,3].forEach(n => {
+      [1, 2, 3].forEach(n => {
         const node = document.getElementById('stepNode' + n);
         node.classList.remove('active', 'completed');
         if (n < step) node.classList.add('completed');
@@ -587,18 +966,25 @@
       });
       document.getElementById('stepLine1').classList.toggle('done', step > 1);
       document.getElementById('stepLine2').classList.toggle('done', step > 2);
-      if (step === 2) switchTab('learn');
-      if (step === 3) startDiscussCurrentVideo();
+      if (step === 1) activateHomeVideoIfNeeded();
+      if (step === 2) { stopAllMediaAndSpeech(); openVideoVocabOverlay(); }
+      if (step === 3) { stopAllMediaAndSpeech(); startDiscussCurrentVideo(); }
     }
 
     function completeCurrentWatch() {
+      stopAllMediaAndSpeech();
       addImmersionMinutes(10);
       const vid = state.videos.find(v => v.id === state.currentVideo.id);
       if (vid) vid.watched = true;
-      saveState(); setLessonStep(2);
+      saveState();
+      setLessonStep(2);
     }
 
-    function startDiscussCurrentVideo() { switchTab('speak'); launchSpeakMode('discuss_video'); }
+    function startDiscussCurrentVideo() {
+      stopAllMediaAndSpeech();
+      switchTab('speak');
+      launchSpeakMode('discuss_video');
+    }
 
     function extractYouTubeId(url) {
       const m = url.match(/^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
@@ -610,44 +996,363 @@
       if (!ytId) return alert('Please paste a valid YouTube link.');
       const newVid = {
         id: ytId,
-        title: document.getElementById('newVideoTitle').value.trim() || 'Custom YouTube Lesson',
+        title: document.getElementById('newVideoTitle').value.trim() || 'Custom Video Lesson',
         level: document.getElementById('newVideoLevel').value,
-        duration: 'Custom', creator: 'YouTube', watched: false,
-        notes: document.getElementById('newVideoNotes').value.trim() || 'Custom video'
+        country: document.getElementById('newVideoCountry').value,
+        duration: 'Lesson',
+        creator: state.tutor.name.split(' ')[0],
+        sortOrder: 'New',
+        difficulty: 'Easy',
+        watched: false,
+        notes: document.getElementById('newVideoNotes').value.trim() || 'Custom immersion video'
       };
-      state.videos.unshift(newVid); state.currentVideo = newVid;
-      saveState(); closeModal('addVideoModal'); switchTab('home');
+      state.videos.unshift(newVid);
+      state.currentVideo = newVid;
+      saveState();
+      closeModal('addVideoModal');
+      switchTab('home');
+    }
+
+    function closeAllPopovers(exceptId = null) {
+      ['sortPopover', 'levelPopover', 'countryPopover'].forEach(id => {
+        if (id !== exceptId) document.getElementById(id)?.classList.remove('open');
+      });
+    }
+
+    function togglePopover(id) {
+      closeAllPopovers(id);
+      const pop = document.getElementById(id);
+      if (id === 'sortPopover') renderSortPopover();
+      if (id === 'levelPopover') renderLevelPopover();
+      if (id === 'countryPopover') renderCountryPopover();
+      pop.classList.toggle('open');
+    }
+
+    function renderSortPopover() {
+      const opts = ['Featured', 'New', 'Easy', 'Hard', 'Random'];
+      document.getElementById('sortPopover').innerHTML = opts.map(o => `
+        <div class="popover-item ${sortMode === o ? 'selected' : ''}" onclick="setSortMode('${o}')">
+          <span>${o}</span><span>${sortMode === o ? '✓' : ''}</span>
+        </div>
+      `).join('');
+    }
+
+    function setSortMode(mode) {
+      sortMode = mode;
+      document.getElementById('sortFilterBtn').textContent = `${mode} ⇅`;
+      closeAllPopovers();
+      renderVideos();
+    }
+
+    function renderLevelPopover() {
+      const levels = [
+        { code: 'A0', label: 'A0 Complete Beginner' },
+        { code: 'A1', label: 'A1 Beginner' },
+        { code: 'A2', label: 'A2 Upper Beginner' },
+        { code: 'B1', label: 'B1 Intermediate' },
+        { code: 'B2', label: 'B2 Upper Intermediate' },
+        { code: 'C1', label: 'C1 Advanced' }
+      ];
+      document.getElementById('levelPopover').innerHTML = `
+        <div class="mode-pill-switch">
+          <button class="${levelFilterMode === 'Include' ? 'active' : ''}" onclick="setLevelMode('Include')">Include</button>
+          <button class="${levelFilterMode === 'Exclude' ? 'active' : ''}" onclick="setLevelMode('Exclude')">Exclude</button>
+        </div>
+        ${levels.map(l => {
+          const active = selectedLevels.includes(l.code);
+          return `<div class="popover-item ${active ? 'selected' : ''}" onclick="toggleLevelSelection('${l.code}')"><span>${l.label}</span><span>${active ? '●' : '○'}</span></div>`;
+        }).join('')}
+      `;
+    }
+
+    function setLevelMode(m) { levelFilterMode = m; renderLevelPopover(); renderVideos(); }
+    function toggleLevelSelection(code) {
+      if (selectedLevels.includes(code)) selectedLevels = selectedLevels.filter(c => c !== code);
+      else selectedLevels.push(code);
+      document.getElementById('levelFilterBtn').textContent = selectedLevels.length ? `${levelFilterMode}: ${selectedLevels.join(', ')}` : 'All Levels ▾';
+      renderLevelPopover();
+      renderVideos();
+    }
+
+    function renderCountryPopover() {
+      const countries = ['Australia', 'Canada', 'Ireland', 'United Kingdom', 'United States'];
+      document.getElementById('countryPopover').innerHTML = `
+        <div class="mode-pill-switch">
+          <button class="${countryFilterMode === 'Include' ? 'active' : ''}" onclick="setCountryMode('Include')">Include</button>
+          <button class="${countryFilterMode === 'Exclude' ? 'active' : ''}" onclick="setCountryMode('Exclude')">Exclude</button>
+        </div>
+        ${countries.map(c => {
+          const active = selectedCountries.includes(c);
+          return `<div class="popover-item ${active ? 'selected' : ''}" onclick="toggleCountrySelection('${c}')"><span>${c}</span><span>${active ? '●' : '○'}</span></div>`;
+        }).join('')}
+      `;
+    }
+
+    function setCountryMode(m) { countryFilterMode = m; renderCountryPopover(); renderVideos(); }
+    function toggleCountrySelection(c) {
+      if (selectedCountries.includes(c)) selectedCountries = selectedCountries.filter(x => x !== c);
+      else selectedCountries.push(c);
+      document.getElementById('countryFilterBtn').textContent = selectedCountries.length ? `${countryFilterMode}: ${selectedCountries.length} selected` : 'All Countries ▾';
+      renderCountryPopover();
+      renderVideos();
     }
 
     function toggleWatchSub(sub) {
+      stopAllMediaAndSpeech();
       document.getElementById('watchSubBrowse').classList.toggle('active', sub === 'browse');
       document.getElementById('watchSubHistory').classList.toggle('active', sub === 'history');
       renderVideos(sub === 'history');
     }
-    function toggleHideWatched() { hideWatched = !hideWatched; document.getElementById('hideWatchedSwitch').classList.toggle('on', hideWatched); renderVideos(); }
+
+    function toggleHideWatched() {
+      hideWatched = !hideWatched;
+      document.getElementById('hideWatchedSwitch').classList.toggle('on', hideWatched);
+      renderVideos();
+    }
 
     function renderVideos(onlyWatched = false) {
       const grid = document.getElementById('videoGrid');
-      const level = document.getElementById('levelFilter').value;
-      const q = document.getElementById('videoSearchInput').value.toLowerCase();
-      const list = state.videos.filter(v => {
+      const creator = document.getElementById('tutorCreatorFilter').value;
+      const q = document.getElementById('videoSearchInput').value.toLowerCase().trim();
+
+      let list = state.videos.filter(v => {
         if (onlyWatched && !v.watched) return false;
         if (!onlyWatched && hideWatched && v.watched) return false;
-        if (level !== 'ALL' && v.level !== level) return false;
-        if (q && !v.title.toLowerCase().includes(q)) return false;
+        if (creator !== 'ALL' && v.creator !== creator) return false;
+        if (selectedLevels.length) {
+          const match = selectedLevels.includes(v.level);
+          if (levelFilterMode === 'Include' && !match) return false;
+          if (levelFilterMode === 'Exclude' && match) return false;
+        }
+        if (selectedCountries.length) {
+          const match = selectedCountries.includes(v.country);
+          if (countryFilterMode === 'Include' && !match) return false;
+          if (countryFilterMode === 'Exclude' && match) return false;
+        }
+        if (q && !v.title.toLowerCase().includes(q) && !(v.notes || '').toLowerCase().includes(q)) return false;
         return true;
       });
+
+      if (sortMode === 'New') list = list.filter(v => v.sortOrder === 'New').concat(list.filter(v => v.sortOrder !== 'New'));
+      if (sortMode === 'Easy') list = list.filter(v => v.difficulty === 'Easy').concat(list.filter(v => v.difficulty !== 'Easy'));
+      if (sortMode === 'Hard') list = list.filter(v => v.difficulty === 'Hard').concat(list.filter(v => v.difficulty !== 'Hard'));
+      if (sortMode === 'Random') list = [...list].sort(() => Math.random() - 0.5);
+
       grid.innerHTML = list.map(v => `
-        <div class="video-card" onclick="selectVideo('${v.id}')">
-          <div class="thumb-box"><img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" /><span class="level-badge ${v.level.toLowerCase()}">${v.level}</span><span class="duration-badge">${v.duration}</span></div>
-          <div class="video-card-body"><div class="video-card-title">${v.title}</div><div class="video-card-meta"><span>Creator: ${v.creator}</span><span>${v.watched ? '✓ Watched' : ''}</span></div></div>
+        <div class="video-card" onclick="openVideoInWatch('${v.id}')">
+          <div class="thumb-box">
+            <img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${escapeHtml(v.title)}" />
+            <span class="level-badge ${v.level.toLowerCase()}">${v.level}</span>
+            <span class="duration-badge">${v.duration}</span>
+          </div>
+          <div class="video-card-body">
+            <div class="video-card-title">${escapeHtml(v.title)}</div>
+            <div class="video-card-meta"><span>Creator: ${escapeHtml(v.creator)}</span><span>${v.watched ? '✓ Watched' : escapeHtml(v.country || '')}</span></div>
+          </div>
         </div>
-      `).join('') || '<p class="subtitle">No matching videos.</p>';
+      `).join('') || '<p class="subtitle">No videos match your filters.</p>';
     }
 
-    function selectVideo(id) { const vid = state.videos.find(v => v.id === id); if (vid) { state.currentVideo = vid; saveState(); switchTab('home'); } }
+    function openVideoInWatch(id) {
+      stopAllMediaAndSpeech();
+      const vid = state.videos.find(v => v.id === id);
+      if (!vid) return;
+      state.currentVideo = vid;
+      localStorage.setItem('bloom_app_state', JSON.stringify(state));
+      document.getElementById('activeVideoLessonPanel').style.display = 'block';
+      document.getElementById('watchLessonTitle').textContent = vid.title;
+      document.getElementById('watchLessonFrame').src = `https://www.youtube.com/embed/${vid.id}?rel=0`;
+      document.getElementById('activeVideoLessonPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function closeActiveVideoLesson() {
+      stopAllMediaAndSpeech();
+      document.getElementById('activeVideoLessonPanel').style.display = 'none';
+    }
+
+    function playNextVideo() {
+      const idx = state.videos.findIndex(v => v.id === state.currentVideo.id);
+      const next = state.videos[(idx + 1) % state.videos.length];
+      if (next) openVideoInWatch(next.id);
+    }
+
+    function openVideoVocabOverlay() {
+      stopAllMediaAndSpeech();
+      document.getElementById('vocabOverlayTitle').textContent = `Vocabulary • ${state.currentVideo.title}`;
+      document.getElementById('vocabJumpChips').innerHTML = state.words.map((w, i) => `
+        <u onclick="document.getElementById('vocabCard-${i}')?.scrollIntoView({behavior:'smooth'})">${escapeHtml(w.text)}</u>
+      `).join(', ');
+      renderVideoVocabCards();
+      document.getElementById('videoVocabOverlay').classList.add('open');
+      lucide.createIcons();
+    }
+
+    function renderVideoVocabCards() {
+      document.getElementById('videoVocabCardsContainer').innerHTML = state.words.map((w, i) => {
+        const sub = cardSubTabMap[i] || 'definition';
+        const checked = selectedVocabIndices.has(i);
+        let detail = '';
+        if (sub === 'definition') detail = `<strong>Translation (${state.settings.nativeLang}):</strong> ${escapeHtml(w.meaning)}`;
+        if (sub === 'conjugation') detail = `<strong>Forms / Usage:</strong> ${escapeHtml(w.conjugation || w.text)}`;
+        if (sub === 'example') detail = `<strong>Example:</strong> ${escapeHtml(w.example || `I practiced using "${w.text}" today.`)}`;
+        if (sub === 'use') detail = `<strong>Try saying it:</strong> Say a natural sentence using <em>${escapeHtml(w.text)}</em> with ${state.tutor.name.split(' ')[0]}.`;
+
+        return `
+          <div class="study-word-card" id="vocabCard-${i}">
+            <div class="study-word-top">
+              <span style="background:var(--bg-green-tint);color:var(--forest);padding:3px 10px;border-radius:999px;">• • •</span>
+              <span style="cursor:pointer;" onclick="toggleCardDetail(${i})">文ₐ Reveal</span>
+              <label style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--forest);">
+                <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleVocabSelect(${i})" /> Save
+              </label>
+            </div>
+            <div class="study-word-center">
+              <span>${escapeHtml(w.text)}</span>
+              <button class="icon-circle-btn" style="width:32px;height:32px;" onclick="speakSingleWord('${escapeJs(w.text)}')"><i data-lucide="volume-2" size="15"></i></button>
+            </div>
+            <div class="study-subtabs">
+              <button class="study-subtab ${sub === 'definition' ? 'active' : ''}" onclick="setCardSubTab(${i},'definition')"><i data-lucide="book-open" size="15"></i>Definition</button>
+              <button class="study-subtab ${sub === 'conjugation' ? 'active' : ''}" onclick="setCardSubTab(${i},'conjugation')"><i data-lucide="table" size="15"></i>Conjugation</button>
+              <button class="study-subtab ${sub === 'example' ? 'active' : ''}" onclick="setCardSubTab(${i},'example')"><i data-lucide="file-text" size="15"></i>Example</button>
+              <button class="study-subtab ${sub === 'use' ? 'active' : ''}" onclick="setCardSubTab(${i},'use')"><i data-lucide="mic" size="15"></i>Use it</button>
+            </div>
+            <div class="study-detail-box" id="cardDetail-${i}">${detail}</div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function setCardSubTab(i, tab) { cardSubTabMap[i] = tab; renderVideoVocabCards(); }
+    function toggleCardDetail(i) {
+      const box = document.getElementById('cardDetail-' + i);
+      if (box) box.style.display = box.style.display === 'none' ? 'block' : 'block';
+    }
+    function toggleVocabSelect(i) {
+      if (selectedVocabIndices.has(i)) selectedVocabIndices.delete(i);
+      else selectedVocabIndices.add(i);
+    }
+    function addSelectedVideoWordsToGarden() {
+      addImmersionMinutes(5);
+      saveState();
+      alert(`Added ${selectedVocabIndices.size} selected words to your Vocab Garden!`);
+    }
+    function closeVideoVocabOverlay() {
+      stopAllMediaAndSpeech();
+      document.getElementById('videoVocabOverlay').classList.remove('open');
+    }
+
+    function openPhotoChitChat() {
+      stopAllMediaAndSpeech();
+      chitChatIndex = 0;
+      renderPhotoChitChatScene();
+      document.getElementById('photoChitChatOverlay').classList.add('open');
+      lucide.createIcons();
+    }
+
+    function renderPhotoChitChatScene() {
+      const sc = PHOTO_CHIT_CHAT_SCENES[chitChatIndex % PHOTO_CHIT_CHAT_SCENES.length];
+      document.getElementById('chitChatPhotoImg').src = sc.url;
+      document.getElementById('photoLabelsBox').style.display = 'none';
+      document.getElementById('photoLabelsBox').textContent = `Labels: ${sc.labels}`;
+      const words = sc.vocab.split(',').map(s => s.trim());
+      document.getElementById('usefulVocabCount').textContent = `${words.length} words`;
+      document.getElementById('usefulVocabBox').textContent = sc.vocab;
+      document.getElementById('chitListenSub').textContent = `${state.tutor.name.split(' ')[0]} describes it`;
+      document.getElementById('chitChatDescriptionBox').style.display = 'none';
+    }
+
+    function cycleChitChatPhoto() { chitChatIndex++; renderPhotoChitChatScene(); }
+    function togglePhotoLabels() {
+      const el = document.getElementById('photoLabelsBox');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+    function toggleUsefulVocab() {
+      const el = document.getElementById('usefulVocabBox');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+    function handleCustomPhotoUpload(ev) {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById('chitChatPhotoImg').src = reader.result;
+        document.getElementById('photoLabelsBox').textContent = 'Custom photo uploaded — describe what you see!';
+      };
+      reader.readAsDataURL(file);
+    }
+    function triggerChitChatListen() {
+      const sc = PHOTO_CHIT_CHAT_SCENES[chitChatIndex % PHOTO_CHIT_CHAT_SCENES.length];
+      const box = document.getElementById('chitChatDescriptionBox');
+      box.style.display = 'block';
+      box.textContent = `${state.tutor.name.split(' ')[0]}: ${sc.description}`;
+      speakText(sc.description, true);
+    }
+    function triggerChitChatSpeak() {
+      const sc = PHOTO_CHIT_CHAT_SCENES[chitChatIndex % PHOTO_CHIT_CHAT_SCENES.length];
+      closePhotoChitChat();
+      switchTab('speak');
+      launchSpeakMode('general', sc.description, `I am looking at a scene with ${sc.labels}. Ask me to describe what is happening in my own words.`);
+    }
+    function closePhotoChitChat() {
+      stopAllMediaAndSpeech();
+      document.getElementById('photoChitChatOverlay').classList.remove('open');
+    }
+
+    function openFlashcardMenu() {
+      stopAllMediaAndSpeech();
+      flashcardDeck = state.words.filter(w => w.status === 'learning');
+      if (!flashcardDeck.length) flashcardDeck = [...state.words];
+      document.getElementById('flashcardModeChooser').style.display = 'block';
+      document.getElementById('flashcardActiveStage').style.display = 'none';
+      document.getElementById('flashcardOverlay').classList.add('open');
+      lucide.createIcons();
+    }
+
+    function startFlashcardMode(mode) {
+      flashcardMode = mode;
+      flashcardIdx = 0;
+      flashcardRevealed = false;
+      document.getElementById('flashcardModeChooser').style.display = 'none';
+      document.getElementById('flashcardActiveStage').style.display = 'block';
+      renderFlashcardStage();
+    }
+
+    function renderFlashcardStage() {
+      const card = flashcardDeck[flashcardIdx % flashcardDeck.length];
+      document.getElementById('fcCounterBadge').textContent = `${(flashcardIdx % flashcardDeck.length) + 1} / ${flashcardDeck.length}`;
+      const promptText = flashcardMode === 'produce' ? card.meaning : (flashcardMode === 'listen' ? '🎧 Listen carefully...' : card.text);
+      const answerText = flashcardMode === 'produce' ? card.text : card.meaning;
+      if (flashcardMode === 'listen') speakSingleWord(card.text);
+
+      document.getElementById('flashcardActiveStage').innerHTML = `
+        <div class="study-word-card" style="text-align:center;">
+          <div class="study-word-top">
+            <span style="text-transform:uppercase;color:var(--forest);">${flashcardMode} mode</span>
+            <span style="cursor:pointer;" onclick="flashcardRevealed = !flashcardRevealed; renderFlashcardStage();">文ₐ Reveal</span>
+          </div>
+          <div style="font-size:24px;font-weight:800;color:var(--forest);padding:18px 0;">${escapeHtml(promptText)}</div>
+          <div style="display:flex;justify-content:center;gap:10px;margin-bottom:14px;">
+            <button class="btn-pill" onclick="speakSingleWord('${escapeJs(card.text)}')"><i data-lucide="volume-2" size="15"></i> Normal</button>
+            <button class="btn-pill" onclick="speakSingleWord('${escapeJs(card.text)}', 0.72)">🐢 Slow</button>
+          </div>
+          ${flashcardRevealed ? `<div class="study-detail-box" style="font-size:15px;font-weight:700;">${escapeHtml(answerText)}</div>` : ''}
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn-pill" onclick="openFlashcardMenu()">← Modes</button>
+          <button class="btn-pill btn-lime" onclick="flashcardIdx++; flashcardRevealed=false; renderFlashcardStage();">Next Card →</button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function closeFlashcardOverlay() {
+      stopAllMediaAndSpeech();
+      document.getElementById('flashcardOverlay').classList.remove('open');
+    }
 
     function toggleLearnSub(sub) {
+      stopAllMediaAndSpeech();
       document.getElementById('learnSubPractice').classList.toggle('active', sub === 'practice');
       document.getElementById('learnSubHistory').classList.toggle('active', sub === 'history');
       document.getElementById('learnPracticeView').style.display = sub === 'practice' ? 'block' : 'none';
@@ -658,12 +1363,17 @@
       const text = document.getElementById('newWordText').value.trim();
       const meaning = document.getElementById('newWordMeaning').value.trim();
       if (!text) return;
-      state.words.unshift({ text, meaning: meaning || 'Saved word', status: 'learning' });
-      document.getElementById('newWordText').value = ''; document.getElementById('newWordMeaning').value = '';
-      saveState(); closeModal('addWordModal');
+      state.words.unshift({ text, meaning: meaning || 'Saved word', example: `Using "${text}" in everyday speech.`, conjugation: text, status: 'learning' });
+      document.getElementById('newWordText').value = '';
+      document.getElementById('newWordMeaning').value = '';
+      saveState();
+      closeModal('addWordModal');
     }
 
-    function toggleWordStatus(idx) { state.words[idx].status = state.words[idx].status === 'learning' ? 'learned' : 'learning'; saveState(); }
+    function toggleWordStatus(idx) {
+      state.words[idx].status = state.words[idx].status === 'learning' ? 'learned' : 'learning';
+      saveState();
+    }
 
     function renderVocab() {
       const q = document.getElementById('vocabSearchInput').value.toLowerCase();
@@ -673,22 +1383,78 @@
       document.getElementById('vocabList').innerHTML = state.words
         .map((w, idx) => ({ ...w, idx }))
         .filter(w => w.text.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q))
-        .map(w => `<div class="word-row" onclick="toggleWordStatus(${w.idx})"><div><span class="word-dot ${w.status === 'learned' ? 'learned' : ''}"></span><strong>${w.text}</strong><span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${w.meaning}</span></div><span style="font-size:11px;font-weight:700;color:var(--forest);">${w.status === 'learned' ? 'Learned ✓' : 'Learning'}</span></div>`)
+        .map(w => `<div class="word-row" onclick="toggleWordStatus(${w.idx})"><div><span class="word-dot ${w.status === 'learned' ? 'learned' : ''}"></span><strong>${escapeHtml(w.text)}</strong><span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${escapeHtml(w.meaning)}</span></div><span style="font-size:11px;font-weight:700;color:var(--forest);">${w.status === 'learned' ? 'Learned ✓' : 'Learning'}</span></div>`)
         .join('');
     }
 
-    function openFlashcards() { if (!state.words.length) return; flashcardIndex = 0; renderFlashcard(false); openModal('flashcardModal'); }
-    function renderFlashcard(showBack) {
-      const w = state.words[flashcardIndex % state.words.length];
-      document.getElementById('flashcardBody').innerHTML = `
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Card ${(flashcardIndex % state.words.length) + 1} of ${state.words.length}</div>
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:32px 18px;margin-bottom:18px;"><div style="font-size:26px;font-weight:800;color:var(--forest);">${w.text}</div>${showBack ? `<div style="font-size:16px;color:var(--text-muted);margin-top:12px;">${w.meaning}</div>` : `<div style="font-size:13px;color:var(--text-muted);margin-top:12px;">Tap reveal</div>`}</div>
-        <div style="display:flex;gap:10px;justify-content:center;"><button class="btn-pill" onclick="renderFlashcard(true)">Reveal</button><button class="btn-pill btn-lime" onclick="flashcardIndex++;renderFlashcard(false)">Next →</button></div>
-      `;
+    function toggleTutorMenu() { document.getElementById('tutorDropdown').classList.toggle('open'); }
+    function selectTutor(name, initial, voice, accent) {
+      stopAllMediaAndSpeech();
+      state.tutor = { name, initial, voice, accent };
+      document.getElementById('tutorDropdown').classList.remove('open');
+      saveState();
     }
 
-    function toggleTutorMenu() { document.getElementById('tutorDropdown').classList.toggle('open'); }
-    function selectTutor(name, initial, voice) { state.tutor = { name, initial, voice }; document.getElementById('tutorDropdown').classList.remove('open'); saveState(); }
+    function resetSpeakView(stopAudio = true) {
+      if (stopAudio) stopAllMediaAndSpeech();
+      document.getElementById('liveChatPanel').classList.remove('active');
+      document.getElementById('rolePlayCategoriesView').style.display = 'none';
+      document.getElementById('rolePlaySituationsView').style.display = 'none';
+      document.getElementById('shadowingSetupView').style.display = 'none';
+      document.getElementById('speakModesList').style.display = 'block';
+    }
+
+    function openRolePlayCategories() {
+      stopAllMediaAndSpeech();
+      document.getElementById('speakModesList').style.display = 'none';
+      document.getElementById('rolePlaySituationsView').style.display = 'none';
+      document.getElementById('rolePlayCategoriesView').style.display = 'block';
+      const icons = { 'Travel': 'plane', 'Living in a New Country': 'home', 'Work & Business': 'briefcase', 'Social & Family Life': 'users', 'Custom': 'sparkles' };
+      document.getElementById('scenarioCategoryCards').innerHTML = Object.keys(ROLE_PLAY_SCENARIOS).map(cat => `
+        <div class="speak-mode-card" onclick="openRolePlaySituations('${escapeJs(cat)}')">
+          <div class="speak-mode-left">
+            <div class="speak-mode-icon"><i data-lucide="${icons[cat] || 'users'}"></i></div>
+            <div><div style="font-weight:700;font-size:15px;">${escapeHtml(cat)}</div>${cat === 'Custom' ? '<div style="font-size:12px;color:var(--text-muted);">Tell me the situation you would like to act out.</div>' : ''}</div>
+          </div>
+          <i data-lucide="chevron-right" size="18"></i>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openRolePlaySituations(category) {
+      currentScenarioCategory = category;
+      if (category === 'Custom') {
+        const customSit = prompt('Describe the situation you would like to act out:');
+        if (customSit && customSit.trim()) {
+          currentScenarioSituation = customSit.trim();
+          launchSpeakMode('role_play', customSit.trim());
+        }
+        return;
+      }
+      document.getElementById('rolePlayCategoriesView').style.display = 'none';
+      document.getElementById('rolePlaySituationsView').style.display = 'block';
+      document.getElementById('selectedScenarioTypeLabel').textContent = category;
+      document.getElementById('scenarioSituationCards').innerHTML = ROLE_PLAY_SCENARIOS[category].map(sit => `
+        <div class="speak-mode-card" onclick="currentScenarioSituation='${escapeJs(sit)}'; launchSpeakMode('role_play', '${escapeJs(sit)}')">
+          <div style="font-weight:700;font-size:15px;">${escapeHtml(sit)}</div>
+          <i data-lucide="chevron-right" size="18"></i>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openShadowingSetup() {
+      stopAllMediaAndSpeech();
+      document.getElementById('speakModesList').style.display = 'none';
+      document.getElementById('shadowingSetupView').style.display = 'block';
+      document.getElementById('shadowingHelperText').textContent = `${state.tutor.name.split(' ')[0]} will say a sentence, and then you will repeat that sentence. Mimic their speech as closely as possible.`;
+    }
+
+    function startShadowingSession() {
+      currentShadowingTopic = document.getElementById('shadowingTopicInput').value.trim() || 'everyday conversation';
+      launchSpeakMode('shadowing', currentShadowingTopic, `Let's start Shadowing on "${currentShadowingTopic}". Give me my first sentence to repeat.`);
+    }
 
     function toggleAutoVoice() {
       state.settings.autoVoice = !state.settings.autoVoice;
@@ -697,48 +1463,76 @@
     }
 
     const MODE_TITLES = { general: 'General Conversation', role_play: 'Role Play', discuss_video: 'Discuss a Video', shadowing: 'Shadowing', exercises: 'Exercises' };
-    function launchSpeakMode(mode, starterMessage = null) {
+    function launchSpeakMode(mode, situationOrTopic = '', starterPrompt = null) {
+      stopAllMediaAndSpeech();
       currentChatMode = mode;
-      document.getElementById('speakModesList').style.display = 'none';
-      document.getElementById('liveChatPanel').classList.add('active');
-      document.getElementById('chatModeTitle').textContent = `${MODE_TITLES[mode]} • ${state.tutor.name}`;
-      document.getElementById('chatSettingsBadge').textContent = `Crosstalk: ${state.settings.crosstalk ? 'ON' : 'OFF'} • Corrections: ${state.settings.corrections}`;
-      document.getElementById('chatMessages').innerHTML = '';
-      sendChatMessage(starterMessage || `Hi ${state.tutor.name.split(' ')[0]}! Let's start ${MODE_TITLES[mode]}.`, true);
-    }
+      if (mode === 'role_play') currentScenarioSituation = situationOrTopic || currentScenarioSituation;
+      if (mode === 'shadowing') currentShadowingTopic = situationOrTopic || currentShadowingTopic;
 
-    function closeChatPanel() {
-      stopListeningSession(false);
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-      document.getElementById('liveChatPanel').classList.remove('active');
-      document.getElementById('speakModesList').style.display = 'block';
+      document.getElementById('speakModesList').style.display = 'none';
+      document.getElementById('rolePlayCategoriesView').style.display = 'none';
+      document.getElementById('rolePlaySituationsView').style.display = 'none';
+      document.getElementById('shadowingSetupView').style.display = 'none';
+      document.getElementById('liveChatPanel').classList.add('active');
+
+      const extra = situationOrTopic ? ` (${situationOrTopic})` : '';
+      document.getElementById('chatModeTitle').textContent = `${MODE_TITLES[mode]}${extra} • ${state.tutor.name}`;
+      document.getElementById('chatSettingsBadge').textContent = `${state.tutor.accent} • Crosstalk: ${state.settings.crosstalk ? 'ON' : 'OFF'} • Corrections: ${state.settings.corrections}`;
+      document.getElementById('chatMessages').innerHTML = '';
+
+      const opener = starterPrompt || (
+        mode === 'role_play'
+          ? `Let's act out "${situationOrTopic}". You start or set the scene!`
+          : `Hi ${state.tutor.name.split(' ')[0]}, let's begin ${MODE_TITLES[mode]}!`
+      );
+      sendChatMessage(opener, true);
     }
 
     function endChatSession() {
+      stopAllMediaAndSpeech();
       addImmersionMinutes(5);
-      state.sessionHistory.unshift({ mode: MODE_TITLES[currentChatMode], date: new Date().toLocaleDateString(), tutor: state.tutor.name });
-      saveState(); closeChatPanel();
+      state.sessionHistory.unshift({
+        mode: `${MODE_TITLES[currentChatMode]}${currentScenarioSituation ? ` — ${currentScenarioSituation}` : ''}`,
+        date: new Date().toLocaleDateString(),
+        tutor: state.tutor.name,
+        stats: 'Spoke session · Feedback ready'
+      });
+      saveState();
+      resetSpeakView(true);
     }
 
     async function sendChatMessage(overrideText = null, isAutoStarter = false) {
-      stopListeningSession(false);
+      stopListeningSession(true);
       const input = document.getElementById('chatInput');
       const text = overrideText || input.value.trim();
       if (!text) return;
       const box = document.getElementById('chatMessages');
-      if (!isAutoStarter) { box.innerHTML += `<div class="msg-bubble user">${escapeHtml(text)}</div>`; input.value = ''; }
+      if (!isAutoStarter) {
+        box.innerHTML += `<div class="msg-bubble user">${escapeHtml(text)}</div>`;
+        input.value = '';
+      }
       const loadingId = 'loading-' + Date.now();
-      box.innerHTML += `<div class="msg-bubble ai" id="${loadingId}">Thinking...</div>`;
+      box.innerHTML += `<div class="msg-bubble ai" id="${loadingId}">${escapeHtml(state.tutor.name.split(' ')[0])} is thinking...</div>`;
       box.scrollTop = box.scrollHeight;
 
       try {
         const res = await fetch('/api/speak', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            mode: currentChatMode, message: text,
+            mode: currentChatMode,
+            tutorName: state.tutor.name,
+            tutorAccent: state.tutor.accent,
+            scenarioType: currentScenarioCategory,
+            situation: currentScenarioSituation,
+            topic: currentShadowingTopic,
+            message: text,
             videoTranscript: state.currentVideo.notes || state.currentVideo.title,
-            savedWords: state.words.slice(0, 8).map(w => w.text),
-            crosstalk: state.settings.crosstalk, corrections: state.settings.corrections, nativeLang: state.settings.nativeLang
+            savedWords: state.words.slice(0, 10).map(w => w.text),
+            crosstalk: state.settings.crosstalk,
+            corrections: state.settings.corrections,
+            nativeLang: state.settings.nativeLang,
+            userName: state.userName
           })
         });
         const data = await res.json();
@@ -746,7 +1540,11 @@
         const hidden = state.settings.transcript === 'click';
         document.getElementById(loadingId).innerHTML = `
           <div style="${hidden ? 'filter:blur(5px);cursor:pointer;' : ''}" onclick="this.style.filter='none'">${escapeHtml(reply)}</div>
-          <div class="msg-actions"><span onclick="speakText(${JSON.stringify(reply)}, true)">🔊 Listen</span>${hidden ? `<span onclick="this.parentElement.previousElementSibling.style.filter='none'">👁 Show</span>` : ''}</div>
+          <div class="msg-actions">
+            <span onclick="speakText(${JSON.stringify(reply)}, true)">🔊 Listen</span>
+            <span onclick="speakText(${JSON.stringify(reply)}, true, 0.78)">🐢 Slow</span>
+            ${hidden ? `<span onclick="this.parentElement.previousElementSibling.style.filter='none'">👁 Show</span>` : ''}
+          </div>
         `;
         if (state.settings.autoVoice) speakText(reply, false);
       } catch (e) {
@@ -755,8 +1553,7 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // Pick a more natural / human-sounding voice when available
-    function pickNaturalVoice(langPref) {
+    function pickNaturalVoice(langPref, genderHint) {
       if (!('speechSynthesis' in window)) return null;
       const voices = window.speechSynthesis.getVoices() || [];
       if (!voices.length) return null;
@@ -765,41 +1562,52 @@
       const matching = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langCode));
       const pool = matching.length ? matching : voices;
 
-      // Prefer neural / natural / enhanced / Google voices over basic robotic ones
-      const naturalScored = pool.map(v => {
+      const maleNames = ['liam', 'callum', 'daniel', 'oliver', 'arthur', 'george', 'ryan', 'aaron', 'james', 'thomas', 'google uk english male', 'google us english'];
+      const femaleNames = ['clara', 'serena', 'samantha', 'victoria', 'ava', 'kate', 'moira', 'google uk english female'];
+
+      const scored = pool.map(v => {
         const label = `${v.name} ${v.voiceURI}`.toLowerCase();
         let score = 0;
-        if (label.includes('natural') || label.includes('neural') || label.includes('premium') || label.includes('enhanced')) score += 5;
+        if (label.includes('natural') || label.includes('neural') || label.includes('premium') || label.includes('enhanced')) score += 6;
         if (label.includes('google')) score += 3;
-        if (label.includes('siri') || label.includes('daniel') || label.includes('serena') || label.includes('oliver') || label.includes('ava')) score += 2;
-        if (v.localService === false) score += 1;
+        if (genderHint === 'male' && maleNames.some(m => label.includes(m))) score += 5;
+        if (genderHint === 'female' && femaleNames.some(f => label.includes(f))) score += 5;
+        if (v.lang && v.lang.toLowerCase() === (langPref || '').toLowerCase()) score += 2;
         return { voice: v, score };
       }).sort((a, b) => b.score - a.score);
 
-      return naturalScored[0]?.voice || null;
+      return scored[0]?.voice || null;
     }
 
-    function speakText(text, force = true) {
+    function speakSingleWord(word, customRate = null) {
+      speakText(word, true, customRate);
+    }
+
+    function speakText(text, force = true, customRate = null) {
       if (!('speechSynthesis' in window)) return;
       if (!force && !state.settings.autoVoice) return;
       window.speechSynthesis.cancel();
 
-      const clean = text.replace(/💡 Tip:.*/s, '').trim();
+      const clean = String(text || '').replace(/💡 Tip:.*/s, '').trim();
+      if (!clean) return;
       const utter = new SpeechSynthesisUtterance(clean);
-      const chosen = pickNaturalVoice(state.tutor.voice);
+      const genderHint = state.tutor.initial === 'C' ? 'female' : 'male';
+      const chosen = pickNaturalVoice(state.tutor.voice, genderHint);
       if (chosen) utter.voice = chosen;
       utter.lang = state.tutor.voice || 'en-GB';
-      utter.rate = parseFloat(state.settings.speed || '0.96');
-      // Slight tutor personality pitch variation
-      utter.pitch = state.tutor.initial === 'H' ? 1.06 : (state.tutor.initial === 'K' ? 0.96 : 1.0);
+      utter.rate = customRate || parseFloat(state.settings.speed || '0.96');
+      utter.pitch = genderHint === 'female' ? 1.07 : 0.95;
       window.speechSynthesis.speak(utter);
     }
 
     if ('speechSynthesis' in window && window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = () => pickNaturalVoice(state.tutor.voice);
+      window.speechSynthesis.onvoiceschanged = () => {
+        const genderHint = state.tutor.initial === 'C' ? 'female' : 'male';
+        pickNaturalVoice(state.tutor.voice, genderHint);
+      };
     }
 
-    // 2-minute uninterrupted speaking window (auto-restarts on brief thinking pauses up to 120s)
+    // Up to 120 seconds (2 minutes) continuous speaking window without 5-second cutoffs
     function toggleVoiceInput() {
       if (isListeningSession) {
         finishSpeakingNow();
@@ -808,7 +1616,6 @@
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return alert('Speech recognition is not supported here—you can type or use your keyboard mic.');
 
-      // Stop AI from talking over you when you start speaking
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
       isListeningSession = true;
@@ -821,9 +1628,7 @@
       listenTicker = setInterval(() => {
         listenSeconds += 1;
         updateListeningLabel();
-        if (listenSeconds >= 120) {
-          finishSpeakingNow();
-        }
+        if (listenSeconds >= 120) finishSpeakingNow();
       }, 1000);
 
       startRecognitionInstance(SR);
@@ -846,17 +1651,12 @@
           if (event.results[i].isFinal) segmentFinal += piece + ' ';
           else interim += piece;
         }
-        const combined = `${collectedTranscript} ${segmentFinal} ${interim}`.trim();
-        document.getElementById('chatInput').value = combined;
+        document.getElementById('chatInput').value = `${collectedTranscript} ${segmentFinal} ${interim}`.trim();
       };
 
       rec.onend = () => {
-        if (segmentFinal.trim()) {
-          collectedTranscript = `${collectedTranscript} ${segmentFinal}`.trim();
-        } else if (document.getElementById('chatInput').value.trim()) {
-          collectedTranscript = document.getElementById('chatInput').value.trim();
-        }
-        // Keep listening automatically if under 120 seconds so brief pauses do not cut you off!
+        if (segmentFinal.trim()) collectedTranscript = `${collectedTranscript} ${segmentFinal}`.trim();
+        else if (document.getElementById('chatInput').value.trim()) collectedTranscript = document.getElementById('chatInput').value.trim();
         if (isListeningSession && listenSeconds < 120) {
           try { startRecognitionInstance(SR); } catch (_) { finishSpeakingNow(); }
         }
@@ -864,8 +1664,8 @@
 
       rec.onerror = (ev) => {
         if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
-          alert('Please allow microphone permission in your browser settings.');
-          stopListeningSession(false);
+          alert('Please allow microphone access in your browser settings.');
+          stopListeningSession(true);
         }
       };
 
@@ -895,24 +1695,42 @@
     }
 
     function addImmersionMinutes(mins) {
-      state.todayMinutes += mins; state.totalMinutes += mins;
-      const d = new Date().getDate(); if (!state.activeDays.includes(d)) state.activeDays.push(d);
+      state.todayMinutes += mins;
+      state.totalMinutes += mins;
+      const d = new Date().getDate();
+      if (!state.activeDays.includes(d)) state.activeDays.push(d);
       saveState();
     }
 
-    function selectOutsideType(btn, type) { selectedOutsideType = type; document.querySelectorAll('.activity-type-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
+    function selectOutsideType(btn, type) {
+      selectedOutsideType = type;
+      document.querySelectorAll('.activity-type-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
 
     function saveOutsideTime() {
       const total = (parseInt(document.getElementById('outsideHours').value || '0', 10) * 60) + parseInt(document.getElementById('outsideMins').value || '0', 10);
       if (total <= 0) return;
-      state.outsideLogs.unshift({ type: selectedOutsideType, date: document.getElementById('outsideDate').value || new Date().toISOString().slice(0, 10), minutes: total, desc: document.getElementById('outsideDesc').value.trim() || selectedOutsideType });
+      state.outsideLogs.unshift({
+        type: selectedOutsideType,
+        date: document.getElementById('outsideDate').value || new Date().toISOString().slice(0, 10),
+        minutes: total,
+        desc: document.getElementById('outsideDesc').value.trim() || selectedOutsideType
+      });
       addImmersionMinutes(total);
-      document.getElementById('outsideHours').value = ''; document.getElementById('outsideMins').value = ''; document.getElementById('outsideDesc').value = '';
+      document.getElementById('outsideHours').value = '';
+      document.getElementById('outsideMins').value = '';
+      document.getElementById('outsideDesc').value = '';
       closeModal('outsideModal');
     }
 
     function renderOutsideLogs() {
-      document.getElementById('outsideLogList').innerHTML = state.outsideLogs.map(l => `<div class="word-row"><div><strong>${l.type}</strong> • <span style="font-size:12px;color:var(--text-muted);">${l.date}</span><div style="font-size:12px;color:var(--text-muted);">${escapeHtml(l.desc)}</div></div><strong>${l.minutes} min</strong></div>`).join('') || '<p class="subtitle">No external time logged yet.</p>';
+      document.getElementById('outsideLogList').innerHTML = state.outsideLogs.map(l => `
+        <div class="word-row">
+          <div><strong>${escapeHtml(l.type)}</strong> • <span style="font-size:12px;color:var(--text-muted);">${escapeHtml(l.date)}</span><div style="font-size:12px;color:var(--text-muted);">${escapeHtml(l.desc)}</div></div>
+          <strong>${l.minutes} min</strong>
+        </div>
+      `).join('') || '<p class="subtitle">No external time logged yet.</p>';
     }
 
     function toggleCrosstalkSetting() { state.settings.crosstalk = !state.settings.crosstalk; saveState(); }
@@ -921,6 +1739,7 @@
       state.settings.speed = document.getElementById('settingSpeed').value;
       state.settings.corrections = document.getElementById('settingCorrections').value;
       state.settings.nativeLang = document.getElementById('nativeLangSelect').value;
+      state.settings.displayLang = document.getElementById('displayLangSelect').value;
       saveState();
     }
     function editUserName() { const n = prompt('Name:', state.userName); if (n && n.trim()) { state.userName = n.trim(); saveState(); } }
@@ -938,27 +1757,49 @@
     }
 
     function renderFluencyPath(totalHours) {
-      let curIdx = 0; FLUENCY_LEVELS.forEach((l, i) => { if (totalHours >= l.hours) curIdx = i; });
+      let curIdx = 0;
+      FLUENCY_LEVELS.forEach((l, i) => { if (totalHours >= l.hours) curIdx = i; });
       const cur = FLUENCY_LEVELS[curIdx], next = FLUENCY_LEVELS[curIdx + 1];
       document.getElementById('currentCefrTitle').textContent = cur.name;
       document.getElementById('currentCefrSub').textContent = `Level ${cur.code}`;
       document.getElementById('nextLevelHint').textContent = next ? `${Math.max(0, next.hours - totalHours).toFixed(1)}h to ${next.code} ${next.name}` : 'C2 Native-Like!';
-      document.getElementById('fluencyPathList').innerHTML = FLUENCY_LEVELS.map((l, i) => `<div class="fluency-node ${i === curIdx ? 'current' : ''}"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:11px;font-weight:800;opacity:0.8;">LEVEL ${l.code}</div><div style="font-size:17px;font-weight:800;">${l.name}</div></div><div style="text-align:right;font-size:12px;font-weight:700;"><div>⏱ ${l.hours.toLocaleString()}h</div><div>📖 ${l.words.toLocaleString()} words</div></div></div></div>`).join('');
+      document.getElementById('fluencyPathList').innerHTML = FLUENCY_LEVELS.map((l, i) => `
+        <div class="fluency-node ${i === curIdx ? 'current' : ''}">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-size:11px;font-weight:800;opacity:0.8;">LEVEL ${l.code}</div><div style="font-size:17px;font-weight:800;">${l.name}</div></div>
+            <div style="text-align:right;font-size:12px;font-weight:700;"><div>⏱ ${l.hours.toLocaleString()}h</div><div>📖 ${l.words.toLocaleString()} words</div></div>
+          </div>
+          <div style="font-size:12px;margin-top:8px;opacity:0.9;">${escapeHtml(l.tip)}</div>
+        </div>
+      `).join('');
     }
 
-    function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+    function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+    function escapeJs(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
 
     function updateAllUI() {
+      document.getElementById('topLiveBanner').classList.toggle('hidden', !!state.bannerDismissed);
+      document.body.classList.toggle('banner-dismissed', !!state.bannerDismissed);
+      document.getElementById('bannerTutorName').textContent = state.tutor.name.split(' ')[0];
+
       document.getElementById('goalDisplayText').textContent = `${state.todayMinutes}/${state.dailyGoal} min`;
       document.getElementById('goalFillBar').style.width = Math.min(100, Math.round((state.todayMinutes / state.dailyGoal) * 100)) + '%';
       document.getElementById('streakCount').textContent = state.streak;
-      document.getElementById('currentVideoFrame').src = `https://www.youtube.com/embed/${state.currentVideo.id}`;
+
+      const homeFrame = document.getElementById('currentVideoFrame');
+      if (document.getElementById('tab-home').classList.contains('active') && state.currentVideo?.id) {
+        const expected = `https://www.youtube.com/embed/${state.currentVideo.id}?rel=0`;
+        if (homeFrame.src !== expected) homeFrame.src = expected;
+      }
+
       document.getElementById('currentVideoTitle').textContent = state.currentVideo.title;
       document.getElementById('currentVideoLevel').textContent = `${state.currentVideo.level} Level`;
       document.getElementById('currentVideoDesc').textContent = state.currentVideo.notes || '';
+
       document.getElementById('activeTutorName').textContent = state.tutor.name;
       document.getElementById('activeTutorAvatar').textContent = state.tutor.initial;
       document.getElementById('autoVoiceBtn').textContent = `🔊 Auto Voice: ${state.settings.autoVoice ? 'ON' : 'OFF'}`;
+
       document.getElementById('profileNameDisplay').textContent = `${state.userName} ✏️`;
       document.getElementById('dailyGoalLabel').textContent = `${state.dailyGoal} min / day`;
       document.getElementById('crosstalkSwitch').classList.toggle('on', state.settings.crosstalk);
@@ -966,15 +1807,37 @@
       document.getElementById('settingSpeed').value = state.settings.speed;
       document.getElementById('settingCorrections').value = state.settings.corrections;
       document.getElementById('nativeLangSelect').value = state.settings.nativeLang;
+      document.getElementById('displayLangSelect').value = state.settings.displayLang || 'en';
+
       const totalHours = state.totalMinutes / 60;
       const outsideHours = state.outsideLogs.reduce((a, b) => a + b.minutes, 0) / 60;
       document.getElementById('progressStreakNum').textContent = state.streak;
       document.getElementById('totalHoursNum').textContent = `${totalHours.toFixed(1)}h`;
       document.getElementById('monthHoursLabel').textContent = `${(state.todayMinutes / 60).toFixed(1)} hours this month`;
       document.getElementById('outsideHoursLabel').textContent = `${outsideHours.toFixed(1)} hours outside Bloom`;
-      document.getElementById('sessionHistoryList').innerHTML = state.sessionHistory.map(s => `<div class="word-row"><div><strong>${s.mode}</strong> • <span style="font-size:12px;color:var(--text-muted);">${s.tutor}</span></div><span style="font-size:12px;color:var(--text-muted);">${s.date}</span></div>`).join('') || '<p class="subtitle">No completed sessions yet.</p>';
-      renderVideos(); renderVocab(); renderCalendar(); renderFluencyPath(totalHours); lucide.createIcons();
+
+      document.getElementById('sessionHistoryList').innerHTML = state.sessionHistory.map(s => `
+        <div class="word-row">
+          <div><strong>${escapeHtml(s.mode)}</strong> • <span style="font-size:12px;color:var(--text-muted);">${escapeHtml(s.tutor)}</span><div style="font-size:11px;color:var(--text-muted);">${escapeHtml(s.stats || '')}</div></div>
+          <span style="font-size:12px;color:var(--text-muted);">${escapeHtml(s.date)}</span>
+        </div>
+      `).join('') || '<p class="subtitle">No completed sessions yet.</p>';
+
+      renderVideos();
+      renderVocab();
+      renderCalendar();
+      renderFluencyPath(totalHours);
+      lucide.createIcons();
     }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.filter-bar') && !e.target.closest('.popover-menu')) {
+        closeAllPopovers();
+      }
+      if (!e.target.closest('.tutor-selector-wrap')) {
+        document.getElementById('tutorDropdown')?.classList.remove('open');
+      }
+    });
 
     updateAllUI();
   </script>

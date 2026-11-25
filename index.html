@@ -1,3 +1,179 @@
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders() });
+    }
+    if (url.pathname === '/api/bloom' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const apiKey = env.GEMINI_API_KEY || env.OPENAI_API_KEY;
+        if (!apiKey) {
+          return json({ error: 'Missing AI API key on worker.' }, 500);
+        }
+        const { systemPrompt, userPrompt, expectJson } = buildPrompt(body);
+        const raw = env.GEMINI_API_KEY
+          ? await callGemini(env.GEMINI_API_KEY, systemPrompt, userPrompt, expectJson)
+          : await callOpenAI(env.OPENAI_API_KEY, systemPrompt, userPrompt, expectJson);
+        return json({ reply: raw });
+      } catch (err) {
+        return json({ error: err?.message || 'Worker error' }, 500);
+      }
+    }
+    if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
+      return env.ASSETS.fetch(request);
+    }
+    return new Response('Not found', { status: 404 });
+  }
+};
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+  });
+}
+
+function buildPrompt(body) {
+  const langMap = { en: 'English', de: 'German', fr: 'French', es: 'Spanish' };
+  const langName = langMap[body.lang] || 'English';
+  const level = body.level || 'B2';
+  const tutorName = body.tutorName || 'Claire';
+  const tutorGender = body.tutorGender || 'female';
+
+  const systemPrompt = [
+    `You are ${tutorName}, a ${tutorGender === 'female' ? 'woman' : 'man'} language coach inside Bloom.`,
+    `Target language: ${langName}. Learner CEFR level: ${level}.`,
+    `Focus strictly on speaking, listening, and gentle, clear corrections on mistakes in ${langName}. Keep responses natural and concise.`
+  ].join(' ');
+
+  if (body.action === 'video_vocab') {
+    return {
+      expectJson: true,
+      systemPrompt,
+      userPrompt: `Extract 6 authentic vocabulary items fitting a ${langName} ${level} video titled "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Each item needs "term" (in ${langName}), "meaningInLang" (meaning in ${langName}), and "example" (natural sentence using the term in ${langName}). Return ONLY JSON: {"words":[{"term":"","meaningInLang":"","example":""}]}`
+    };
+  }
+  if (body.action === 'discuss_video') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Voice discussion on "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Learner said: "${body.message || ''}". Gently correct any mistake in 1 short line if needed, reply in 1-2 short spoken sentences, and ask one focused follow-up question in ${langName}.`
+    };
+  }
+  if (body.action === 'eval_flashcard') {
+    return {
+      expectJson: true,
+      systemPrompt,
+      userPrompt: `Evaluate spoken flashcard recall. Direction: "${body.direction || 'target_to_meaning'}". Card term: "${body.cardTerm || ''}". Expected meaning: "${body.cardMeaning || ''}". Learner said: "${body.message || ''}". Return ONLY JSON: {"accurate":true,"gentleCorrection":"","expectedAnswer":""}`
+    };
+  }
+  if (body.action === 'photo_chit_chat') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Learner described a photo (${body.topic || ''}) in ${langName} at ${level}: "${body.message || ''}". Give gentle mistake corrections, 2 natural upgrades, and 2 quick conversation ideas in ${langName}.`
+    };
+  }
+  if (body.action === 'topic_talk') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Learner spoke on "${body.topic || ''}" in ${langName} at ${level}: "${body.message || ''}". Give gentle written corrections on mistakes, a clean improved version, and one next angle in ${langName}.`
+    };
+  }
+  if (body.action === 'word_link') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Word Link starting with "${body.word || ''}" in ${langName} at ${level}. Learner spoke: "${body.message || ''}". Gently point out any word-linking or grammar mistakes in ${langName} and list 3 strong next words.`
+    };
+  }
+  if (body.action === 'shadowing') {
+    if (body.message === '__NEXT_SENTENCE__') {
+      return {
+        expectJson: false,
+        systemPrompt,
+        userPrompt: `Give ONE natural ${langName} sentence at CEFR ${level} for shadowing practice. Output ONLY the sentence.`
+      };
+    }
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Target sentence: "${body.topic || ''}". Learner shadowed: "${body.message || ''}". Give a brief gentle correction if needed, then give ONE next ${langName} sentence at ${level}.`
+    };
+  }
+  if (body.action === 'role_play') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Live voice role-play "${body.topic || 'Everyday situation'}" at ${level} in ${langName}. Learner said: "${body.message || ''}". Gently correct any mistake in 1 brief clause, reply in character in 1-2 short spoken sentences, and stay in character.`
+    };
+  }
+  if (body.action === 'grade_quiz') {
+    return {
+      expectJson: true,
+      systemPrompt,
+      userPrompt: `Grade ${level} assessment: ${JSON.stringify(body.quizAnswers || {})}. Return ONLY JSON: {"scorePercent":75,"feedback":"short summary"}`
+    };
+  }
+  return {
+    expectJson: false,
+    systemPrompt,
+    userPrompt: `Live spoken call turn at ${level} in ${langName}. Learner said: "${body.message || ''}". Gently correct any mistake briefly, reply naturally in 1-2 short spoken sentences, and ask one concise question.`
+  };
+}
+
+async function callGemini(apiKey, systemPrompt, userPrompt, expectJson) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        generationConfig: {
+          temperature: 0.4,
+          ...(expectJson ? { responseMimeType: 'application/json' } : {})
+        }
+      })
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'Gemini request failed');
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callOpenAI(apiKey, systemPrompt, userPrompt, expectJson) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      temperature: 0.4,
+      ...(expectJson ? { response_format: { type: 'json_object' } } : {}),
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ]
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'OpenAI request failed');
+  return data.choices?.[0]?.message?.content || '';
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,18 +190,15 @@
       --bg-app: #F4F9FF;
       --bg-surface: #FFFFFF;
       --bg-sky-soft: #E5F1FF;
-      --bg-sky-tint: #D6E9FF;
       --primary: #0284C7;
       --primary-dark: #0369A1;
       --primary-deep: #0C4A6E;
       --accent-ice: #38BDF8;
       --success: #0D9488;
-      --success-soft: #CCFBF1;
       --text-main: #0F172A;
       --text-muted: #52647A;
       --border: #D9E8F7;
       --shadow-sm: 0 2px 10px rgba(2, 132, 199, 0.06);
-      --shadow-md: 0 8px 24px rgba(2, 132, 199, 0.10);
       --shadow-lg: 0 18px 42px rgba(12, 74, 110, 0.16);
     }
 
@@ -333,8 +506,8 @@
         <div style="font-weight:800;color:var(--primary-deep);margin-bottom:10px;" data-i18n="savedVideos">Your Videos</div>
         <div id="videoShelfList" class="grid-2"></div>
       </div>
-    </section>
-        <!-- LEARN -->
+              </section>
+                  <!-- LEARN -->
     <section id="view-learn" class="view">
       <div class="card" style="margin-bottom:14px;">
         <h2 class="section-title" data-i18n="learnTitle">Learn</h2>
@@ -576,8 +749,8 @@
     let callState = CALL_STATE.IDLE, authMode = 'signin', speakMode = 'practice';
     let lastCoachReply = '', currentShadowSentence = '', flashcardCursor = 0, flashcardDirection = 'target_to_meaning', flashcardRevealed = false;
     let quizInterval = null, activeQuizData = null;
-
-    function saveBloom() { localStorage.setItem('bloom_v4_state', JSON.stringify(app)); renderAll(); }
+    </script>
+      <script>
     function fmtClock(sec) {
       const s = Math.max(0, Math.floor(sec));
       return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -676,8 +849,9 @@
       utter.onerror = () => { cleanup(); if (token === audioSessionId && onDone) onDone(); };
       window.speechSynthesis.speak(utter);
     }
-    </script>
-      <script>
+      </script>
+        <script>
+    function saveBloom() { localStorage.setItem('bloom_v4_state', JSON.stringify(app)); renderAll(); }
     function markTodayActive() { const d = new Date().getDate(); if (!app.activeDays.includes(d)) { app.activeDays.push(d); app.streakDays += 1; } }
     function addWatchMin(m) { app.watchMinutesToday = Math.min(60, app.watchMinutesToday + m); app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60); markTodayActive(); saveBloom(); }
     function addSpeakMin(m) { app.speakMinutesToday = Math.min(60, app.speakMinutesToday + m); app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60); markTodayActive(); saveBloom(); }
@@ -866,7 +1040,8 @@
         <div class="feedback-box" id="vidDiscussFeedback">Speak using Record & Send or start a Real Call on this video. No text chat is used.</div>
       `;
     }
-
+        </script>
+          <script>
     function startTimedRecording(maxSec, badgeId, onFinishedTranscript, silenceAutoSend = false) {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return alert('Speech recognition is not supported in this browser.');
@@ -1038,8 +1213,8 @@
       for (const t of tokens) { if (!lastChar || t.startsWith(lastChar)) { chained.push(t); lastChar = t.slice(-1); } }
       return chained.length ? `Chain matched (${chained.length}): ${chained.join(' → ')}` : `No word started with "${lastChar}".`;
     }
-      </script>
-        <script>
+          </script>
+            <script>
     let activeRolePlayTopic = '';
 
     function setSpeakMode(mode) {
@@ -1242,8 +1417,8 @@
         resBox.textContent = err.message || 'Could not grade quiz.';
       }
     }
-        </script>
-          <script>
+            </script>
+              <script>
     function switchView(name) {
       const keepPlayer = name === 'watch';
       stopAllAudioAndVideo(keepPlayer);

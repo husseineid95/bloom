@@ -2,133 +2,838 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bloom — English Immersion</title>
-  <script src="https://tailwindcss.com"></script>
-  <script src="https://unpkg.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#F7F5EE" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Bloom — Natural English Immersion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body {
-      background-color: #F5F4EE;
-      color: #1E4638;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    :root {
+      --bg-cream: #F7F5EE;
+      --bg-card: #FFFFFF;
+      --bg-soft: #EFECE3;
+      --bg-green-tint: #ECF7D8;
+      --bg-amber-tint: #FDF2E4;
+      --forest: #174B36;
+      --forest-dark: #0F3526;
+      --lime: #8CE027;
+      --lime-hover: #7ED11E;
+      --lime-ring: #96E833;
+      --text-main: #1A2E25;
+      --text-muted: #66756D;
+      --border: #E2DFD5;
+      --flame: #D96B27;
+      --shadow-sm: 0 2px 8px rgba(23, 75, 54, 0.05);
+      --shadow-md: 0 6px 20px rgba(23, 75, 54, 0.08);
+      --shadow-lg: 0 12px 32px rgba(23, 75, 54, 0.14);
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-top: 78px;
+      padding-bottom: 92px;
+      overflow-x: hidden;
+    }
+
+    .top-bar { position: fixed; top: 12px; left: 0; right: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 0 16px; pointer-events: none; }
+    .top-bar-inner { width: 100%; max-width: 960px; display: flex; align-items: center; justify-content: center; position: relative; }
+
+    .goal-pill {
+      pointer-events: auto; background: var(--bg-card); border: 1px solid var(--border);
+      box-shadow: var(--shadow-md); border-radius: 999px; padding: 9px 16px;
+      display: flex; align-items: center; gap: 12px; width: 100%; max-width: 420px;
+    }
+
+    .goal-text { font-size: 13px; font-weight: 700; color: var(--forest); white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .goal-track { flex: 1; height: 6px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; }
+    .goal-fill { height: 100%; width: 0%; background: var(--lime); border-radius: 999px; transition: width 0.35s ease; }
+    .goal-add-btn { background: none; border: none; color: var(--text-main); font-size: 18px; font-weight: 600; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    .streak-pill {
+      pointer-events: auto; position: absolute; right: 0; background: var(--bg-card);
+      border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: 999px;
+      padding: 8px 14px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .streak-pill svg { color: var(--flame); }
+
+    .container { max-width: 780px; margin: 0 auto; padding: 8px 20px 24px; }
+    .tab-view { display: none; animation: fadeIn 0.2s ease; }
+    .tab-view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    h1.page-title { font-size: 28px; font-weight: 800; color: var(--forest); letter-spacing: -0.02em; }
+    .subtitle { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-sm); padding: 18px 20px; }
+
+    .pill-toggle { display: inline-flex; background: var(--bg-soft); padding: 4px; border-radius: 999px; border: 1px solid var(--border); }
+    .pill-toggle button { border: none; background: transparent; padding: 7px 18px; border-radius: 999px; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
+    .pill-toggle button.active { background: var(--bg-card); color: var(--forest); box-shadow: var(--shadow-sm); }
+
+    .btn-pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-lime { background: var(--lime); border-color: var(--lime); color: var(--forest-dark); }
+    .btn-lime:hover { background: var(--lime-hover); }
+
+    .announcement-banner { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
+    .banner-left { display: flex; align-items: center; gap: 14px; }
+    .banner-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--bg-amber-tint); color: var(--flame); display: flex; align-items: center; justify-content: center; }
+
+    .lesson-steps { display: flex; align-items: center; justify-content: space-between; max-width: 520px; margin: 28px auto 24px; }
+    .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 12px 24px; }
+    .step-line.done { background: var(--lime); }
+    .step-node { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+    .step-circle { width: 64px; height: 64px; border-radius: 50%; background: var(--bg-soft); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    .step-node.active .step-circle { background: var(--bg-card); border: 4px solid var(--lime-ring); color: var(--forest); box-shadow: var(--shadow-md); }
+    .step-node.completed .step-circle { background: var(--bg-green-tint); border-color: var(--lime); color: var(--forest); }
+    .step-label { font-size: 13px; font-weight: 700; }
+
+    .current-video-card { margin-top: 22px; border-radius: 22px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+    .video-embed-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #111; }
+    .video-embed-wrap iframe { width: 100%; height: 100%; border: 0; }
+
+    .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 18px 0; }
+    .filter-select, .search-input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; }
+    .search-wrap { flex: 1; min-width: 180px; position: relative; }
+    .search-wrap input { width: 100%; padding-left: 36px; }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
+
+    .switch-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .switch { width: 42px; height: 24px; background: #D6D3C9; border-radius: 999px; position: relative; transition: background 0.2s; }
+    .switch.on { background: var(--lime); }
+    .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #FFF; border-radius: 50%; transition: transform 0.2s; }
+    .switch.on::after { transform: translateX(18px); }
+
+    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 16px; }
+    .video-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); cursor: pointer; }
+    .thumb-box { position: relative; aspect-ratio: 16 / 9; background: #23332B; overflow: hidden; }
+    .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+    .level-badge { position: absolute; top: 10px; left: 10px; background: #F59E0B; color: #FFF; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+    .level-badge.b1 { background: #10B981; }
+    .level-badge.c1 { background: #6366F1; }
+    .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #FFF; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+    .video-card-body { padding: 14px; }
+    .video-card-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .video-card-meta { font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+    .exercise-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
+    @media (max-width: 520px) { .exercise-grid { grid-template-columns: 1fr; } }
+    .exercise-tile { border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; background: var(--bg-card); cursor: pointer; }
+    .exercise-tile svg { color: var(--forest); margin-bottom: 8px; }
+    .exercise-tile h4 { font-size: 14px; font-weight: 700; }
+    .exercise-tile p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .vocab-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+    .vocab-stat-box { border-radius: 16px; padding: 14px; text-align: center; border: 1px solid var(--border); }
+    .vocab-stat-box.learning { background: var(--bg-green-tint); }
+    .vocab-stat-box.learned { background: var(--bg-amber-tint); }
+    .vocab-stat-num { font-size: 22px; font-weight: 800; color: var(--forest); }
+    .vocab-stat-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
+
+    .word-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .word-row:last-child { border-bottom: none; }
+    .word-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); display: inline-block; margin-right: 10px; }
+    .word-dot.learned { background: #F59E0B; }
+
+    .tutor-selector-wrap { display: flex; flex-direction: column; align-items: center; margin: 12px 0 22px; position: relative; }
+    .tutor-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px; }
+    .tutor-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 18px 8px 10px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); cursor: pointer; font-weight: 700; font-size: 16px; }
+    .tutor-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--forest); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
+    .tutor-dropdown { display: none; position: absolute; top: 76px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-lg); padding: 8px; width: 240px; z-index: 30; }
+    .tutor-dropdown.open { display: block; }
+    .tutor-option { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 14px; }
+    .tutor-option:hover { background: var(--bg-soft); }
+
+    .speak-mode-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; box-shadow: var(--shadow-sm); cursor: pointer; }
+    .speak-mode-left { display: flex; align-items: center; gap: 16px; }
+    .speak-mode-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-green-tint); color: var(--forest); display: flex; align-items: center; justify-content: center; }
+
+    .chat-panel { display: none; background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-md); overflow: hidden; margin-top: 12px; }
+    .chat-panel.active { display: block; }
+    .chat-header { background: var(--bg-soft); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .chat-messages { height: 340px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #FCFBF7; }
+    .msg-bubble { max-width: 82%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; }
+    .msg-bubble.ai { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border); }
+    .msg-bubble.user { align-self: flex-end; background: var(--forest); color: #FFF; }
+    .msg-actions { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--forest); }
+    .msg-actions span { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: var(--bg-soft); padding: 3px 8px; border-radius: 999px; }
+
+    .chat-input-bar { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--border); background: var(--bg-card); }
+    .chat-input-bar input { flex: 1; border: 1px solid var(--border); border-radius: 999px; padding: 10px 16px; font-family: inherit; font-size: 14px; outline: none; }
+    .icon-circle-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-soft); color: var(--forest); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+    .icon-circle-btn.recording { background: #EF4444; color: #FFF; border-color: #EF4444; }
+
+    .menu-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 18px; }
+    .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; font-weight: 600; }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item-left { display: flex; align-items: center; gap: 12px; color: var(--forest); }
+
+    .progress-hero { background: var(--bg-amber-tint); border-radius: 18px; padding: 22px; text-align: center; margin-bottom: 14px; }
+    .progress-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .progress-green-box { background: var(--bg-green-tint); border-radius: 18px; padding: 18px; }
+
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 14px; }
+    .cal-day-name { font-size: 11px; font-weight: 700; color: var(--text-muted); padding-bottom: 6px; }
+    .cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border-radius: 50%; }
+    .cal-cell.today { border: 2px solid var(--forest); font-weight: 800; }
+    .cal-cell.active-day { background: var(--lime); color: var(--forest-dark); font-weight: 800; }
+
+    .fluency-node { border: 2px solid var(--lime); border-radius: 20px; padding: 16px 18px; background: var(--bg-card); margin-bottom: 12px; }
+    .fluency-node.current { background: var(--lime); color: var(--forest-dark); }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-cream); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 6px 12px; z-index: 45; }
+    .nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: inherit; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; min-width: 64px; }
+    .nav-icon-pill { padding: 5px 16px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
+    .nav-btn.active { color: var(--forest); }
+    .nav-btn.active .nav-icon-pill { background: #DCEBD5; }
+
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15, 53, 38, 0.45); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
+    .modal-backdrop.open { display: flex; }
+    .modal-card { background: var(--bg-cream); border: 1px solid var(--border); border-radius: 26px; width: 100%; max-width: 460px; padding: 22px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+
+    .activity-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .activity-type-btn { background: var(--bg-card); border: 2px solid var(--border); border-radius: 16px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--text-main); cursor: pointer; }
+    .activity-type-btn.selected { border-color: var(--lime); background: var(--bg-green-tint); color: var(--forest); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--forest); margin-bottom: 6px; }
+    .form-control { width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 11px 14px; font-family: inherit; font-size: 14px; outline: none; }
   </style>
 </head>
-<body class="pb-24 min-h-screen">
-
-  <!-- Top Floating Bar -->
-  <header class="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#F5F4EE]/90 backdrop-blur-sm max-w-2xl mx-auto">
-    <div class="font-bold text-xl tracking-tight flex items-center gap-1.5">
-      <span class="text-2xl">🌸</span> Bloom
-    </div>
-
-    <!-- Daily Goal Pill -->
-    <div class="flex items-center gap-3 bg-white px-4 py-1.5 rounded-full shadow-sm border border-stone-200/60">
-      <span id="goalText" class="text-xs font-semibold text-stone-600">0/60 min</span>
-      <div class="w-24 h-2 bg-stone-200 rounded-full overflow-hidden">
-        <div id="goalBar" class="h-full bg-[#65A30D] transition-all" style="width: 0%"></div>
+<body>
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="goal-pill">
+        <span class="goal-text" id="goalDisplayText" onclick="switchTab('more')">0/60 min</span>
+        <div class="goal-track"><div class="goal-fill" id="goalFillBar"></div></div>
+        <button class="goal-add-btn" onclick="openModal('outsideModal')">+</button>
       </div>
-      <button onclick="addMinutes(10)" title="Add 10 min" class="text-stone-500 hover:text-[#1E4638]">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-      </button>
-    </div>
-
-    <!-- Streak Pill -->
-    <div class="flex items-center gap-1 bg-white px-3 py-1.5 rounded-full shadow-sm border border-stone-200/60 text-sm font-bold">
-      <i data-lucide="flame" class="w-4 h-4 text-orange-500 fill-orange-500"></i>
-      <span id="streakCount">0</span>
+      <div class="streak-pill" onclick="switchTab('more')">
+        <i data-lucide="flame" size="18"></i>
+        <span id="streakCount">1</span>
+      </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main id="appContent" class="max-w-2xl mx-auto px-4 pt-3">
-    <!-- Loaded dynamically by JS -->
+  <main class="container">
+    <section id="tab-home" class="tab-view active">
+      <div class="announcement-banner" id="welcomeBanner">
+        <div class="banner-left">
+          <div class="banner-icon"><i data-lucide="sparkles" size="18"></i></div>
+          <div>
+            <div style="font-size: 14px; font-weight: 700;">Easier ways to learn English</div>
+            <div style="font-size: 12px; color: var(--forest); text-decoration: underline; cursor: pointer;" onclick="switchTab('speak')">Try Crosstalk & Voice AI Tutor</div>
+          </div>
+        </div>
+        <button style="background:none;border:none;cursor:pointer;color:var(--text-muted);" onclick="document.getElementById('welcomeBanner').style.display='none'">
+          <i data-lucide="x" size="18"></i>
+        </button>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h1 class="page-title">Current Lesson</h1>
+        <i data-lucide="info" size="18" style="color:var(--text-muted);"></i>
+      </div>
+      <p class="subtitle">Watch the video, learn the words, then speak.</p>
+
+      <div class="lesson-steps">
+        <div class="step-node active" id="stepNode1" onclick="setLessonStep(1)">
+          <div class="step-circle"><i data-lucide="play" size="24"></i></div>
+          <span class="step-label">1. Watch</span>
+        </div>
+        <div class="step-line" id="stepLine1"></div>
+        <div class="step-node" id="stepNode2" onclick="setLessonStep(2)">
+          <div class="step-circle"><i data-lucide="book-open" size="24"></i></div>
+          <span class="step-label">2. Learn</span>
+        </div>
+        <div class="step-line" id="stepLine2"></div>
+        <div class="step-node" id="stepNode3" onclick="setLessonStep(3)">
+          <div class="step-circle"><i data-lucide="message-square" size="24"></i></div>
+          <span class="step-label">3. Speak</span>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+        <button class="btn-pill" onclick="openModal('addVideoModal')"><i data-lucide="video" size="16"></i> Add a YouTube video</button>
+        <button class="btn-pill btn-lime" onclick="completeCurrentWatch()"><i data-lucide="check-circle" size="16"></i> Mark Watched (+10 min)</button>
+      </div>
+
+      <div class="current-video-card">
+        <div class="video-embed-wrap">
+          <iframe id="currentVideoFrame" src="https://www.youtube.com/embed/aqz-KE-bpKQ" allowfullscreen></iframe>
+        </div>
+        <div style="padding: 18px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+          <div>
+            <span style="font-size:11px;font-weight:800;color:var(--forest);background:var(--bg-green-tint);padding:4px 10px;border-radius:999px;" id="currentVideoLevel">B2 Level</span>
+            <h3 style="font-size:18px;font-weight:800;margin-top:8px;" id="currentVideoTitle">BBC Earth — Natural English Immersion</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;" id="currentVideoDesc"></p>
+          </div>
+          <button class="btn-pill" onclick="startDiscussCurrentVideo()"><i data-lucide="mic" size="16"></i> Discuss</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-watch" class="tab-view">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div class="pill-toggle">
+          <button class="active" id="watchSubBrowse" onclick="toggleWatchSub('browse')">Browse Videos</button>
+          <button id="watchSubHistory" onclick="toggleWatchSub('history')">History</button>
+        </div>
+        <button class="btn-pill btn-lime" onclick="openModal('addVideoModal')"><i data-lucide="plus" size="16"></i> Import YouTube URL</button>
+      </div>
+
+      <div class="filter-bar">
+        <select class="filter-select" id="levelFilter" onchange="renderVideos()">
+          <option value="ALL">All Levels</option>
+          <option value="B1">B1 Intermediate</option>
+          <option value="B2">B2 Upper Intermediate</option>
+          <option value="C1">C1 Advanced</option>
+        </select>
+        <label class="switch-wrap" onclick="toggleHideWatched()">
+          <div class="switch" id="hideWatchedSwitch"></div>
+          <span>Hide watched</span>
+        </label>
+        <div class="search-wrap">
+          <i data-lucide="search"></i>
+          <input type="text" class="search-input" id="videoSearchInput" placeholder="Search videos..." oninput="renderVideos()" />
+        </div>
+      </div>
+      <div class="video-grid" id="videoGrid"></div>
+    </section>
+
+    <section id="tab-learn" class="tab-view">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1 class="page-title">Learn</h1>
+        <button class="icon-circle-btn" onclick="switchTab('more')"><i data-lucide="settings" size="18"></i></button>
+      </div>
+
+      <div style="margin: 12px 0 18px;">
+        <div class="pill-toggle">
+          <button class="active" id="learnSubPractice" onclick="toggleLearnSub('practice')">Practice</button>
+          <button id="learnSubHistory" onclick="toggleLearnSub('history')">History</button>
+        </div>
+      </div>
+
+      <div id="learnPracticeView">
+        <div class="card" style="margin-bottom: 18px;">
+          <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:var(--forest);"><i data-lucide="dumbbell" size="18"></i> Exercises</div>
+          <div class="exercise-grid">
+            <div class="exercise-tile" onclick="openFlashcards()"><i data-lucide="layers" size="20"></i><h4>Flashcards</h4><p>Review your saved words</p></div>
+            <div class="exercise-tile" onclick="launchSpeakMode('general', 'Let us do Photo Chit Chat! Ask me to describe a lively street scene.')"><i data-lucide="image" size="20"></i><h4>Photo Chit Chat</h4><p>Describe a scene with AI</p></div>
+            <div class="exercise-tile" onclick="launchSpeakMode('general', 'Give me an interesting Topic Talk question so I can speak for 1 minute.')"><i data-lucide="message-circle" size="20"></i><h4>Topic Talk</h4><p>Speak about a topic</p></div>
+            <div class="exercise-tile" onclick="launchSpeakMode('exercises')"><i data-lucide="git-branch" size="20"></i><h4>Word Link</h4><p>Build a chain of words</p></div>
+          </div>
+          <div class="menu-item" style="margin-top:12px; padding:12px 4px 2px;" onclick="launchSpeakMode('general')">
+            <span style="display:flex;align-items:center;gap:8px;color:var(--forest);font-weight:700;"><i data-lucide="messages-square" size="18"></i> Conversation practice</span>
+            <i data-lucide="chevron-right" size="18"></i>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:var(--forest);"><i data-lucide="sprout" size="18"></i> Vocab Garden</div>
+            <span style="font-size:13px; font-weight:700; color:var(--text-muted);" id="totalWordsLabel">0 words</span>
+          </div>
+          <div class="vocab-stats">
+            <div class="vocab-stat-box learning"><div class="vocab-stat-num" id="learningCount">0</div><div class="vocab-stat-lbl">Learning</div></div>
+            <div class="vocab-stat-box learned"><div class="vocab-stat-num" id="learnedCount">0</div><div class="vocab-stat-lbl">Learned</div></div>
+          </div>
+          <div style="display:flex; gap:8px; margin-bottom:12px;">
+            <div class="search-wrap"><i data-lucide="search"></i><input type="text" class="search-input" id="vocabSearchInput" placeholder="Search words..." oninput="renderVocab()" /></div>
+            <button class="btn-pill btn-lime" onclick="openModal('addWordModal')">+ Add</button>
+          </div>
+          <div id="vocabList"></div>
+        </div>
+      </div>
+
+      <div id="learnHistoryView" style="display:none;">
+        <div class="card" id="sessionHistoryList"></div>
+      </div>
+    </section>
+
+    <section id="tab-speak" class="tab-view">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="pill-toggle">
+          <button class="active" onclick="closeChatPanel()">New</button>
+          <button onclick="switchTab('learn'); toggleLearnSub('history')">History</button>
+        </div>
+        <button class="icon-circle-btn" onclick="switchTab('more')"><i data-lucide="sliders-horizontal" size="18"></i></button>
+      </div>
+
+      <div class="tutor-selector-wrap">
+        <div class="tutor-label">AI TUTOR</div>
+        <div class="tutor-pill" onclick="toggleTutorMenu()">
+          <div class="tutor-avatar" id="activeTutorAvatar">J</div>
+          <span id="activeTutorName">Jay-i 🇬🇧</span>
+          <i data-lucide="chevron-down" size="18"></i>
+        </div>
+        <div class="tutor-dropdown" id="tutorDropdown">
+          <div class="tutor-option" onclick="selectTutor('Jay-i 🇬🇧', 'J', 'en-GB')"><div class="tutor-avatar">J</div> Jay-i 🇬🇧 (British)</div>
+          <div class="tutor-option" onclick="selectTutor('Miss Honey 🇺🇸', 'H', 'en-US')"><div class="tutor-avatar" style="background:#2E6F54;">H</div> Miss Honey 🇺🇸 (US)</div>
+          <div class="tutor-option" onclick="selectTutor('Kyle 🇦🇺', 'K', 'en-AU')"><div class="tutor-avatar" style="background:#467A4B;">K</div> Kyle 🇦🇺 (Australian)</div>
+        </div>
+      </div>
+
+      <div id="speakModesList">
+        <div class="speak-mode-card" onclick="launchSpeakMode('general')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="message-square"></i></div><div><div style="font-weight:700;font-size:15px;">General Conversation</div><div style="font-size:12px;color:var(--text-muted);">Choose any topic to improve your speaking</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="speak-mode-card" onclick="launchSpeakMode('role_play')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="users"></i></div><div><div style="font-weight:700;font-size:15px;">Role Play</div><div style="font-size:12px;color:var(--text-muted);">Practice a real-life situation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="speak-mode-card" onclick="launchSpeakMode('discuss_video')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="video"></i></div><div><div style="font-weight:700;font-size:15px;">Discuss a Video</div><div style="font-size:12px;color:var(--text-muted);">Master the topic and vocabulary</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="speak-mode-card" onclick="launchSpeakMode('shadowing')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="repeat"></i></div><div><div style="font-weight:700;font-size:15px;">Shadowing</div><div style="font-size:12px;color:var(--text-muted);">Listen and repeat to improve pronunciation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+        <div class="speak-mode-card" onclick="launchSpeakMode('exercises')"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="dumbbell"></i></div><div><div style="font-weight:700;font-size:15px;">Exercises</div><div style="font-size:12px;color:var(--text-muted);">Speaking exercises with words from your vocab garden</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
+      </div>
+
+      <div class="chat-panel" id="liveChatPanel">
+        <div class="chat-header">
+          <div>
+            <div style="font-weight:800;font-size:14px;color:var(--forest);" id="chatModeTitle">General Conversation</div>
+            <div style="font-size:11px;color:var(--text-muted);" id="chatSettingsBadge"></div>
+          </div>
+          <button class="btn-pill" style="padding:6px 12px;font-size:12px;" onclick="endChatSession()">End & Log (+5m)</button>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-bar">
+          <button class="icon-circle-btn" id="micBtn" onclick="toggleVoiceInput()"><i data-lucide="mic" size="18"></i></button>
+          <input type="text" id="chatInput" placeholder="Type or tap mic (English or Arabic)..." onkeydown="if(event.key==='Enter') sendChatMessage()" />
+          <button class="icon-circle-btn" style="background:var(--lime);color:var(--forest-dark);border-color:var(--lime);" onclick="sendChatMessage()"><i data-lucide="send" size="18"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-more" class="tab-view">
+      <div class="menu-card">
+        <div class="menu-item" onclick="editUserName()">
+          <div><div style="font-size:17px;font-weight:800;color:var(--forest);" id="profileNameDisplay">Hussein ✏️</div><div style="font-size:12px;color:var(--text-muted);">Bloom Full Ownership Edition</div></div>
+          <span style="font-size:12px;font-weight:700;background:var(--bg-green-tint);color:var(--forest);padding:5px 12px;border-radius:999px;">Unlimited</span>
+        </div>
+        <div class="menu-item" onclick="openModal('languageModal')">
+          <div class="menu-item-left"><i data-lucide="globe" size="18"></i> Language (English / العربية)</div>
+          <i data-lucide="chevron-right" size="18"></i>
+        </div>
+      </div>
+
+      <h2 style="font-size:18px;font-weight:800;color:var(--forest);margin:18px 0 10px;">Settings for learning English</h2>
+      <div class="menu-card">
+        <div class="menu-item"><span>AI Transcript</span><select class="filter-select" id="settingTranscript" onchange="saveSettings()"><option value="always">Always visible</option><option value="click">Click to show</option></select></div>
+        <div class="menu-item"><span>AI Voice Speed</span><select class="filter-select" id="settingSpeed" onchange="saveSettings()"><option value="0.85">Relaxed (0.85x)</option><option value="1.0" selected>Normal (1.0x)</option><option value="1.15">Faster (1.15x)</option></select></div>
+        <div class="menu-item" onclick="toggleCrosstalkSetting()"><div><div>Crosstalk</div><div style="font-size:11px;color:var(--text-muted);font-weight:400;">Tutor speaks English, you reply in Arabic or English.</div></div><div class="switch on" id="crosstalkSwitch"></div></div>
+        <div class="menu-item"><span>Corrections</span><select class="filter-select" id="settingCorrections" onchange="saveSettings()"><option value="Gentle" selected>Gentle</option><option value="Direct">Direct</option><option value="Off">Off</option></select></div>
+        <div class="menu-item" onclick="editDailyGoal()"><span>Daily goal</span><span style="text-decoration:underline;color:var(--forest);font-weight:700;" id="dailyGoalLabel">60 min / day</span></div>
+      </div>
+
+      <h2 style="font-size:22px;font-weight:800;color:var(--forest);text-align:center;margin:24px 0 12px;">My Progress</h2>
+      <div class="card" style="margin-bottom:18px;">
+        <div class="progress-hero">
+          <div style="font-size:32px;font-weight:800;color:var(--flame);">🔥 <span id="progressStreakNum">1</span></div>
+          <div style="font-size:14px;font-weight:700;margin-top:4px;">days immersed</div>
+        </div>
+        <div class="progress-grid-2">
+          <div class="progress-green-box"><div style="font-size:16px;font-weight:800;color:var(--forest);" id="currentCefrTitle">Upper Intermediate</div><div style="font-size:12px;color:var(--text-muted);" id="currentCefrSub">Level B2</div><div style="font-size:11px;font-weight:700;color:var(--forest);margin-top:10px;" id="nextLevelHint"></div></div>
+          <div class="progress-green-box" style="text-align:center;"><i data-lucide="clock" size="22" style="color:var(--forest);"></i><div style="font-size:24px;font-weight:800;color:var(--forest);margin-top:4px;" id="totalHoursNum">0.0h</div><div style="font-size:12px;color:var(--text-muted);">Total Immersion Time</div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <div style="font-weight:800;color:var(--forest);">Activity Calendar</div>
+        <div style="text-align:center;font-size:18px;font-weight:800;color:var(--forest);margin:10px 0 4px;" id="monthHoursLabel">0.0 hours this month</div>
+        <div style="text-align:center;font-size:13px;color:var(--text-muted);" id="calendarMonthTitle"></div>
+        <div class="calendar-grid" id="activityCalendarGrid"></div>
+      </div>
+
+      <div class="card" style="text-align:center;margin-bottom:18px;">
+        <div style="font-weight:800;color:var(--forest);display:flex;align-items:center;justify-content:center;gap:6px;"><i data-lucide="radio" size="18"></i> Time Outside Bloom</div>
+        <div style="font-size:22px;font-weight:800;color:var(--forest);margin:10px 0 14px;" id="outsideHoursLabel">0.0 hours outside Bloom</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn-pill" onclick="openModal('outsideHistoryModal')">View Time Outside Bloom</button>
+          <button class="btn-pill btn-lime" onclick="openModal('outsideModal')">+ Add Time Outside Bloom</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800;color:var(--forest);margin-bottom:14px;">Your Path to Fluency</div>
+        <div id="fluencyPathList"></div>
+      </div>
+    </section>
   </main>
 
-  <!-- Bottom 5-Tab Navigation -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white border-t border-stone-200/80 py-2 px-4 z-20">
-    <div class="max-w-2xl mx-auto flex justify-around items-center">
-      <button onclick="switchTab('home')" id="tab-home" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
-        <i data-lucide="home" class="w-5 h-5"></i>
-        <span class="text-[11px]">Home</span>
-      </button>
-      <button onclick="switchTab('watch')" id="tab-watch" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
-        <i data-lucide="play" class="w-5 h-5"></i>
-        <span class="text-[11px]">Watch</span>
-      </button>
-      <button onclick="switchTab('learn')" id="tab-learn" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
-        <i data-lucide="book-open" class="w-5 h-5"></i>
-        <span class="text-[11px]">Learn</span>
-      </button>
-      <button onclick="switchTab('speak')" id="tab-speak" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl bg-[#E6EFEA] text-[#1E4638] font-bold">
-        <i data-lucide="message-square" class="w-5 h-5"></i>
-        <span class="text-[11px]">Speak</span>
-      </button>
-      <button onclick="switchTab('progress')" id="tab-progress" class="nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500">
-        <i data-lucide="more-horizontal" class="w-5 h-5"></i>
-        <span class="text-[11px]">More</span>
-      </button>
-    </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="switchTab('home')"><div class="nav-icon-pill"><i data-lucide="home" size="20"></i></div><span>Home</span></button>
+    <button class="nav-btn" id="nav-watch" onclick="switchTab('watch')"><div class="nav-icon-pill"><i data-lucide="play" size="20"></i></div><span>Watch</span></button>
+    <button class="nav-btn" id="nav-learn" onclick="switchTab('learn')"><div class="nav-icon-pill"><i data-lucide="book-open" size="20"></i></div><span>Learn</span></button>
+    <button class="nav-btn" id="nav-speak" onclick="switchTab('speak')"><div class="nav-icon-pill"><i data-lucide="message-square" size="20"></i></div><span>Speak</span></button>
+    <button class="nav-btn" id="nav-more" onclick="switchTab('more')"><div class="nav-icon-pill"><i data-lucide="more-horizontal" size="20"></i></div><span>More</span></button>
   </nav>
 
-  <script>
-    let minutesToday = 0;
-    const dailyGoal = 60;
+    <div class="modal-backdrop" id="outsideModal">
+    <div class="modal-card">
+      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Add Time Outside Bloom</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('outsideModal')"><i data-lucide="x"></i></button></div>
+      <div class="activity-type-grid">
+        <button class="activity-type-btn selected" onclick="selectOutsideType(this, 'Watching')"><i data-lucide="video" size="20"></i> Watching</button>
+        <button class="activity-type-btn" onclick="selectOutsideType(this, 'Listening')"><i data-lucide="headphones" size="20"></i> Listening</button>
+        <button class="activity-type-btn" onclick="selectOutsideType(this, 'Talking')"><i data-lucide="message-square" size="20"></i> Talking</button>
+      </div>
+      <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="outsideDate" /></div>
+      <div class="form-group"><label class="form-label">Time Amount</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><input type="number" class="form-control" id="outsideHours" placeholder="Hours" min="0" /><input type="number" class="form-control" id="outsideMins" placeholder="Minutes" min="0" /></div></div>
+      <div class="form-group"><label class="form-label">Description (optional)</label><input type="text" class="form-control" id="outsideDesc" placeholder="E.g. podcast, YouTube, book..." /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;"><button class="btn-pill" onclick="closeModal('outsideModal')">Cancel</button><button class="btn-pill btn-lime" onclick="saveOutsideTime()">Save</button></div>
+    </div>
+  </div>
 
-    function addMinutes(mins) {
-      minutesToday += mins;
-      document.getElementById('goalText').innerText = `${minutesToday}/${dailyGoal} min`;
-      document.getElementById('goalBar').style.width = `${Math.min(100, (minutesToday / dailyGoal) * 100)}%`;
+  <div class="modal-backdrop" id="outsideHistoryModal"><div class="modal-card"><div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Outside Bloom Log</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('outsideHistoryModal')"><i data-lucide="x"></i></button></div><div id="outsideLogList"></div></div></div>
+
+  <div class="modal-backdrop" id="addVideoModal">
+    <div class="modal-card">
+      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Import YouTube Video</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('addVideoModal')"><i data-lucide="x"></i></button></div>
+      <div class="form-group"><label class="form-label">YouTube Link</label><input type="text" class="form-control" id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=..." /></div>
+      <div class="form-group"><label class="form-label">Video Title</label><input type="text" class="form-control" id="newVideoTitle" placeholder="E.g. Atomic Habits Summary" /></div>
+      <div class="form-group"><label class="form-label">Level</label><select class="form-control" id="newVideoLevel"><option value="B1">B1 Intermediate</option><option value="B2" selected>B2 Upper Intermediate</option><option value="C1">C1 Advanced</option></select></div>
+      <div class="form-group"><label class="form-label">Topic / Notes</label><textarea class="form-control" id="newVideoNotes" rows="3"></textarea></div>
+      <button class="btn-pill btn-lime" style="width:100%;" onclick="importCustomVideo()">Load into Current Lesson</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="addWordModal">
+    <div class="modal-card">
+      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Plant Word in Vocab Garden</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('addWordModal')"><i data-lucide="x"></i></button></div>
+      <div class="form-group"><label class="form-label">English Word or Phrase</label><input type="text" class="form-control" id="newWordText" placeholder="e.g. fair enough, ominous" /></div>
+      <div class="form-group"><label class="form-label">Meaning / Arabic Note</label><input type="text" class="form-control" id="newWordMeaning" placeholder="e.g. معقول / مقنع" /></div>
+      <button class="btn-pill btn-lime" style="width:100%;" onclick="addNewWord()">Save Word</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="flashcardModal"><div class="modal-card" style="text-align:center;"><div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Vocab Flashcards</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('flashcardModal')"><i data-lucide="x"></i></button></div><div id="flashcardBody" style="padding:24px 12px;"></div></div></div>
+
+  <div class="modal-backdrop" id="languageModal">
+    <div class="modal-card">
+      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Language</h3><button style="background:none;border:none;cursor:pointer;" onclick="closeModal('languageModal')"><i data-lucide="x"></i></button></div>
+      <div class="form-group"><label class="form-label">I AM LEARNING...</label><input type="text" class="form-control" value="🇬🇧 🇺🇸 English" disabled /></div>
+      <div class="form-group"><label class="form-label">MY NATIVE LANGUAGE IS...</label><select class="form-control" id="nativeLangSelect" onchange="saveSettings()"><option value="Arabic" selected>العربية Arabic</option><option value="German">Deutsch German</option><option value="French">Français French</option></select></div>
+      <button class="btn-pill btn-lime" style="width:100%;margin-top:8px;" onclick="closeModal('languageModal')">Done</button>
+    </div>
+  </div>
+    <script>
+    const DEFAULT_VIDEOS = [
+      { id: 'aqz-KE-bpKQ', title: 'BBC Earth — Big Buck Bunny Nature Clip', level: 'B2', duration: '10:34', creator: 'BBC Earth', watched: false, notes: 'A peaceful forest story about nature, animals, and standing up to bullies.' },
+      { id: 'UF8uR6Z6KLc', title: 'Steve Jobs Stanford Commencement Speech', level: 'C1', duration: '15:04', creator: 'Stanford', watched: false, notes: 'Connecting the dots, love and loss, and staying hungry and foolish.' },
+      { id: 'H14bBuluwB8', title: 'Grit: The Power of Passion and Perseverance', level: 'B2', duration: '06:12', creator: 'Angela Duckworth', watched: false, notes: 'Why long-term perseverance and passion matter more than raw talent.' },
+      { id: 'arj7oStGLkU', title: 'Inside the Mind of a Master Procrastinator', level: 'B1', duration: '14:03', creator: 'Tim Urban', watched: false, notes: 'The Instant Gratification Monkey and the Panic Monster.' }
+    ];
+
+    const DEFAULT_WORDS = [
+      { text: 'alley', meaning: 'زقاق / ممر ضيق', status: 'learning' },
+      { text: 'garment', meaning: 'قطعة ملابس / ثوب', status: 'learning' },
+      { text: 'ominous', meaning: 'نذير شؤم / مقلق', status: 'learning' },
+      { text: 'stuffed', meaning: 'ممتلئ / محشو', status: 'learning' },
+      { text: 'coastline', meaning: 'خط الساحل', status: 'learning' },
+      { text: 'fair enough', meaning: 'معقول / مقنع', status: 'learned' }
+    ];
+
+    const FLUENCY_LEVELS = [
+      { code: 'A0', name: 'Complete Beginner', hours: 0, words: 0 },
+      { code: 'A1', name: 'Beginner', hours: 100, words: 800 },
+      { code: 'A2', name: 'Upper Beginner', hours: 225, words: 2000 },
+      { code: 'B1', name: 'Intermediate', hours: 400, words: 3700 },
+      { code: 'B2', name: 'Upper Intermediate', hours: 800, words: 6500 },
+      { code: 'C1', name: 'Advanced', hours: 1200, words: 8000 },
+      { code: 'C2', name: 'Native-Like', hours: 2000, words: 12000 }
+    ];
+
+    let state = JSON.parse(localStorage.getItem('bloom_app_state')) || {
+      userName: 'Hussein', dailyGoal: 60, todayMinutes: 0, totalMinutes: 48000,
+      streak: 1, activeDays: [new Date().getDate()],
+      tutor: { name: 'Jay-i 🇬🇧', initial: 'J', voice: 'en-GB' },
+      settings: { transcript: 'always', speed: '1.0', crosstalk: true, corrections: 'Gentle', nativeLang: 'Arabic' },
+      videos: DEFAULT_VIDEOS, currentVideo: DEFAULT_VIDEOS[0], words: DEFAULT_WORDS,
+      outsideLogs: [], sessionHistory: []
+    };
+
+    let hideWatched = false, selectedOutsideType = 'Watching', currentChatMode = 'general', flashcardIndex = 0;
+
+    function saveState() { localStorage.setItem('bloom_app_state', JSON.stringify(state)); updateAllUI(); }
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      document.getElementById('nav-' + tabName).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    function openModal(id) {
+      if (id === 'outsideModal') document.getElementById('outsideDate').valueAsDate = new Date();
+      if (id === 'outsideHistoryModal') renderOutsideLogs();
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-    function switchTab(tab) {
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.className = "nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl text-stone-500";
+    function setLessonStep(step) {
+      [1,2,3].forEach(n => {
+        const node = document.getElementById('stepNode' + n);
+        node.classList.remove('active', 'completed');
+        if (n < step) node.classList.add('completed');
+        if (n === step) node.classList.add('active');
       });
-      document.getElementById(`tab-${tab}`).className = "nav-btn flex flex-col items-center gap-1 px-3 py-1 rounded-xl bg-[#E6EFEA] text-[#1E4638] font-bold";
-
-      const main = document.getElementById('appContent');
-      if (tab === 'speak') {
-        main.innerHTML = `
-          <div class="text-center mb-4">
-            <p class="text-xs uppercase tracking-widest text-stone-400 font-semibold">AI Tutor</p>
-            <h1 class="text-lg font-bold mt-1">🇬🇧 Bloom Tutor</h1>
-          </div>
-          <div class="space-y-3">
-            ${[
-              { title: "General Conversation", desc: "Choose any topic to improve your speaking", icon: "message-square" },
-              { title: "Role Play", desc: "Practice a real-life situation", icon: "users" },
-              { title: "Discuss a Video", desc: "Master the topic and vocabulary", icon: "video" },
-              { title: "Shadowing", desc: "Listen and repeat to improve pronunciation", icon: "repeat" },
-              { title: "Exercises", desc: "Speaking exercises with words from your vocab garden", icon: "dumbbell" }
-            ].map(item => `
-              <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200/50 flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                  <div class="p-2.5 rounded-xl bg-[#F5F4EE] text-[#65A30D]">
-                    <i data-lucide="${item.icon}" class="w-6 h-6"></i>
-                  </div>
-                  <div>
-                    <h3 class="font-bold text-base">${item.title}</h3>
-                    <p class="text-xs text-stone-500 mt-0.5">${item.desc}</p>
-                  </div>
-                </div>
-                <i data-lucide="chevron-right" class="w-5 h-5 text-stone-400"></i>
-              </div>
-            `).join('')}
-          </div>
-        `;
-      } else {
-        main.innerHTML = `
-          <div class="bg-white p-6 rounded-2xl shadow-sm text-center">
-            <h2 class="font-bold text-lg capitalize">${tab} Section</h2>
-            <p class="text-sm text-stone-500 mt-1">Ready for Step 3!</p>
-          </div>
-        `;
-      }
-      lucide.createIcons();
+      document.getElementById('stepLine1').classList.toggle('done', step > 1);
+      document.getElementById('stepLine2').classList.toggle('done', step > 2);
+      if (step === 2) switchTab('learn');
+      if (step === 3) startDiscussCurrentVideo();
     }
 
-    switchTab('speak');
+    function completeCurrentWatch() {
+      addImmersionMinutes(10);
+      const vid = state.videos.find(v => v.id === state.currentVideo.id);
+      if (vid) vid.watched = true;
+      saveState(); setLessonStep(2);
+    }
+
+    function startDiscussCurrentVideo() { switchTab('speak'); launchSpeakMode('discuss_video'); }
+
+    function extractYouTubeId(url) {
+      const m = url.match(/^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+      return (m && m[2].length === 11) ? m[2] : null;
+    }
+
+    function importCustomVideo() {
+      const ytId = extractYouTubeId(document.getElementById('newVideoUrl').value.trim());
+      if (!ytId) return alert('Please paste a valid YouTube link.');
+      const newVid = {
+        id: ytId,
+        title: document.getElementById('newVideoTitle').value.trim() || 'Custom YouTube Lesson',
+        level: document.getElementById('newVideoLevel').value,
+        duration: 'Custom', creator: 'YouTube', watched: false,
+        notes: document.getElementById('newVideoNotes').value.trim() || 'Custom video'
+      };
+      state.videos.unshift(newVid); state.currentVideo = newVid;
+      saveState(); closeModal('addVideoModal'); switchTab('home');
+    }
+
+    function toggleWatchSub(sub) {
+      document.getElementById('watchSubBrowse').classList.toggle('active', sub === 'browse');
+      document.getElementById('watchSubHistory').classList.toggle('active', sub === 'history');
+      renderVideos(sub === 'history');
+    }
+    function toggleHideWatched() { hideWatched = !hideWatched; document.getElementById('hideWatchedSwitch').classList.toggle('on', hideWatched); renderVideos(); }
+
+    function renderVideos(onlyWatched = false) {
+      const grid = document.getElementById('videoGrid');
+      const level = document.getElementById('levelFilter').value;
+      const q = document.getElementById('videoSearchInput').value.toLowerCase();
+      const list = state.videos.filter(v => {
+        if (onlyWatched && !v.watched) return false;
+        if (!onlyWatched && hideWatched && v.watched) return false;
+        if (level !== 'ALL' && v.level !== level) return false;
+        if (q && !v.title.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      grid.innerHTML = list.map(v => `
+        <div class="video-card" onclick="selectVideo('${v.id}')">
+          <div class="thumb-box"><img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="${v.title}" /><span class="level-badge ${v.level.toLowerCase()}">${v.level}</span><span class="duration-badge">${v.duration}</span></div>
+          <div class="video-card-body"><div class="video-card-title">${v.title}</div><div class="video-card-meta"><span>Creator: ${v.creator}</span><span>${v.watched ? '✓ Watched' : ''}</span></div></div>
+        </div>
+      `).join('') || '<p class="subtitle">No matching videos.</p>';
+    }
+
+    function selectVideo(id) { const vid = state.videos.find(v => v.id === id); if (vid) { state.currentVideo = vid; saveState(); switchTab('home'); } }
+
+    function toggleLearnSub(sub) {
+      document.getElementById('learnSubPractice').classList.toggle('active', sub === 'practice');
+      document.getElementById('learnSubHistory').classList.toggle('active', sub === 'history');
+      document.getElementById('learnPracticeView').style.display = sub === 'practice' ? 'block' : 'none';
+      document.getElementById('learnHistoryView').style.display = sub === 'history' ? 'block' : 'none';
+    }
+
+    function addNewWord() {
+      const text = document.getElementById('newWordText').value.trim();
+      const meaning = document.getElementById('newWordMeaning').value.trim();
+      if (!text) return;
+      state.words.unshift({ text, meaning: meaning || 'Saved word', status: 'learning' });
+      document.getElementById('newWordText').value = ''; document.getElementById('newWordMeaning').value = '';
+      saveState(); closeModal('addWordModal');
+    }
+
+    function toggleWordStatus(idx) { state.words[idx].status = state.words[idx].status === 'learning' ? 'learned' : 'learning'; saveState(); }
+
+    function renderVocab() {
+      const q = document.getElementById('vocabSearchInput').value.toLowerCase();
+      document.getElementById('learningCount').textContent = state.words.filter(w => w.status === 'learning').length;
+      document.getElementById('learnedCount').textContent = state.words.filter(w => w.status === 'learned').length;
+      document.getElementById('totalWordsLabel').textContent = `${state.words.length} words`;
+      document.getElementById('vocabList').innerHTML = state.words
+        .map((w, idx) => ({ ...w, idx }))
+        .filter(w => w.text.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q))
+        .map(w => `<div class="word-row" onclick="toggleWordStatus(${w.idx})"><div><span class="word-dot ${w.status === 'learned' ? 'learned' : ''}"></span><strong>${w.text}</strong><span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${w.meaning}</span></div><span style="font-size:11px;font-weight:700;color:var(--forest);">${w.status === 'learned' ? 'Learned ✓' : 'Learning'}</span></div>`)
+        .join('');
+    }
+
+    function openFlashcards() { if (!state.words.length) return; flashcardIndex = 0; renderFlashcard(false); openModal('flashcardModal'); }
+    function renderFlashcard(showBack) {
+      const w = state.words[flashcardIndex % state.words.length];
+      document.getElementById('flashcardBody').innerHTML = `
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Card ${(flashcardIndex % state.words.length) + 1} of ${state.words.length}</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:32px 18px;margin-bottom:18px;"><div style="font-size:26px;font-weight:800;color:var(--forest);">${w.text}</div>${showBack ? `<div style="font-size:16px;color:var(--text-muted);margin-top:12px;">${w.meaning}</div>` : `<div style="font-size:13px;color:var(--text-muted);margin-top:12px;">Tap reveal</div>`}</div>
+        <div style="display:flex;gap:10px;justify-content:center;"><button class="btn-pill" onclick="renderFlashcard(true)">Reveal</button><button class="btn-pill btn-lime" onclick="flashcardIndex++;renderFlashcard(false)">Next →</button></div>
+      `;
+    }
+
+    function toggleTutorMenu() { document.getElementById('tutorDropdown').classList.toggle('open'); }
+    function selectTutor(name, initial, voice) { state.tutor = { name, initial, voice }; document.getElementById('tutorDropdown').classList.remove('open'); saveState(); }
+
+    const MODE_TITLES = { general: 'General Conversation', role_play: 'Role Play', discuss_video: 'Discuss a Video', shadowing: 'Shadowing', exercises: 'Exercises' };
+    function launchSpeakMode(mode, starterMessage = null) {
+      currentChatMode = mode;
+      document.getElementById('speakModesList').style.display = 'none';
+      document.getElementById('liveChatPanel').classList.add('active');
+      document.getElementById('chatModeTitle').textContent = `${MODE_TITLES[mode]} • ${state.tutor.name}`;
+      document.getElementById('chatSettingsBadge').textContent = `Crosstalk: ${state.settings.crosstalk ? 'ON' : 'OFF'} • Corrections: ${state.settings.corrections}`;
+      document.getElementById('chatMessages').innerHTML = '';
+      sendChatMessage(starterMessage || `Hi ${state.tutor.name.split(' ')[0]}! Let's start ${MODE_TITLES[mode]}.`, true);
+    }
+
+    function closeChatPanel() { document.getElementById('liveChatPanel').classList.remove('active'); document.getElementById('speakModesList').style.display = 'block'; }
+    function endChatSession() {
+      addImmersionMinutes(5);
+      state.sessionHistory.unshift({ mode: MODE_TITLES[currentChatMode], date: new Date().toLocaleDateString(), tutor: state.tutor.name });
+      saveState(); closeChatPanel();
+    }
+
+    async function sendChatMessage(overrideText = null, isAutoStarter = false) {
+      const input = document.getElementById('chatInput');
+      const text = overrideText || input.value.trim();
+      if (!text) return;
+      const box = document.getElementById('chatMessages');
+      if (!isAutoStarter) { box.innerHTML += `<div class="msg-bubble user">${escapeHtml(text)}</div>`; input.value = ''; }
+      const loadingId = 'loading-' + Date.now();
+      box.innerHTML += `<div class="msg-bubble ai" id="${loadingId}">Thinking...</div>`;
+      box.scrollTop = box.scrollHeight;
+
+      try {
+        const res = await fetch('/api/speak', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: currentChatMode, message: text,
+            videoTranscript: state.currentVideo.notes || state.currentVideo.title,
+            savedWords: state.words.slice(0, 8).map(w => w.text),
+            crosstalk: state.settings.crosstalk, corrections: state.settings.corrections, nativeLang: state.settings.nativeLang
+          })
+        });
+        const data = await res.json();
+        const reply = data.reply || data.error || 'Let us continue!';
+        const hidden = state.settings.transcript === 'click';
+        document.getElementById(loadingId).innerHTML = `
+          <div style="${hidden ? 'filter:blur(5px);cursor:pointer;' : ''}" onclick="this.style.filter='none'">${escapeHtml(reply)}</div>
+          <div class="msg-actions"><span onclick="speakText(${JSON.stringify(reply)})">🔊 Listen</span>${hidden ? `<span onclick="this.parentElement.previousElementSibling.style.filter='none'">👁 Show</span>` : ''}</div>
+        `;
+        speakText(reply);
+      } catch (e) {
+        document.getElementById(loadingId).textContent = 'Check /api/speak in your Cloudflare Worker.';
+      }
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text.replace(/💡 Tip:.*/s, '').trim());
+      utter.lang = state.tutor.voice || 'en-GB'; utter.rate = parseFloat(state.settings.speed || '1.0');
+      window.speechSynthesis.speak(utter);
+    }
+
+    function toggleVoiceInput() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return alert('Use keyboard or Chrome voice typing.');
+      const btn = document.getElementById('micBtn'), rec = new SR();
+      rec.lang = 'en-US'; btn.classList.add('recording');
+      rec.onresult = (e) => { document.getElementById('chatInput').value = e.results[0][0].transcript; btn.classList.remove('recording'); sendChatMessage(); };
+      rec.onerror = rec.onend = () => btn.classList.remove('recording');
+      rec.start();
+    }
+
+    function addImmersionMinutes(mins) {
+      state.todayMinutes += mins; state.totalMinutes += mins;
+      const d = new Date().getDate(); if (!state.activeDays.includes(d)) state.activeDays.push(d);
+      saveState();
+    }
+
+    function selectOutsideType(btn, type) { selectedOutsideType = type; document.querySelectorAll('.activity-type-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
+
+    function saveOutsideTime() {
+      const total = (parseInt(document.getElementById('outsideHours').value || '0', 10) * 60) + parseInt(document.getElementById('outsideMins').value || '0', 10);
+      if (total <= 0) return;
+      state.outsideLogs.unshift({ type: selectedOutsideType, date: document.getElementById('outsideDate').value || new Date().toISOString().slice(0, 10), minutes: total, desc: document.getElementById('outsideDesc').value.trim() || selectedOutsideType });
+      addImmersionMinutes(total);
+      document.getElementById('outsideHours').value = ''; document.getElementById('outsideMins').value = ''; document.getElementById('outsideDesc').value = '';
+      closeModal('outsideModal');
+    }
+
+    function renderOutsideLogs() {
+      document.getElementById('outsideLogList').innerHTML = state.outsideLogs.map(l => `<div class="word-row"><div><strong>${l.type}</strong> • <span style="font-size:12px;color:var(--text-muted);">${l.date}</span><div style="font-size:12px;color:var(--text-muted);">${escapeHtml(l.desc)}</div></div><strong>${l.minutes} min</strong></div>`).join('') || '<p class="subtitle">No external time logged yet.</p>';
+    }
+
+    function toggleCrosstalkSetting() { state.settings.crosstalk = !state.settings.crosstalk; saveState(); }
+    function saveSettings() {
+      state.settings.transcript = document.getElementById('settingTranscript').value;
+      state.settings.speed = document.getElementById('settingSpeed').value;
+      state.settings.corrections = document.getElementById('settingCorrections').value;
+      state.settings.nativeLang = document.getElementById('nativeLangSelect').value;
+      saveState();
+    }
+    function editUserName() { const n = prompt('Name:', state.userName); if (n && n.trim()) { state.userName = n.trim(); saveState(); } }
+    function editDailyGoal() { const m = parseInt(prompt('Daily goal (minutes):', state.dailyGoal), 10); if (m > 0) { state.dailyGoal = m; saveState(); } }
+
+    function renderCalendar() {
+      const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      document.getElementById('calendarMonthTitle').textContent = `${months[m]} ${y}`;
+      const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
+      let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="cal-day-name">${d}</div>`).join('');
+      for (let i = 0; i < first; i++) html += `<div></div>`;
+      for (let d = 1; d <= days; d++) html += `<div class="cal-cell ${d === now.getDate() ? 'today' : ''} ${state.activeDays.includes(d) ? 'active-day' : ''}">${d}</div>`;
+      document.getElementById('activityCalendarGrid').innerHTML = html;
+    }
+
+    function renderFluencyPath(totalHours) {
+      let curIdx = 0; FLUENCY_LEVELS.forEach((l, i) => { if (totalHours >= l.hours) curIdx = i; });
+      const cur = FLUENCY_LEVELS[curIdx], next = FLUENCY_LEVELS[curIdx + 1];
+      document.getElementById('currentCefrTitle').textContent = cur.name;
+      document.getElementById('currentCefrSub').textContent = `Level ${cur.code}`;
+      document.getElementById('nextLevelHint').textContent = next ? `${Math.max(0, next.hours - totalHours).toFixed(1)}h to ${next.code} ${next.name}` : 'C2 Native-Like!';
+      document.getElementById('fluencyPathList').innerHTML = FLUENCY_LEVELS.map((l, i) => `<div class="fluency-node ${i === curIdx ? 'current' : ''}"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:11px;font-weight:800;opacity:0.8;">LEVEL ${l.code}</div><div style="font-size:17px;font-weight:800;">${l.name}</div></div><div style="text-align:right;font-size:12px;font-weight:700;"><div>⏱ ${l.hours.toLocaleString()}h</div><div>📖 ${l.words.toLocaleString()} words</div></div></div></div>`).join('');
+    }
+
+    function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+    function updateAllUI() {
+      document.getElementById('goalDisplayText').textContent = `${state.todayMinutes}/${state.dailyGoal} min`;
+      document.getElementById('goalFillBar').style.width = Math.min(100, Math.round((state.todayMinutes / state.dailyGoal) * 100)) + '%';
+      document.getElementById('streakCount').textContent = state.streak;
+      document.getElementById('currentVideoFrame').src = `https://www.youtube.com/embed/${state.currentVideo.id}`;
+      document.getElementById('currentVideoTitle').textContent = state.currentVideo.title;
+      document.getElementById('currentVideoLevel').textContent = `${state.currentVideo.level} Level`;
+      document.getElementById('currentVideoDesc').textContent = state.currentVideo.notes || '';
+      document.getElementById('activeTutorName').textContent = state.tutor.name;
+      document.getElementById('activeTutorAvatar').textContent = state.tutor.initial;
+      document.getElementById('profileNameDisplay').textContent = `${state.userName} ✏️`;
+      document.getElementById('dailyGoalLabel').textContent = `${state.dailyGoal} min / day`;
+      document.getElementById('crosstalkSwitch').classList.toggle('on', state.settings.crosstalk);
+      document.getElementById('settingTranscript').value = state.settings.transcript;
+      document.getElementById('settingSpeed').value = state.settings.speed;
+      document.getElementById('settingCorrections').value = state.settings.corrections;
+      document.getElementById('nativeLangSelect').value = state.settings.nativeLang;
+      const totalHours = state.totalMinutes / 60;
+      const outsideHours = state.outsideLogs.reduce((a, b) => a + b.minutes, 0) / 60;
+      document.getElementById('progressStreakNum').textContent = state.streak;
+      document.getElementById('totalHoursNum').textContent = `${totalHours.toFixed(1)}h`;
+      document.getElementById('monthHoursLabel').textContent = `${(state.todayMinutes / 60).toFixed(1)} hours this month`;
+      document.getElementById('outsideHoursLabel').textContent = `${outsideHours.toFixed(1)} hours outside Bloom`;
+      document.getElementById('sessionHistoryList').innerHTML = state.sessionHistory.map(s => `<div class="word-row"><div><strong>${s.mode}</strong> • <span style="font-size:12px;color:var(--text-muted);">${s.tutor}</span></div><span style="font-size:12px;color:var(--text-muted);">${s.date}</span></div>`).join('') || '<p class="subtitle">No completed sessions yet.</p>';
+      renderVideos(); renderVocab(); renderCalendar(); renderFluencyPath(totalHours); lucide.createIcons();
+    }
+
+    updateAllUI();
   </script>
 </body>
 </html>

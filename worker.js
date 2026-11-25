@@ -1,109 +1,151 @@
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-
-    if (url.pathname === "/api/bloom" && request.method === "POST") {
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders() });
+    }
+    if (url.pathname === '/api/bloom' && request.method === 'POST') {
       try {
         const body = await request.json();
-        const {
-          lang = "en",
-          level = "B2",
-          tutorGender = "female",
-          tutorName = "Claire",
-          action = "chat",
-          message = "",
-          videoTitle = "",
-          videoContext = "",
-          topic = "",
-          word = "",
-          quizAnswers = null,
-          history = [],
-          userName = "Learner"
-        } = body;
-
-        const LANG_META = {
-          en: { name: "English", female: "Claire", male: "Julian" },
-          de: { name: "German", female: "Hannah", male: "Lukas" },
-          fr: { name: "French", female: "Camille", male: "Julien" },
-          es: { name: "Spanish", female: "Sofia", male: "Mateo" }
-        };
-
-        const lm = LANG_META[lang] || LANG_META.en;
-        const activeTutor = tutorName || (tutorGender === "male" ? lm.male : lm.female);
-
-        let taskPrompt = "";
-        if (action === "video_vocab") {
-          taskPrompt = `Extract 6 practical, high-utility words or short phrases fit for CEFR ${level} from the video "${videoTitle}" (${videoContext || ""}). Return STRICT JSON only with no markdown: {"words":[{"term":"...","meaningInLang":"...","example":"..."}]}.`;
-        } else if (action === "discuss_video") {
-          taskPrompt = `Discuss the video "${videoTitle}" (${videoContext || ""}) with ${userName} in ${lm.name} at CEFR ${level}. Ask natural follow-up questions and keep replies clear and helpful.`;
-        } else if (action === "photo_chit_chat") {
-          taskPrompt = `Evaluate ${userName}'s 1-minute photo description for scene "${topic}" at CEFR ${level} in ${lm.name}. Give: 1) Brief praise/clarity check, 2) Clear written corrections, 3) 2-3 stronger phrasing ideas.`;
-        } else if (action === "topic_talk") {
-          taskPrompt = `Evaluate ${userName}'s 1-minute speech on topic "${topic}" at CEFR ${level} in ${lm.name}. Give concise written grammar/phrasing corrections and 1 follow-up question.`;
-        } else if (action === "word_link") {
-          taskPrompt = `Evaluate ${userName}'s 1-minute Word Link starting from "${word}" at CEFR ${level} in ${lm.name}. Note any mistakes and give a clean chain of 5 connected words starting from "${word}".`;
-        } else if (action === "shadowing") {
-          if (!message || message === "__NEXT_SENTENCE__") {
-            taskPrompt = `Output ONE natural ${lm.name} sentence (9-15 words) suited to CEFR ${level}. Output ONLY the sentence.`;
-          } else {
-            taskPrompt = `Compare learner attempt "${message}" against target "${topic}" at CEFR ${level} in ${lm.name}. Point out any error clearly, then give the next ${lm.name} sentence.`;
-          }
-        } else if (action === "role_play") {
-          taskPrompt = `Role-play "${topic || "everyday situation"}" in ${lm.name} at CEFR ${level}. Stay in character and respond naturally.`;
-        } else if (action === "grade_quiz") {
-          taskPrompt = `Grade these CEFR ${level} 4-skills + grammar answers in ${lm.name}: ${JSON.stringify(quizAnswers || {})}. Return STRICT JSON only with no markdown: {"scorePercent":0,"passed":false,"feedback":"..."}. Pass mark is 70.`;
-        } else {
-          taskPrompt = `Converse naturally with ${userName} in ${lm.name} calibrated to CEFR ${level}.`;
+        const apiKey = env.GEMINI_API_KEY || env.OPENAI_API_KEY;
+        if (!apiKey) {
+          return json({ error: 'Missing AI API key on worker.' }, 500);
         }
-
-        const systemInstruction = `You are ${activeTutor}, a ${tutorGender === "male" ? "male" : "female"} language coach on Bloom.
-Target language: ${lm.name} (${lang}). Learner level: ${level}. Be accurate, clear, and helpful.
-${taskPrompt}`;
-
-        const safeHistory = Array.isArray(history)
-          ? history.slice(-8).map(m => ({
-              role: m.role === "assistant" ? "assistant" : "user",
-              content: String(m.content || "").slice(0, 1200)
-            }))
-          : [];
-
-        const messages = [
-          { role: "system", content: systemInstruction },
-          ...safeHistory,
-          { role: "user", content: message || "Hello" }
-        ];
-
-        const models = [
-          "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-          "@cf/mistralai/mistral-small-3.1-24b-instruct",
-          "@cf/meta/llama-3.2-3b-instruct"
-        ];
-
-        let reply = "";
-        let lastErr = "";
-        for (const model of models) {
-          try {
-            const out = await env.AI.run(model, { messages });
-            const text = out?.response || out?.result || out?.output_text || "";
-            if (typeof text === "string" && text.trim()) {
-              reply = text.trim();
-              break;
-            }
-          } catch (e) {
-            lastErr = e?.message || String(e);
-          }
-        }
-
-        if (!reply) {
-          return Response.json({ error: lastErr || "AI model unavailable" }, { status: 500 });
-        }
-
-        return Response.json({ reply, tutor: activeTutor, gender: tutorGender, lang, level });
+        const { systemPrompt, userPrompt, expectJson } = buildPrompt(body);
+        const raw = env.GEMINI_API_KEY
+          ? await callGemini(env.GEMINI_API_KEY, systemPrompt, userPrompt, expectJson)
+          : await callOpenAI(env.OPENAI_API_KEY, systemPrompt, userPrompt, expectJson);
+        return json({ reply: raw });
       } catch (err) {
-        return Response.json({ error: err?.message || "Invalid request" }, { status: 400 });
+        return json({ error: err.message || 'Worker error' }, 500);
       }
     }
-
-    return env.ASSETS.fetch(request);
+    return env.ASSETS ? env.ASSETS.fetch(request) : new Response('Not found', { status: 404 });
   }
 };
+
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json', ...corsHeaders() }
+  });
+}
+
+function buildPrompt(body) {
+  const langMap = { en: 'English', de: 'German', fr: 'French', es: 'Spanish' };
+  const langName = langMap[body.lang] || 'English';
+  const level = body.level || 'B2';
+  const tutorName = body.tutorName || 'Claire';
+  const tutorGender = body.tutorGender || 'female';
+
+  const systemPrompt = [
+    `You are ${tutorName}, a${tutorGender === 'female' ? 'woman' : 'man'} language coach inside Bloom.`,
+    `Target language: ${langName}. Learner CEFR level: ${level}.`,
+    `Never chat casually in text logs or mention being an AI unless asked. Give gentle, brief corrections on mistakes in ${langName} when speaking/writing, then keep practice moving smoothly.`
+  ].join(' ');
+
+  if (body.action === 'video_vocab') {
+    return {
+      expectJson: true,
+      systemPrompt,
+      userPrompt: `Extract 6 authentic, useful vocabulary words/phrases that fit inside a ${langName}${level} video titled "${body.videoTitle \vert{}\vert{} 'Video'}" (${body.videoContext || ''}). For each item provide "term" (in ${langName}), "meaningInLang" (clear meaning in ${langName}), and "example" (natural sentence using the term in ${langName}). Return ONLY valid JSON: {"words":[{"term":"","meaningInLang":"","example":""}]}`
+    };
+  }
+
+  if (body.action === 'discuss_video') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Spoken video discussion for "${body.videoTitle \vert{}\vert{} 'Video'}" (${body.videoContext || ''}). Learner said: "${body.message || ''}". Gently correct any mistake in 1 short line if needed, then respond naturally in 1-2 short spoken sentences and ask one focused follow-up question in ${langName}.`
+    };
+  }
+
+  if (body.action === 'eval_flashcard') {
+    return {
+      expectJson: true,
+      systemPrompt,
+      userPrompt: `Evaluate active recall. Direction: "${body.direction || 'target_to_meaning'}". Card term: "${body.cardTerm || ''}". Expected meaning: "${body.cardMeaning || ''}". Learner spoke: "${body.message || ''}". Return ONLY valid JSON: {"accurate":true,"gentleCorrection":"","expectedAnswer":""}`
+    };
+  }
+
+  if (body.action === 'photo_chit_chat') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Learner described a photo (${body.topic \vert{}\vert{} ''}) in${langName} at ${level}: "${body.message || ''}". Give gentle corrections on mistakes, 2 natural phrasing upgrades, and 2 quick conversation ideas in ${langName}.`
+    };
+  }
+
+  if (body.action === 'topic_talk') {
+    return {
+      expectJson: false,
+      systemPrompt,
+      userPrompt: `Learner spoke on "${body.topic \vert{}\vert{} ''}" in ${langName} at ${level}: "${body.message || ''}". Provide gentle written corrections for mistakes, a clean improved version, and one next point to explore in ${langName}.`
+    };
+  }
+
+  if (body.action === 'grade_quiz') {
+    return {
+      expectJson: true,
+      systemPrompt,
+      userPrompt: `Grade ${level} assessment: ${JSON.stringify(body.quizAnswers || {})}. Return ONLY valid JSON: {"scorePercent":75,"feedback":"short summary"}`
+    };
+  }
+
+  return {
+    expectJson: false,
+    systemPrompt,
+    userPrompt: `Live spoken call turn at ${level} in ${langName}. Learner said: "${body.message || ''}". Gently correct any mistake briefly, reply naturally in 1-2 short spoken sentences, and ask one concise question.`
+  };
+}
+
+async function callGemini(apiKey, systemPrompt, userPrompt, expectJson) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        generationConfig: {
+          temperature: 0.4,
+          ...(expectJson ? { responseMimeType: 'application/json' } : {})
+        }
+      })
+    }
+  );
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'Gemini request failed');
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callOpenAI(apiKey, systemPrompt, userPrompt, expectJson) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      temperature: 0.4,
+      ...(expectJson ? { response_format: { type: 'json_object' } } : {}),
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ]
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'OpenAI request failed');
+  return data.choices?.[0]?.message?.content || '';
+}

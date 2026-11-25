@@ -14,9 +14,9 @@ export default {
 
     if (url.pathname === '/api/tts' && request.method === 'POST') {
       try {
-        const { text, tutorGender = 'female', lang = 'en' } = await request.json();
+        const { text, tutorGender = 'female' } = await request.json();
         if (!text || !env.GEMINI_API_KEY) return json({ fallback: true }, 200);
-        const audio = await generateHumanSpeech(env.GEMINI_API_KEY, text, tutorGender, lang);
+        const audio = await generateHumanSpeech(env.GEMINI_API_KEY, text, tutorGender);
         return json(audio || { fallback: true }, 200);
       } catch (_) {
         return json({ fallback: true }, 200);
@@ -53,9 +53,7 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...corsHeaders() } });
 }
 async function handleBloomAction(body = {}, env) {
-  if (!env.GEMINI_API_KEY) {
-    throw new Error('Missing GEMINI_API_KEY in Cloudflare Worker Variables and Secrets.');
-  }
+  if (!env.GEMINI_API_KEY) throw new Error('Missing GEMINI_API_KEY in Cloudflare Worker Secrets.');
   const langMap = { en: 'English', de: 'German', fr: 'French', es: 'Spanish' };
   const langName = langMap[body.lang] || 'English';
   const tutorName = body.tutorName || 'Claire';
@@ -72,7 +70,7 @@ async function handleBloomAction(body = {}, env) {
       : 'Never nitpick valid phrasing. Only if there is an obvious grammar error, briefly recast the natural phrasing in 5-8 words without lecturing, then continue chatting.';
 
   const systemPrompt = [
-    'You are ' + tutorName + ', a warm, intelligent, articulate human conversation partner (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live voice call in Bloom.',
+    'You are ' + tutorName + ', a warm, intelligent, well-read human conversation partner (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live voice call in Bloom.',
     'Language: ' + langName + '.',
     'KNOWLEDGE: You have broad general knowledge across technology, AI, science, history, geography, cities, cultures, websites, current world affairs, and everyday life. Discuss any topic naturally like a smart, curious friend.',
     'ADAPTABILITY: Follow live user instructions immediately (speak slower/faster, use simpler words, explain in detail, or repeat). Keep normal replies concise (1-3 spoken sentences) with one engaging follow-up question unless asked for a detailed explanation.',
@@ -107,11 +105,7 @@ function parseTutorEnvelope(raw, fallbackRate = 1.0) {
   try {
     const cleaned = String(raw || '').replace(/```json|```/gi, '').trim();
     const obj = JSON.parse(cleaned);
-    return {
-      transcript: String(obj.transcript || '').trim(),
-      reply: String(obj.reply || '').trim() || cleaned,
-      speechRate: Number(obj.speechRate) || fallbackRate
-    };
+    return { transcript: String(obj.transcript || '').trim(), reply: String(obj.reply || '').trim() || cleaned, speechRate: Number(obj.speechRate) || fallbackRate };
   } catch (_) {
     return { transcript: '', reply: String(raw || '').replace(/```json|```/gi, '').trim(), speechRate: fallbackRate };
   }
@@ -123,14 +117,10 @@ async function callGeminiSmart(apiKey, systemPrompt, userPrompt, history = [], a
   const contents = [];
 
   for (const turn of history) {
-    if (turn && turn.text) {
-      contents.push({ role: turn.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(turn.text) }] });
-    }
+    if (turn && turn.text) contents.push({ role: turn.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(turn.text) }] });
   }
   const userParts = [{ text: userPrompt }];
-  if (audioBase64) {
-    userParts.push({ inlineData: { mimeType: audioMime || 'audio/webm', data: audioBase64 } });
-  }
+  if (audioBase64) userParts.push({ inlineData: { mimeType: audioMime || 'audio/webm', data: audioBase64 } });
   contents.push({ role: 'user', parts: userParts });
 
   let lastError = 'Gemini busy';
@@ -140,11 +130,7 @@ async function callGeminiSmart(apiKey, systemPrompt, userPrompt, history = [], a
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents,
-          generationConfig: { temperature: 0.75, maxOutputTokens: 350 }
-        })
+        body: JSON.stringify({ systemInstruction: { parts: [{ text: systemPrompt }] }, contents, generationConfig: { temperature: 0.75, maxOutputTokens: 350 } })
       });
       const data = await res.json();
       if (!res.ok) { lastError = data?.error?.message || ('HTTP ' + res.status); continue; }
@@ -155,8 +141,8 @@ async function callGeminiSmart(apiKey, systemPrompt, userPrompt, history = [], a
     } catch (e) { lastError = e?.message || lastError; }
   }
   throw new Error(lastError);
-}
-async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 'en') {
+                              }
+async function generateHumanSpeech(apiKey, text, tutorGender = 'female') {
   const voiceName = tutorGender === 'female' ? 'Aoede' : 'Charon';
   const cleanText = String(text || '').replace(/[*#_`~]/g, '').trim();
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');
@@ -170,10 +156,7 @@ async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: cleanText }] }],
-          generationConfig: {
-            responseModalities: ['AUDIO'],
-            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
-          }
+          generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } } }
         })
       });
       if (!res.ok) continue;
@@ -181,45 +164,35 @@ async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 
       const firstCand = Array.isArray(data?.candidates) ? data.candidates.at(0) : null;
       const parts = Array.isArray(firstCand?.content?.parts) ? firstCand.content.parts : [];
       const audioPart = parts.find((p) => p.inlineData?.mimeType?.startsWith('audio/'));
-      if (audioPart?.inlineData?.data) {
-        return { audioBase64: audioPart.inlineData.data, mimeType: audioPart.inlineData.mimeType || 'audio/wav' };
-      }
+      if (audioPart?.inlineData?.data) return { audioBase64: audioPart.inlineData.data, mimeType: audioPart.inlineData.mimeType || 'audio/wav' };
     } catch (_) {}
   }
   return null;
 }
 
 async function fetchYouTubeContext(videoId) {
-  let title = '', author = '', transcript = '';
+  let title = '', transcript = '';
   try {
     const oRes = await fetch('https://youtube.com' + encodeURIComponent(videoId) + '&format=json');
-    if (oRes.ok) { const o = await oRes.json(); title = o.title || ''; author = o.author_name || ''; }
+    if (oRes.ok) { const o = await oRes.json(); title = o.title || ''; }
   } catch (_) {}
-
   try {
-    const pRes = await fetch('https://youtube.com' + encodeURIComponent(videoId), {
-      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en-US,en;q=0.9' }
-    });
+    const pRes = await fetch('https://youtube.com' + encodeURIComponent(videoId), { headers: { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'en-US,en;q=0.9' } });
     if (pRes.ok) {
       const html = await pRes.text();
-      if (!title) {
-        const tMatch = html.match(/<title>(.*?)<\/title>/);
-        if (tMatch && tMatch.at(1)) title = tMatch.at(1).replace(' - YouTube', '').trim();
-      }
+      if (!title) { const tMatch = html.match(/<title>(.*?)<\/title>/); if (tMatch && tMatch.at(1)) title = tMatch.at(1).replace(' - YouTube', '').trim(); }
       const capMatch = html.match(/"captionTracks":\[(\{.*?\})\]/);
       const urlMatch = capMatch && capMatch.at(1) && capMatch.at(1).match(/"baseUrl":"(.*?)"/);
       if (urlMatch && urlMatch.at(1)) {
         const cRes = await fetch(urlMatch.at(1).replace(/\\u0026/g, '&'));
         if (cRes.ok) {
           const xml = await cRes.text();
-          transcript = [...xml.matchAll(/<text[^>]*>(.*?)<\/text>/g)]
-            .map((m) => (m.at(1) || '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/<[^>]+>/g, ''))
-            .join(' ').slice(0, 3500);
+          transcript = [...xml.matchAll(/<text[^>]*>(.*?)<\/text>/g)].map((m) => (m.at(1) || '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/<[^>]+>/g, '')).join(' ').slice(0, 3500);
         }
       }
     }
   } catch (_) {}
-  return { videoId, title: title || ('YouTube Video (' + videoId + ')'), author, transcript };
+  return { videoId, title: title || ('YouTube Video (' + videoId + ')'), transcript };
 }
 
 async function hashPassword(password, salt = 'bloom_v2_salt') {
@@ -277,11 +250,7 @@ async function handleAuth(body = {}, env) {
 
   if (mode === 'sync' && kv) {
     const existing = await kv.get('user:' + email, 'json');
-    if (existing) {
-      existing.progress = body.progress;
-      existing.updatedAt = new Date().toISOString();
-      await kv.put('user:' + email, JSON.stringify(existing));
-    }
+    if (existing) { existing.progress = body.progress; existing.updatedAt = new Date().toISOString(); await kv.put('user:' + email, JSON.stringify(existing)); }
   }
   return json({ ok: true });
-        }
+}

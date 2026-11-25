@@ -115,7 +115,14 @@ async function handleBloomAction(body = {}, env) {
 }
 async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = false) {
   if (env.GEMINI_API_KEY) {
-    return await callGemini(env.GEMINI_API_KEY, systemPrompt, userPrompt, history, expectJson);
+    const geminiModels = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
+    for (const model of geminiModels) {
+      try {
+        return await callGemini(env.GEMINI_API_KEY, model, systemPrompt, userPrompt, history, expectJson);
+      } catch (err) {
+        // Automatically fail over to next model on high demand, 429, 503, or model availability error
+      }
+    }
   }
   if (env.AI && typeof env.AI.run === 'function') {
     const messages = [
@@ -124,15 +131,15 @@ async function runLLM(env, systemPrompt, userPrompt, history = [], expectJson = 
       { role: 'user', content: userPrompt }
     ];
     const res = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', { messages });
-    if (res?.response) return res.response.trim();
+    if (res && res.response) return res.response.trim();
   }
-  throw new Error('Missing GEMINI_API_KEY in Cloudflare Worker Variables and Secrets.');
+  throw new Error('All AI providers are temporarily busy. Please try again in a moment.');
 }
 
-async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expectJson = false) {
+async function callGemini(apiKey, model, systemPrompt, userPrompt, history = [], expectJson = false) {
   const host = ['generativelanguage', 'googleapis', 'com'].join('.');
-  const endpoint = 'https://' + host + '/v1beta/models/gemini-3.8-flash:generateContent?key=' + encodeURIComponent(apiKey);
-const contents = [];
+  const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
+  const contents = [];
 
   for (const turn of history) {
     if (turn && turn.text) {
@@ -160,15 +167,16 @@ const contents = [];
   const rawText = await res.text();
   let data = null;
   try { data = JSON.parse(rawText); } catch (_) {
-    throw new Error('Upstream (' + res.status + '): ' + rawText.slice(0, 120));
+    throw new Error('Upstream (' + res.status + ')');
   }
   if (!res.ok) throw new Error(data?.error?.message || 'Gemini error (' + res.status + ')');
   const firstCandidate = Array.isArray(data?.candidates) ? data.candidates.at(0) : null;
   const parts = Array.isArray(firstCandidate?.content?.parts) ? firstCandidate.content.parts : [];
   const text = parts.map((p) => p.text || '').join('').trim();
-  if (!text) throw new Error('Empty response from Gemini.');
+  if (!text) throw new Error('Empty response');
   return text;
 }
+
 
 
 

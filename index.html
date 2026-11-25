@@ -149,7 +149,6 @@
   </header>
 
   <main class="container">
-    <!-- HOME VIEW -->
     <section id="view-home" class="view active">
       <div class="card" id="guestHeroCard">
         <h1 class="section-title">Bloom — Voice-First Language Immersion</h1>
@@ -191,7 +190,6 @@
       </div>
     </section>
 
-    <!-- WATCH & DISCUSS VIEW -->
     <section id="view-watch" class="view">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
@@ -214,9 +212,7 @@
         </div>
       </div>
     </section>
-
-    <!-- SPEAK VIEW (100% VOICE-ONLY — ZERO CHAT TYPING) -->
-    <section id="view-speak" class="view">
+        <section id="view-speak" class="view">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
           <div>
@@ -237,6 +233,7 @@
 
           <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
             <button class="btn btn-success" id="btnRealCall" onclick="toggleRealCall()">Start Real Call</button>
+            <button class="btn btn-danger" id="btnInterrupt" style="display:none;" onclick="interruptTutorAndSpeak()">Interrupt & Speak</button>
             <button class="btn btn-primary" id="btnRecordTurn" onclick="toggleRecordTurn()">Record Turn (2m)</button>
             <button class="btn btn-soft" onclick="replayLastTutor()">Replay Voice</button>
             <button class="btn btn-soft" onclick="getReplySuggestions()">Help Me Respond</button>
@@ -261,7 +258,6 @@
     <button class="nav-btn" id="nav-speak" onclick="switchTab('speak')">Speak</button>
   </nav>
 
-  <!-- YOUTUBE MODAL -->
   <div class="modal-backdrop" id="ytModal">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -274,38 +270,27 @@
     </div>
   </div>
 
-  <!-- PROFESSIONAL SIGN IN / SIGN UP MODAL -->
   <div class="modal-backdrop" id="authModal">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <strong id="authModalTitle" style="font-size:19px; color:var(--primary-deep);">Welcome Back</strong>
         <button class="btn" onclick="closeModal('authModal')">✕</button>
       </div>
-      <p class="muted" style="margin-bottom:14px;" id="authModalSub">Sign in to sync your speaking progress and preferences.</p>
-
+      <p class="muted" style="margin-bottom:14px;">Sign in to sync your speaking progress and preferences.</p>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
         <button class="btn btn-primary" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
         <button class="btn btn-soft" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
       </div>
-
-      <div id="authNameWrap" style="display:none;">
-        <input id="authNameInput" class="input-field" placeholder="Full Name" autocomplete="name" />
-      </div>
-      <input id="authEmailInput" type="email" class="input-field" placeholder="Email address (e.g. name@gmail.com)" autocomplete="email" />
-      <div id="authPassWrap">
-        <input id="authPassInput" type="password" class="input-field" placeholder="Password (min. 6 characters)" autocomplete="current-password" />
-      </div>
-
-            <p id="authErrorMsg" style="color:var(--danger); font-size:12px; font-weight:600; margin-bottom:10px; display:none;"></p>
-
+      <div id="authNameWrap" style="display:none;"><input id="authNameInput" class="input-field" placeholder="Full Name" /></div>
+      <input id="authEmailInput" type="email" class="input-field" placeholder="Email address (e.g. name@gmail.com)" />
+      <div id="authPassWrap"><input id="authPassInput" type="password" class="input-field" placeholder="Password (min. 6 characters)" /></div>
+      <p id="authErrorMsg" style="color:var(--danger); font-size:12px; font-weight:600; margin-bottom:10px; display:none;"></p>
       <button class="btn btn-primary" style="width:100%; padding:11px; margin-bottom:8px;" id="authSubmitBtn" onclick="submitAuthForm()">Sign In</button>
-
       <div style="text-align:center; font-size:12px; color:var(--text-muted); margin:6px 0;">or</div>
-
       <button class="btn btn-soft" style="width:100%; padding:11px;" id="gmailModeBtn" onclick="toggleGmailFastSignIn()">Continue with Gmail Address</button>
     </div>
   </div>
-  <script src="https://youtube.com"></script>
+    <script src="https://youtube.com"></script>
   <script>
     const LANG_LOCALE = { en: 'en-US', de: 'de-DE', fr: 'fr-FR', es: 'es-ES' };
     const savedRaw = JSON.parse(localStorage.getItem('bloom_v3_state') || 'null') || {};
@@ -322,33 +307,20 @@
       activeVideoId: savedRaw.activeVideoId || null
     };
 
-    let speakMode = 'general';
-    let chatHistory = [];
-    let lastTutorText = '';
-    let lastAudioUrl = null;
-    let currentAudio = null;
-    let isRecording = false;
-    let isRealCall = false;
-    let recognition = null;
-    let recCountdown = null;
-    let recSecLeft = 120;
-    let authMode = 'signin';
-    let gmailFastMode = false;
-    let ytPlayer = null;
-    let ytTimer = null;
+    let speakMode = 'general', chatHistory = [], lastTutorText = '', lastAudioUrl = null, currentAudio = null;
+    let isRecording = false, isRealCall = false, recognition = null, recCountdown = null, recSecLeft = 120;
+    let authMode = 'signin', gmailFastMode = false, ytPlayer = null, ytTimer = null;
+    let speechRate = 1.0, silenceTimer = null, accumulatedTranscript = '', isTutorSpeaking = false;
 
     function saveState() {
       localStorage.setItem('bloom_v3_state', JSON.stringify(state));
       renderTopStats();
       if (state.user && state.user.email) {
-        fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'sync', email: state.user.email, progress: state })
-        }).catch(() => {});
+        fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'sync', email: state.user.email, progress: state }) }).catch(() => {});
       }
     }
-        function renderTopStats() {
+
+    function renderTopStats() {
       document.getElementById('watchMinLabel').textContent = Math.floor(state.watchSec / 60);
       document.getElementById('speakMinLabel').textContent = Math.floor(state.speakSec / 60);
       document.getElementById('watchBarFill').style.width = Math.min(100, (state.watchSec / 3600) * 100) + '%';
@@ -359,20 +331,9 @@
       document.getElementById('correctionStyleSelect').value = state.correctionMode;
       document.getElementById('tutor-claire').classList.toggle('selected', state.tutorName === 'Claire');
       document.getElementById('tutor-julian').classList.toggle('selected', state.tutorName === 'Julian');
-
-      const authBtn = document.getElementById('authHeaderBtn');
-      const hero = document.getElementById('guestHeroCard');
-      if (state.user) {
-        authBtn.textContent = state.user.name + ' • Sign Out';
-        authBtn.onclick = signOutUser;
-        hero.style.display = 'none';
-        document.getElementById('welcomeHeading').textContent = 'Welcome back, ' + state.user.name;
-      } else {
-        authBtn.textContent = 'Sign In';
-        authBtn.onclick = () => openModal('authModal', 'signin');
-        hero.style.display = 'block';
-        document.getElementById('welcomeHeading').textContent = 'Welcome to Bloom';
-      }
+      const authBtn = document.getElementById('authHeaderBtn'), hero = document.getElementById('guestHeroCard');
+      if (state.user) { authBtn.textContent = state.user.name + ' • Sign Out'; authBtn.onclick = signOutUser; hero.style.display = 'none'; document.getElementById('welcomeHeading').textContent = 'Welcome back, ' + state.user.name; }
+      else { authBtn.textContent = 'Sign In'; authBtn.onclick = () => openModal('authModal', 'signin'); hero.style.display = 'block'; document.getElementById('welcomeHeading').textContent = 'Welcome to Bloom'; }
     }
 
     function switchTab(tab) {
@@ -381,21 +342,37 @@
       document.getElementById('view-' + tab).classList.add('active');
       document.getElementById('nav-' + tab).classList.add('active');
     }
-
     function selectTutor(name, gender) { state.tutorName = name; state.tutorGender = gender; saveState(); }
     function setLanguage(lang) { state.lang = lang; chatHistory = []; saveState(); }
-        async function speakHumanVoice(text, onDone) {
+
+    function interruptTutorAndSpeak() {
+      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+      window.speechSynthesis?.cancel();
+      isTutorSpeaking = false;
+      const btnInt = document.getElementById('btnInterrupt');
+      if (btnInt) btnInt.style.display = 'none';
+      if (isRealCall) startListening(true);
+    }
+
+    async function speakHumanVoice(text, onDone) {
       lastTutorText = text;
+      isTutorSpeaking = true;
       const statusEl = document.getElementById('voiceStatusPill');
       if (statusEl) statusEl.textContent = state.tutorName + ' is speaking...';
+      const btnInt = document.getElementById('btnInterrupt');
+      if (btnInt && isRealCall) btnInt.style.display = 'inline-flex';
       if (currentAudio) { currentAudio.pause(); currentAudio = null; }
       window.speechSynthesis?.cancel();
 
+      const finishSpeech = () => {
+        isTutorSpeaking = false;
+        if (btnInt) btnInt.style.display = 'none';
+        if (statusEl) statusEl.textContent = isRealCall ? 'Listening... Speak as long as you want' : 'Voice Ready';
+        if (onDone) onDone();
+      };
+
       try {
-        const res = await fetch('/api/tts', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, tutorGender: state.tutorGender, lang: state.lang })
-        });
+        const res = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, tutorGender: state.tutorGender, lang: state.lang }) });
         const data = await res.json();
         if (data.audioBase64) {
           const bin = atob(data.audioBase64);
@@ -404,7 +381,8 @@
           if (lastAudioUrl) URL.revokeObjectURL(lastAudioUrl);
           lastAudioUrl = URL.createObjectURL(new Blob([bytes], { type: data.mimeType || 'audio/wav' }));
           currentAudio = new Audio(lastAudioUrl);
-          currentAudio.onended = () => { if (statusEl) statusEl.textContent = isRealCall ? 'Listening to you...' : 'Voice Ready'; if (onDone) onDone(); };
+          currentAudio.playbackRate = speechRate;
+          currentAudio.onended = finishSpeech;
           await currentAudio.play();
           return;
         }
@@ -413,10 +391,10 @@
       if ('speechSynthesis' in window) {
         const u = new SpeechSynthesisUtterance(text);
         u.lang = LANG_LOCALE[state.lang] || 'en-US';
-        u.rate = 0.97;
-        u.onend = () => { if (statusEl) statusEl.textContent = isRealCall ? 'Listening to you...' : 'Voice Ready'; if (onDone) onDone(); };
+        u.rate = 0.97 * speechRate;
+        u.onend = finishSpeech;
         speechSynthesis.speak(u);
-      } else if (onDone) onDone();
+      } else finishSpeech();
     }
 
     function replayLastTutor() { if (lastTutorText) speakHumanVoice(lastTutorText); }
@@ -424,10 +402,11 @@
     async function callBloomAI(payload) {
       const res = await fetch('/api/bloom', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang: state.lang, tutorName: state.tutorName, tutorGender: state.tutorGender, correctionMode: state.correctionMode, history: chatHistory, ...payload })
+        body: JSON.stringify({ lang: state.lang, tutorName: state.tutorName, tutorGender: state.tutorGender, correctionMode: state.correctionMode, speechRate, history: chatHistory, ...payload })
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Tutor connection failed');
+      if (data.speechRate) speechRate = Number(data.speechRate) || speechRate;
       return data.reply;
     }
         function updateTimerUI(sec) {
@@ -465,47 +444,75 @@
       }
     }
 
+    function finalizeUserSpeech(autoLoop) {
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+      isRecording = false;
+      stopRecorderTimer();
+      document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
+      if (recognition) { try { recognition.onend = null; recognition.stop(); } catch (_) {} }
+      const spoken = accumulatedTranscript.trim();
+      accumulatedTranscript = '';
+      if (spoken) handleUserSpokenText(spoken);
+      else if (isRealCall && autoLoop) startListening(true);
+    }
+
     function startListening(autoLoop = false) {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { document.getElementById('voiceStatusPill').textContent = 'Microphone speech recognition is not supported on this browser.'; return; }
-      if (recognition) { try { recognition.abort(); } catch (_) {} }
+      if (!SR) { document.getElementById('voiceStatusPill').textContent = 'Speech recognition not supported on this browser.'; return; }
+      if (recognition) { try { recognition.onend = null; recognition.abort(); } catch (_) {} }
+      if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+      accumulatedTranscript = '';
       recognition = new SR();
       recognition.lang = LANG_LOCALE[state.lang] || 'en-US';
-      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.interimResults = true;
       isRecording = true;
-      document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
-      document.getElementById('voiceStatusPill').textContent = 'Listening... Speak now';
 
       if (!autoLoop) {
+        document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
+        document.getElementById('voiceStatusPill').textContent = 'Recording (up to 2m)... Tap "Stop & Send" when finished';
         recSecLeft = 120;
         updateTimerUI(120);
         recCountdown = setInterval(() => {
           recSecLeft -= 1;
           updateTimerUI(recSecLeft);
-          if (recSecLeft <= 0 && recognition) recognition.stop();
+          if (recSecLeft <= 0) finalizeUserSpeech(false);
         }, 1000);
+      } else {
+        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
+        document.getElementById('voiceStatusPill').textContent = 'Listening... Speak as long as you want';
       }
 
       recognition.onresult = (e) => {
-        const firstRes = e.results && e.results.item(0);
-        const alt = firstRes && firstRes.item(0);
-        const transcript = alt ? alt.transcript : '';
-        isRecording = false;
-        stopRecorderTimer();
-        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
-        handleUserSpokenText(transcript);
+        let finalChunk = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const resItem = e.results.item(i);
+          if (resItem && resItem.isFinal) finalChunk += ' ' + resItem.item(0).transcript;
+        }
+        if (finalChunk.trim()) accumulatedTranscript += ' ' + finalChunk.trim();
+        if (autoLoop && accumulatedTranscript.trim()) {
+          if (silenceTimer) clearTimeout(silenceTimer);
+          silenceTimer = setTimeout(() => finalizeUserSpeech(true), 3500);
+        }
       };
+
+      recognition.onend = () => {
+        if (isRecording) {
+          try { recognition.start(); } catch (_) {}
+        }
+      };
+
       recognition.onerror = () => {
-        isRecording = false;
-        stopRecorderTimer();
-        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
-        if (isRealCall && autoLoop) setTimeout(() => startListening(true), 800);
+        if (isRecording && isRealCall && autoLoop) {
+          setTimeout(() => { try { recognition.start(); } catch (_) {} }, 600);
+        }
       };
       recognition.start();
     }
-        function toggleRecordTurn() {
-      if (isRecording && recognition) { recognition.stop(); isRecording = false; stopRecorderTimer(); document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)'; }
-      else startListening(false);
+
+    function toggleRecordTurn() {
+      if (isRecording && !isRealCall) finalizeUserSpeech(false);
+      else if (!isRealCall) startListening(false);
     }
 
     async function toggleRealCall() {
@@ -532,12 +539,16 @@
       } else {
         btn.textContent = 'Start Real Call';
         btn.className = 'btn btn-success';
-        if (recognition) recognition.abort();
+        isRecording = false;
+        if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+        if (recognition) { try { recognition.onend = null; recognition.abort(); } catch (_) {} }
+        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+        window.speechSynthesis?.cancel();
+        document.getElementById('btnInterrupt').style.display = 'none';
         document.getElementById('voiceStatusPill').textContent = 'Call ended';
       }
     }
-
-    async function getReplySuggestions() {
+        async function getReplySuggestions() {
       const box = document.getElementById('suggestionsBox');
       box.style.display = 'block';
       box.innerHTML = '<span class="muted">Preparing natural spoken ideas...</span>';
@@ -551,14 +562,11 @@
       } catch (_) { box.innerHTML = '<span class="muted">Could not load suggestions right now.</span>'; }
     }
 
-    function openModal(id, mode) {
-      if (id === 'authModal' && mode) switchAuthTab(mode);
-      document.getElementById(id).classList.add('open');
-    }
+    function openModal(id, mode) { if (id === 'authModal' && mode) switchAuthTab(mode); document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-          function switchAuthTab(mode) {
-      authMode = mode;
-      gmailFastMode = false;
+
+    function switchAuthTab(mode) {
+      authMode = mode; gmailFastMode = false;
       document.getElementById('tabSignIn').className = mode === 'signin' ? 'btn btn-primary' : 'btn btn-soft';
       document.getElementById('tabSignUp').className = mode === 'signup' ? 'btn btn-primary' : 'btn btn-soft';
       document.getElementById('authNameWrap').style.display = mode === 'signup' ? 'block' : 'none';
@@ -592,31 +600,23 @@
         if (!res.ok || data.error) throw new Error(data.error || 'Authentication failed');
         state.user = data.user;
         if (data.progress) Object.assign(state, data.progress, { user: data.user, watchSec: Number(data.progress.watchSec) || state.watchSec, speakSec: Number(data.progress.speakSec) || state.speakSec, streak: Number(data.progress.streak) || state.streak });
-        saveState();
-        closeModal('authModal');
+        saveState(); closeModal('authModal');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
     }
 
     function signOutUser() { state.user = null; saveState(); }
-
-    function extractYtId(url) {
-      const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-      return m ? m.at(1) : null;
-    }
+    function extractYtId(url) { const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m.at(1) : null; }
 
     async function loadYouTubeVideo() {
       const id = extractYtId(document.getElementById('ytUrlInput').value.trim());
       const errEl = document.getElementById('ytErrorMsg');
       if (!id) { errEl.textContent = 'Please paste a valid YouTube video URL.'; errEl.style.display = 'block'; return; }
-      errEl.style.display = 'none';
-      closeModal('ytModal');
+      errEl.style.display = 'none'; closeModal('ytModal');
       document.getElementById('videoStatusText').textContent = 'Loading video title & captions...';
       const meta = await fetch('/api/youtube', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId: id }) }).then(r => r.json()).catch(() => ({ videoId: id, title: 'YouTube Video', transcript: '' }));
       let vid = state.videos.find(v => v.id === id);
       if (!vid) { vid = { id, title: meta.title, transcript: meta.transcript || '', finished: false }; state.videos.unshift(vid); }
-      state.activeVideoId = id;
-      saveState();
-      mountYouTubePlayer(vid);
+      state.activeVideoId = id; saveState(); mountYouTubePlayer(vid);
     }
 
     function mountYouTubePlayer(vid) {
@@ -648,17 +648,14 @@
 
     function startVideoDiscussion() {
       const vid = state.videos.find(v => v.id === state.activeVideoId);
-      speakMode = 'video';
-      chatHistory = [];
+      speakMode = 'video'; chatHistory = [];
       document.getElementById('speakContextBanner').textContent = 'Discussing Video: ' + (vid ? vid.title : 'Video');
       document.getElementById('btnResetTopic').style.display = 'inline-flex';
-      switchTab('speak');
-      toggleRealCall();
+      switchTab('speak'); toggleRealCall();
     }
 
     function resetToGeneralSpeak() {
-      speakMode = 'general';
-      chatHistory = [];
+      speakMode = 'general'; chatHistory = [];
       document.getElementById('speakContextBanner').textContent = 'General Voice Conversation';
       document.getElementById('btnResetTopic').style.display = 'none';
     }
@@ -667,6 +664,3 @@
   </script>
 </body>
 </html>
-
-
-      

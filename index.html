@@ -8,10 +8,8 @@
   <link rel="preconnect" href="https://googleapis.com">
   <link rel="preconnect" href="https://gstatic.com" crossorigin>
   <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com" defer></script>
   <style>
     :root {
-      --bg-app: #F4F9FF;
       --bg-surface: #FFFFFF;
       --bg-sky-soft: #E5F1FF;
       --primary: #0284C7;
@@ -20,7 +18,6 @@
       --accent-ice: #38BDF8;
       --success: #0D9488;
       --danger: #DC2626;
-      --warning: #D97706;
       --text-main: #0F172A;
       --text-muted: #52647A;
       --border: #D9E8F7;
@@ -34,7 +31,7 @@
       color: var(--text-main);
       min-height: 100vh;
       padding-top: 82px;
-      padding-bottom: 92px;
+      padding-bottom: 88px;
       overflow-x: hidden;
     }
     .topbar {
@@ -45,17 +42,11 @@
       padding: 10px 16px;
     }
     .topbar-inner {
-      max-width: 960px; margin: 0 auto;
+      max-width: 900px; margin: 0 auto;
       display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
     }
-    .brand-mark {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 20px; font-weight: 800; color: var(--primary-deep); cursor: pointer;
-    }
-    .brand-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--accent-ice));
-    }
+    .brand-mark { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 800; color: var(--primary-deep); cursor: pointer; }
+    .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-ice)); }
         .timers-cluster, .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .timer-chip {
       background: var(--bg-sky-soft); border: 1px solid var(--border); border-radius: 999px;
@@ -70,7 +61,7 @@
     }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border);
+      padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border);
       background: var(--bg-surface); color: var(--text-main);
       font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
     }
@@ -80,56 +71,53 @@
     .btn-success { background: var(--success); border-color: var(--success); color: #FFF; }
     .btn-danger { background: var(--danger); border-color: var(--danger); color: #FFF; }
     .btn-soft { background: var(--bg-sky-soft); border-color: #C7E0FA; color: var(--primary-deep); }
-    .container { max-width: 960px; margin: 0 auto; padding: 14px 16px 24px; }
+    .container { max-width: 900px; margin: 0 auto; padding: 14px 16px 24px; }
     .card {
       background: var(--bg-surface); border: 1px solid var(--border);
-      border-radius: 22px; padding: 18px 20px; box-shadow: var(--shadow-sm); margin-bottom: 14px;
+      border-radius: 22px; padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 14px;
     }
     .section-title { font-size: 22px; font-weight: 800; color: var(--primary-deep); margin-bottom: 6px; }
     .muted { color: var(--text-muted); font-size: 13px; line-height: 1.5; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    @media (max-width: 680px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding-top: 122px; } }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    @media (max-width: 680px) { .grid-2 { grid-template-columns: 1fr; } body { padding-top: 122px; } }
     .view { display: none; }
     .view.active { display: block; animation: fadeUp 0.18s ease; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     .tutor-card {
-      border: 2px solid var(--border); border-radius: 18px; padding: 12px 14px;
+      border: 2px solid var(--border); border-radius: 18px; padding: 14px;
       background: var(--bg-surface); cursor: pointer; display: flex; align-items: center; gap: 12px;
     }
     .tutor-card.selected { border-color: var(--primary); background: var(--bg-sky-soft); }
     .video-box { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #0B192C; }
     .video-box iframe, #ytPlayerHost { width: 100%; height: 100%; border: 0; }
-    .chat-log {
-      max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-      padding: 12px; background: #F8FBFF; border: 1px solid var(--border); border-radius: 16px;
+    .voice-stage {
+      background: linear-gradient(180deg, #F4F9FF 0%, #FFFFFF 100%);
+      border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-align: center;
     }
-    .msg { padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45; max-width: 86%; }
-    .msg.tutor { background: #E5F1FF; color: var(--primary-deep); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .msg.user { background: var(--primary); color: #FFF; align-self: flex-end; border-bottom-right-radius: 4px; }
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
       background: rgba(255,255,255,0.97); border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around; padding: 8px 10px;
+      display: flex; justify-content: space-around; padding: 10px;
     }
     .nav-btn {
-      background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 700;
-      color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 12px;
+      background: none; border: none; font-family: inherit; font-size: 13px; font-weight: 800;
+      color: var(--text-muted); cursor: pointer; padding: 6px 18px; border-radius: 999px;
     }
-    .nav-btn.active { color: var(--primary); }
+    .nav-btn.active { color: var(--primary); background: var(--bg-sky-soft); }
     .modal-backdrop {
       position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 60;
       display: none; align-items: center; justify-content: center; padding: 16px;
     }
     .modal-backdrop.open { display: flex; }
     .modal-card {
-      background: #FFF; border-radius: 22px; max-width: 560px; width: 100%; max-height: 88vh;
-      overflow-y: auto; padding: 20px; box-shadow: var(--shadow-lg);
+      background: #FFF; border-radius: 24px; max-width: 440px; width: 100%;
+      padding: 24px; box-shadow: var(--shadow-lg);
     }
     .input-field {
-      width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border);
-      font-family: inherit; font-size: 14px; margin-bottom: 10px;
+      width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border);
+      font-family: inherit; font-size: 14px; margin-bottom: 10px; outline: none;
     }
+    .input-field:focus { border-color: var(--primary); }
   </style>
 </head>
 <body>
@@ -155,7 +143,7 @@
           <option value="fr">Français</option>
           <option value="es">Español</option>
         </select>
-        <button class="btn btn-primary" id="authHeaderBtn" onclick="openModal('authModal')">Sign In</button>
+        <button class="btn btn-primary" id="authHeaderBtn" onclick="openModal('authModal', 'signin')">Sign In</button>
       </div>
     </div>
   </header>
@@ -165,7 +153,7 @@
     <section id="view-home" class="view active">
       <div class="card" id="guestHeroCard">
         <h1 class="section-title">Bloom — Voice-First Language Immersion</h1>
-        <p class="muted" style="margin-bottom:12px;">Real-time voice calls with human-sounding AI tutors, YouTube video-gated vocabulary, and active recall across CEFR levels.</p>
+        <p class="muted" style="margin-bottom:14px;">Watch real YouTube videos and discuss them by voice, or hold natural hands-free calls with human-sounding AI tutors.</p>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="openModal('authModal', 'signup')">Create Account</button>
           <button class="btn btn-soft" onclick="openModal('authModal', 'signin')">Sign In</button>
@@ -173,28 +161,28 @@
       </div>
 
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
           <div>
             <h2 class="section-title" id="welcomeHeading">Welcome to Bloom</h2>
-            <p class="muted">Level: <strong id="levelBadge">B2</strong> • Streak: <strong id="streakLabel">1 day</strong></p>
+            <p class="muted">Daily Streak: <strong id="streakLabel">1 day</strong></p>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="switchTab('watch')">Watch</button>
-            <button class="btn btn-soft" onclick="openUnlockQuiz()">20-Min Level Unlock Quiz</button>
+            <button class="btn btn-primary" onclick="switchTab('watch')">Watch & Discuss</button>
+            <button class="btn btn-success" onclick="switchTab('speak')">Start Speaking</button>
           </div>
         </div>
 
         <p style="font-size:13px; font-weight:700; margin-bottom:8px;">Choose Your AI Tutor (Human Neural Voice)</p>
-        <div class="grid-2" style="margin-bottom:12px;">
+        <div class="grid-2" style="margin-bottom:14px;">
           <div class="tutor-card selected" id="tutor-claire" onclick="selectTutor('Claire','female')">
-            <div><strong>Claire</strong><div class="muted">Woman • Warm Feminine Voice</div></div>
+            <div><strong>Claire</strong><div class="muted">Woman • Warm Natural Feminine Voice</div></div>
           </div>
           <div class="tutor-card" id="tutor-julian" onclick="selectTutor('Julian','male')">
             <div><strong>Julian</strong><div class="muted">Man • Natural Masculine Voice</div></div>
           </div>
         </div>
 
-        <label style="font-size:12px; font-weight:700; color:var(--primary-deep);">Sprout Tutor Correction Style:</label>
+        <label style="font-size:12px; font-weight:700; color:var(--primary-deep);">Tutor Correction Style:</label>
         <select id="correctionStyleSelect" class="select-pill" style="margin-left:6px;" onchange="state.correctionMode=this.value; saveState();">
           <option value="gentle">Gentle Recast & Flow</option>
           <option value="repeat">Ask Me to Repeat Corrections</option>
@@ -202,83 +190,66 @@
         </select>
       </div>
     </section>
-        <!-- WATCH VIEW -->
+
+    <!-- WATCH & DISCUSS VIEW -->
     <section id="view-watch" class="view">
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
           <div>
-            <h2 class="section-title">Watch & Learn from YouTube</h2>
-            <p class="muted" id="videoStatusText">Paste any YouTube link and watch to the end to unlock video vocabulary & voice discussion.</p>
+            <h2 class="section-title">Watch & Discuss YouTube Videos</h2>
+            <p class="muted" id="videoStatusText">Paste any YouTube link and watch to the end to unlock a live voice discussion with your tutor.</p>
           </div>
-          <button class="btn btn-primary" onclick="openModal('ytModal')">Upload YouTube Video</button>
+          <button class="btn btn-primary" onclick="openModal('ytModal')">Load YouTube Video</button>
         </div>
 
         <div class="video-box" style="margin-bottom:12px;">
           <div id="ytPlayerHost" style="display:flex; align-items:center; justify-content:center; color:#CBD5E1; font-size:14px;">
-            No video loaded yet — tap "Upload YouTube Video"
+            No video loaded yet — tap "Load YouTube Video"
           </div>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <span class="muted" id="videoProgressLabel">Locked until finished (0%)</span>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-soft" id="btnVideoVocab" disabled onclick="showVideoVocab()">Vocabulary</button>
-            <button class="btn btn-primary" id="btnDiscussVideo" disabled onclick="startVideoDiscussion()">Discuss the Video</button>
-          </div>
-        </div>
-
-        <div id="videoVocabPanel" style="margin-top:14px; display:none;"></div>
-        <div id="yourVideosList" style="margin-top:14px;"></div>
-      </div>
-    </section>
-
-    <!-- LEARN VIEW -->
-    <section id="view-learn" class="view">
-      <div class="card">
-        <h2 class="section-title">Learn — Active Recall & Speaking Drills</h2>
-        <p class="muted" style="margin-bottom:12px;">Five focused practice tools tuned to your CEFR level.</p>
-        <div class="grid-2" style="margin-bottom:14px;">
-          <button class="btn btn-soft" style="justify-content:flex-start; padding:12px;" onclick="openLearnTool('flashcards')">1. Voice Flashcards</button>
-          <button class="btn btn-soft" style="justify-content:flex-start; padding:12px;" onclick="openLearnTool('photo')">2. Photo Chit Chat (1m)</button>
-          <button class="btn btn-soft" style="justify-content:flex-start; padding:12px;" onclick="openLearnTool('topic')">3. Topic Talk (1m)</button>
-          <button class="btn btn-soft" style="justify-content:flex-start; padding:12px;" onclick="openLearnTool('wordlink')">4. Word Link (1m)</button>
-          <button class="btn btn-soft" style="justify-content:flex-start; padding:12px;" onclick="openLearnTool('videolab')">5. Video Word & Talk Lab</button>
-        </div>
-        <div id="learnWorkspace" style="background:#F8FBFF; border:1px solid var(--border); border-radius:16px; padding:16px;">
-          <p class="muted">Select one of the five tools above to begin.</p>
+          <span class="muted" id="videoProgressLabel">Discussion locked until video finishes (0%)</span>
+          <button class="btn btn-primary" id="btnDiscussVideo" disabled onclick="startVideoDiscussion()">Discuss the Video by Voice</button>
         </div>
       </div>
     </section>
-        <!-- SPEAK VIEW -->
+
+    <!-- SPEAK VIEW (100% VOICE-ONLY — ZERO CHAT TYPING) -->
     <section id="view-speak" class="view">
       <div class="card">
-        <h2 class="section-title">Speak with <span id="activeTutorHeading">Claire</span></h2>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-          <button class="btn btn-primary" id="mode-free" onclick="setSpeakMode('free')">Practice Speaking</button>
-          <button class="btn btn-soft" id="mode-roleplay" onclick="setSpeakMode('roleplay')">Role Play</button>
-          <button class="btn btn-soft" id="mode-shadowing" onclick="setSpeakMode('shadowing')">Shadowing</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+          <div>
+            <h2 class="section-title">Speak with <span id="activeTutorHeading">Claire</span></h2>
+            <p class="muted" id="speakContextBanner">General Voice Conversation</p>
+          </div>
+          <button class="btn btn-soft" id="btnResetTopic" style="display:none;" onclick="resetToGeneralSpeak()">Switch to General Speaking</button>
         </div>
 
-        <div id="speakSubContext" style="margin-bottom:10px;"></div>
+        <div class="voice-stage">
+          <div style="margin-bottom:12px;">
+            <span class="timer-chip" id="speakTimerDisplay" style="font-size:15px; padding:8px 16px;">02:00</span>
+          </div>
 
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-          <span class="timer-chip" id="speakTimerDisplay">02:00</span>
-          <button class="btn btn-primary" id="btnRecordTurn" onclick="toggleRecordTurn()">Record (2m)</button>
-          <button class="btn btn-success" id="btnRealCall" onclick="toggleRealCall()">Start Real Call</button>
-          <button class="btn btn-soft" onclick="replayLastTutor()">Replay Voice</button>
-          <button class="btn btn-soft" onclick="getReplySuggestions()">Help Me Respond</button>
-        </div>
+          <p id="voiceStatusPill" style="font-size:15px; font-weight:700; color:var(--primary-deep); margin-bottom:14px;">
+            Voice Ready • Tap "Start Real Call" or "Record Turn (2m)"
+          </p>
 
-        <div id="suggestionsBox" style="display:none; margin-bottom:10px;"></div>
-        <div id="voiceStatusPill" class="muted" style="margin-bottom:8px; font-weight:700;">Voice Ready • Tap "Start Real Call" or "Record (2m)"</div>
+          <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+            <button class="btn btn-success" id="btnRealCall" onclick="toggleRealCall()">Start Real Call</button>
+            <button class="btn btn-primary" id="btnRecordTurn" onclick="toggleRecordTurn()">Record Turn (2m)</button>
+            <button class="btn btn-soft" onclick="replayLastTutor()">Replay Voice</button>
+            <button class="btn btn-soft" onclick="getReplySuggestions()">Help Me Respond</button>
+          </div>
 
-        <div class="chat-log" id="speakChatLog">
-          <div class="msg tutor">Hi! Tap <strong>Start Real Call</strong> for a continuous hands-free human conversation, or press <strong>Record (2m)</strong> to speak a turn.</div>
-        </div>
+          <div id="suggestionsBox" style="display:none; margin-bottom:12px;"></div>
 
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <input id="speakTextFallback" class="input-field" style="margin:0;" placeholder="Or type a message if in a quiet room..." onkeydown="if(event.key==='Enter') sendTypedTurn()" />
-          <button class="btn btn-primary" onclick="sendTypedTurn()">Send</button>
+          <div id="tutorFeedbackCard" style="background:#FFF; border:1px solid var(--border); border-radius:16px; padding:14px; text-align:left;">
+            <div style="font-size:11px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:4px;">Latest Tutor Voice & Gentle Note</div>
+            <p id="latestTutorNote" style="font-size:14px; line-height:1.55; color:var(--text-main);">
+              Tap <strong>Start Real Call</strong> for a continuous hands-free conversation, or press <strong>Record Turn (2m)</strong> to speak up to 2 minutes.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -287,76 +258,71 @@
   <nav class="bottom-nav">
     <button class="nav-btn active" id="nav-home" onclick="switchTab('home')">Home</button>
     <button class="nav-btn" id="nav-watch" onclick="switchTab('watch')">Watch</button>
-    <button class="nav-btn" id="nav-learn" onclick="switchTab('learn')">Learn</button>
     <button class="nav-btn" id="nav-speak" onclick="switchTab('speak')">Speak</button>
   </nav>
 
   <!-- YOUTUBE MODAL -->
   <div class="modal-backdrop" id="ytModal">
     <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <strong>Upload YouTube Video</strong>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <strong style="font-size:17px; color:var(--primary-deep);">Load YouTube Video</strong>
         <button class="btn" onclick="closeModal('ytModal')">✕</button>
       </div>
       <input id="ytUrlInput" class="input-field" placeholder="Paste YouTube link (e.g. https://youtu.be...)" />
-      <button class="btn btn-primary" style="width:100%;" onclick="loadYouTubeVideo()">Load Video & Extract Real Vocabulary</button>
+      <p id="ytErrorMsg" style="color:var(--danger); font-size:12px; margin-bottom:8px; display:none;"></p>
+      <button class="btn btn-primary" style="width:100%;" onclick="loadYouTubeVideo()">Load Video</button>
     </div>
   </div>
 
-  <!-- STRUCTURED AUTH MODAL (EMAIL + GMAIL / GOOGLE) -->
+  <!-- PROFESSIONAL SIGN IN / SIGN UP MODAL -->
   <div class="modal-backdrop" id="authModal">
     <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <strong id="authModalTitle">Sign In to Bloom</strong>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <strong id="authModalTitle" style="font-size:19px; color:var(--primary-deep);">Welcome Back</strong>
         <button class="btn" onclick="closeModal('authModal')">✕</button>
       </div>
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <p class="muted" style="margin-bottom:14px;" id="authModalSub">Sign in to sync your speaking progress and preferences.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
         <button class="btn btn-primary" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
         <button class="btn btn-soft" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
       </div>
+
       <div id="authNameWrap" style="display:none;">
-        <input id="authNameInput" class="input-field" placeholder="Your full name" />
+        <input id="authNameInput" class="input-field" placeholder="Full Name" autocomplete="name" />
       </div>
-      <input id="authEmailInput" type="email" class="input-field" placeholder="Email address (Gmail, Outlook, Yahoo, etc.)" />
-      <input id="authPassInput" type="password" class="input-field" placeholder="Password (min 6 characters)" />
-      <p id="authErrorMsg" style="color:var(--danger); font-size:12px; margin-bottom:8px; display:none;"></p>
-      <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" id="authSubmitBtn" onclick="submitEmailAuth()">Continue with Email & Password</button>
-      <button class="btn btn-soft" style="width:100%;" onclick="continueWithGmailQuick()">Continue with Gmail / Google Account</button>
-    </div>
-  </div>
+      <input id="authEmailInput" type="email" class="input-field" placeholder="Email address (e.g. name@gmail.com)" autocomplete="email" />
+      <div id="authPassWrap">
+        <input id="authPassInput" type="password" class="input-field" placeholder="Password (min. 6 characters)" autocomplete="current-password" />
+      </div>
 
-  <!-- 20-MIN LEVEL UNLOCK QUIZ MODAL -->
-  <div class="modal-backdrop" id="quizModal">
-    <div class="modal-card" style="max-width:680px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <strong id="quizHeaderTitle">CEFR Level Unlock Exam (20:00)</strong>
-        <button class="btn" onclick="closeQuizModal()">✕</button>
-      </div>
-      <div id="quizBody">Loading exam...</div>
+            <p id="authErrorMsg" style="color:var(--danger); font-size:12px; font-weight:600; margin-bottom:10px; display:none;"></p>
+
+      <button class="btn btn-primary" style="width:100%; padding:11px; margin-bottom:8px;" id="authSubmitBtn" onclick="submitAuthForm()">Sign In</button>
+
+      <div style="text-align:center; font-size:12px; color:var(--text-muted); margin:6px 0;">or</div>
+
+      <button class="btn btn-soft" style="width:100%; padding:11px;" id="gmailModeBtn" onclick="toggleGmailFastSignIn()">Continue with Gmail Address</button>
     </div>
   </div>
-    <script src="https://youtube.com"></script>
+  <script src="https://youtube.com"></script>
   <script>
-    const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
     const LANG_LOCALE = { en: 'en-US', de: 'de-DE', fr: 'fr-FR', es: 'es-ES' };
-
-    const state = JSON.parse(localStorage.getItem('bloom_v2_state') || 'null') || {
-      user: null,
-      lang: 'en',
-      level: 'B2',
-      tutorName: 'Claire',
-      tutorGender: 'female',
-      correctionMode: 'gentle',
-      watchSec: 0,
-      speakSec: 0,
-      streak: 1,
-      videos: [],
-      activeVideoId: null,
-      vocabBank: []
+    const savedRaw = JSON.parse(localStorage.getItem('bloom_v3_state') || 'null') || {};
+    const state = {
+      user: savedRaw.user || null,
+      lang: savedRaw.lang || 'en',
+      tutorName: savedRaw.tutorName || 'Claire',
+      tutorGender: savedRaw.tutorGender || 'female',
+      correctionMode: savedRaw.correctionMode || 'gentle',
+      watchSec: Number(savedRaw.watchSec) || 0,
+      speakSec: Number(savedRaw.speakSec) || 0,
+      streak: Number(savedRaw.streak) || 1,
+      videos: Array.isArray(savedRaw.videos) ? savedRaw.videos : [],
+      activeVideoId: savedRaw.activeVideoId || null
     };
 
-    let speakMode = 'free';
-    let speakTopic = 'Everyday conversation';
+    let speakMode = 'general';
     let chatHistory = [];
     let lastTutorText = '';
     let lastAudioUrl = null;
@@ -364,14 +330,17 @@
     let isRecording = false;
     let isRealCall = false;
     let recognition = null;
+    let recCountdown = null;
+    let recSecLeft = 120;
     let authMode = 'signin';
+    let gmailFastMode = false;
     let ytPlayer = null;
     let ytTimer = null;
 
     function saveState() {
-      localStorage.setItem('bloom_v2_state', JSON.stringify(state));
+      localStorage.setItem('bloom_v3_state', JSON.stringify(state));
       renderTopStats();
-      if (state.user?.email) {
+      if (state.user && state.user.email) {
         fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -379,17 +348,15 @@
         }).catch(() => {});
       }
     }
-
-    function renderTopStats() {
+        function renderTopStats() {
       document.getElementById('watchMinLabel').textContent = Math.floor(state.watchSec / 60);
       document.getElementById('speakMinLabel').textContent = Math.floor(state.speakSec / 60);
       document.getElementById('watchBarFill').style.width = Math.min(100, (state.watchSec / 3600) * 100) + '%';
       document.getElementById('speakBarFill').style.width = Math.min(100, (state.speakSec / 3600) * 100) + '%';
       document.getElementById('langSelect').value = state.lang;
-      document.getElementById('levelBadge').textContent = state.level;
       document.getElementById('streakLabel').textContent = state.streak + (state.streak === 1 ? ' day' : ' days');
       document.getElementById('activeTutorHeading').textContent = state.tutorName;
-      document.getElementById('correctionStyleSelect').value = state.correctionMode || 'gentle';
+      document.getElementById('correctionStyleSelect').value = state.correctionMode;
       document.getElementById('tutor-claire').classList.toggle('selected', state.tutorName === 'Claire');
       document.getElementById('tutor-julian').classList.toggle('selected', state.tutorName === 'Julian');
 
@@ -415,146 +382,84 @@
       document.getElementById('nav-' + tab).classList.add('active');
     }
 
-    function selectTutor(name, gender) {
-      state.tutorName = name;
-      state.tutorGender = gender;
-      saveState();
-    }
-
-    function setLanguage(lang) {
-      state.lang = lang;
-      chatHistory = [];
-      saveState();
-    }
-
-    async function speakHumanVoice(text, onDone) {
+    function selectTutor(name, gender) { state.tutorName = name; state.tutorGender = gender; saveState(); }
+    function setLanguage(lang) { state.lang = lang; chatHistory = []; saveState(); }
+        async function speakHumanVoice(text, onDone) {
       lastTutorText = text;
       const statusEl = document.getElementById('voiceStatusPill');
       if (statusEl) statusEl.textContent = state.tutorName + ' is speaking...';
-
       if (currentAudio) { currentAudio.pause(); currentAudio = null; }
       window.speechSynthesis?.cancel();
 
       try {
         const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, tutorGender: state.tutorGender, lang: state.lang })
         });
         const data = await res.json();
         if (data.audioBase64) {
-          const byteChars = atob(data.audioBase64);
-          const bytes = new Uint8Array(byteChars.length);
-          for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
-          const blob = new Blob([bytes], { type: data.mimeType || 'audio/wav' });
+          const bin = atob(data.audioBase64);
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes.set([bin.charCodeAt(i)], i);
           if (lastAudioUrl) URL.revokeObjectURL(lastAudioUrl);
-          lastAudioUrl = URL.createObjectURL(blob);
+          lastAudioUrl = URL.createObjectURL(new Blob([bytes], { type: data.mimeType || 'audio/wav' }));
           currentAudio = new Audio(lastAudioUrl);
-          currentAudio.onended = () => {
-            if (statusEl) statusEl.textContent = isRealCall ? 'Listening to you...' : 'Voice Ready';
-            if (onDone) onDone();
-          };
+          currentAudio.onended = () => { if (statusEl) statusEl.textContent = isRealCall ? 'Listening to you...' : 'Voice Ready'; if (onDone) onDone(); };
           await currentAudio.play();
           return;
         }
       } catch (_) {}
 
-      // Natural browser neural voice fallback
       if ('speechSynthesis' in window) {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = LANG_LOCALE[state.lang] || 'en-US';
-        utter.rate = 0.98;
-        const voices = speechSynthesis.getVoices();
-        const pref = voices.find(v => v.lang.startsWith(state.lang) && (state.tutorGender === 'female' ? /female|samantha|victoria|google uk english female|aria|jenny|aoede/i : /male|daniel|alex|google uk english male|guy|christopher/i).test(v.name));
-        if (pref) utter.voice = pref;
-        utter.onend = () => {
-          if (statusEl) statusEl.textContent = isRealCall ? 'Listening to you...' : 'Voice Ready';
-          if (onDone) onDone();
-        };
-        speechSynthesis.speak(utter);
-      } else if (onDone) {
-        onDone();
-      }
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = LANG_LOCALE[state.lang] || 'en-US';
+        u.rate = 0.97;
+        u.onend = () => { if (statusEl) statusEl.textContent = isRealCall ? 'Listening to you...' : 'Voice Ready'; if (onDone) onDone(); };
+        speechSynthesis.speak(u);
+      } else if (onDone) onDone();
     }
 
-    function replayLastTutor() {
-      if (lastTutorText) speakHumanVoice(lastTutorText);
-    }
-        async function callBloomAI(payload) {
+    function replayLastTutor() { if (lastTutorText) speakHumanVoice(lastTutorText); }
+
+    async function callBloomAI(payload) {
       const res = await fetch('/api/bloom', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          lang: state.lang,
-          level: state.level,
-          tutorName: state.tutorName,
-          tutorGender: state.tutorGender,
-          correctionMode: state.correctionMode,
-          history: chatHistory,
-          ...payload
-        })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: state.lang, tutorName: state.tutorName, tutorGender: state.tutorGender, correctionMode: state.correctionMode, history: chatHistory, ...payload })
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || 'Tutor connection failed');
       return data.reply;
     }
-
-    function appendChat(role, text) {
-      const log = document.getElementById('speakChatLog');
-      const div = document.createElement('div');
-      div.className = 'msg ' + (role === 'user' ? 'user' : 'tutor');
-      div.textContent = text;
-      log.appendChild(div);
-      log.scrollTop = log.scrollHeight;
-      chatHistory.push({ role: role === 'user' ? 'user' : 'assistant', text });
+        function updateTimerUI(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      document.getElementById('speakTimerDisplay').textContent = m + ':' + s;
     }
 
-    function setSpeakMode(mode) {
-      speakMode = mode;
-      ['free', 'roleplay', 'shadowing'].forEach(m => {
-        document.getElementById('mode-' + m).className = m === mode ? 'btn btn-primary' : 'btn btn-soft';
-      });
-      const sub = document.getElementById('speakSubContext');
-      if (mode === 'roleplay') {
-        sub.innerHTML = '<input id="roleTopicInput" class="input-field" style="margin:0;" value="Ordering at a busy café" onchange="speakTopic=this.value" placeholder="Enter role-play scenario..." />';
-        speakTopic = 'Ordering at a busy café';
-      } else if (mode === 'shadowing') {
-        sub.innerHTML = '<button class="btn btn-soft" onclick="fetchShadowSentence()">New Native Sentence to Shadow</button>';
-        fetchShadowSentence();
-      } else {
-        sub.innerHTML = '';
-        speakTopic = 'Everyday conversation';
-      }
-    }
-
-    async function fetchShadowSentence() {
-      const sentence = await callBloomAI({ action: 'shadowing', message: '__NEXT_SENTENCE__' });
-      speakTopic = sentence;
-      appendChat('tutor', 'Repeat after me: ' + sentence);
-      speakHumanVoice(sentence);
+    function stopRecorderTimer() {
+      if (recCountdown) { clearInterval(recCountdown); recCountdown = null; }
+      recSecLeft = 120;
+      updateTimerUI(120);
     }
 
     async function handleUserSpokenText(text) {
-      if (!text.trim()) return;
-      appendChat('user', text);
+      if (!text || !text.trim()) return;
+      chatHistory.push({ role: 'user', text });
       document.getElementById('suggestionsBox').style.display = 'none';
       document.getElementById('voiceStatusPill').textContent = state.tutorName + ' is thinking...';
       try {
-        const action = speakMode === 'roleplay' ? 'role_play' : speakMode === 'shadowing' ? 'shadowing' : speakMode === 'video' ? 'discuss_video' : 'free_chat';
         const vid = state.videos.find(v => v.id === state.activeVideoId);
         const reply = await callBloomAI({
-          action,
+          action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
           message: text,
-          topic: speakTopic,
-          videoTitle: vid?.title || '',
-          videoContext: vid?.transcript || ''
+          videoTitle: vid ? vid.title : '',
+          videoContext: vid ? vid.transcript : ''
         });
-        appendChat('tutor', reply);
+        chatHistory.push({ role: 'assistant', text: reply });
+        document.getElementById('latestTutorNote').textContent = reply;
         state.speakSec += 20;
         saveState();
-        speakHumanVoice(reply, () => {
-          if (isRealCall) startListening(true);
-        });
+        speakHumanVoice(reply, () => { if (isRealCall) startListening(true); });
       } catch (err) {
         document.getElementById('voiceStatusPill').textContent = 'Error: ' + err.message;
       }
@@ -562,10 +467,7 @@
 
     function startListening(autoLoop = false) {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) {
-        document.getElementById('voiceStatusPill').textContent = 'Mic speech recognition not supported on this browser — use text input below.';
-        return;
-      }
+      if (!SR) { document.getElementById('voiceStatusPill').textContent = 'Microphone speech recognition is not supported on this browser.'; return; }
       if (recognition) { try { recognition.abort(); } catch (_) {} }
       recognition = new SR();
       recognition.lang = LANG_LOCALE[state.lang] || 'en-US';
@@ -574,22 +476,35 @@
       document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
       document.getElementById('voiceStatusPill').textContent = 'Listening... Speak now';
 
+      if (!autoLoop) {
+        recSecLeft = 120;
+        updateTimerUI(120);
+        recCountdown = setInterval(() => {
+          recSecLeft -= 1;
+          updateTimerUI(recSecLeft);
+          if (recSecLeft <= 0 && recognition) recognition.stop();
+        }, 1000);
+      }
+
       recognition.onresult = (e) => {
-        const transcript = e.results[0][0].transcript;
+        const firstRes = e.results && e.results.item(0);
+        const alt = firstRes && firstRes.item(0);
+        const transcript = alt ? alt.transcript : '';
         isRecording = false;
-        document.getElementById('btnRecordTurn').textContent = 'Record (2m)';
+        stopRecorderTimer();
+        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
         handleUserSpokenText(transcript);
       };
       recognition.onerror = () => {
         isRecording = false;
-        document.getElementById('btnRecordTurn').textContent = 'Record (2m)';
+        stopRecorderTimer();
+        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
         if (isRealCall && autoLoop) setTimeout(() => startListening(true), 800);
       };
       recognition.start();
     }
-
-    function toggleRecordTurn() {
-      if (isRecording && recognition) { recognition.stop(); isRecording = false; document.getElementById('btnRecordTurn').textContent = 'Record (2m)'; }
+        function toggleRecordTurn() {
+      if (isRecording && recognition) { recognition.stop(); isRecording = false; stopRecorderTimer(); document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)'; }
       else startListening(false);
     }
 
@@ -599,9 +514,21 @@
       if (isRealCall) {
         btn.textContent = 'End Call';
         btn.className = 'btn btn-danger';
-        const greet = await callBloomAI({ action: speakMode === 'roleplay' ? 'role_play' : 'free_chat', message: '__GREET__', topic: speakTopic });
-        appendChat('tutor', greet);
-        speakHumanVoice(greet, () => { if (isRealCall) startListening(true); });
+        document.getElementById('voiceStatusPill').textContent = 'Connecting to ' + state.tutorName + '...';
+        try {
+          const vid = state.videos.find(v => v.id === state.activeVideoId);
+          const greet = await callBloomAI({
+            action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
+            message: speakMode === 'video' ? '__START_VIDEO_TALK__' : '__GREET__',
+            videoTitle: vid ? vid.title : '',
+            videoContext: vid ? vid.transcript : ''
+          });
+          chatHistory.push({ role: 'assistant', text: greet });
+          document.getElementById('latestTutorNote').textContent = greet;
+          speakHumanVoice(greet, () => { if (isRealCall) startListening(true); });
+        } catch (err) {
+          document.getElementById('voiceStatusPill').textContent = 'Error: ' + err.message;
+        }
       } else {
         btn.textContent = 'Start Real Call';
         btn.className = 'btn btn-success';
@@ -610,98 +537,83 @@
       }
     }
 
-    function sendTypedTurn() {
-      const inp = document.getElementById('speakTextFallback');
-      const val = inp.value.trim();
-      if (!val) return;
-      inp.value = '';
-      handleUserSpokenText(val);
-    }
-
     async function getReplySuggestions() {
       const box = document.getElementById('suggestionsBox');
       box.style.display = 'block';
-      box.innerHTML = '<span class="muted">Generating natural reply ideas...</span>';
+      box.innerHTML = '<span class="muted">Preparing natural spoken ideas...</span>';
       try {
-        const raw = await callBloomAI({ action: 'suggest_reply', lastTutorMessage: lastTutorText, topic: speakTopic });
+        const vid = state.videos.find(v => v.id === state.activeVideoId);
+        const raw = await callBloomAI({ action: 'suggest_reply', lastTutorMessage: lastTutorText, topic: speakMode === 'video' && vid ? vid.title : 'General conversation' });
         const parsed = JSON.parse(raw);
         box.innerHTML = (parsed.suggestions || []).map(s =>
-          `<button class="btn btn-soft" style="margin:3px; text-align:left;" onclick="handleUserSpokenText('${s.text.replace(/'/g, "\\'")}')">${s.text}</button>`
+          '<button class="btn btn-soft" style="margin:4px;" onclick="speakHumanVoice(\'' + s.text.replace(/'/g, "\\'") + '\')">🔊 ' + s.text + '</button>'
         ).join('');
-      } catch (_) { box.innerHTML = '<span class="muted">Could not load hints right now.</span>'; }
+      } catch (_) { box.innerHTML = '<span class="muted">Could not load suggestions right now.</span>'; }
     }
-        function openModal(id, mode) {
+
+    function openModal(id, mode) {
       if (id === 'authModal' && mode) switchAuthTab(mode);
       document.getElementById(id).classList.add('open');
     }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-    function switchAuthTab(mode) {
+          function switchAuthTab(mode) {
       authMode = mode;
+      gmailFastMode = false;
       document.getElementById('tabSignIn').className = mode === 'signin' ? 'btn btn-primary' : 'btn btn-soft';
       document.getElementById('tabSignUp').className = mode === 'signup' ? 'btn btn-primary' : 'btn btn-soft';
       document.getElementById('authNameWrap').style.display = mode === 'signup' ? 'block' : 'none';
-      document.getElementById('authModalTitle').textContent = mode === 'signup' ? 'Create Your Bloom Account' : 'Sign In to Bloom';
+      document.getElementById('authPassWrap').style.display = 'block';
+      document.getElementById('authModalTitle').textContent = mode === 'signup' ? 'Create Your Bloom Account' : 'Welcome Back';
+      document.getElementById('authSubmitBtn').textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
+      document.getElementById('gmailModeBtn').style.display = 'block';
+      document.getElementById('authErrorMsg').style.display = 'none';
     }
 
-    async function submitEmailAuth() {
+    function toggleGmailFastSignIn() {
+      gmailFastMode = true;
+      document.getElementById('authNameWrap').style.display = 'none';
+      document.getElementById('authPassWrap').style.display = 'none';
+      document.getElementById('authModalTitle').textContent = 'Continue with Gmail';
+      document.getElementById('authSubmitBtn').textContent = 'Continue with Gmail';
+      document.getElementById('gmailModeBtn').style.display = 'none';
+      document.getElementById('authEmailInput').focus();
+    }
+
+    async function submitAuthForm() {
       const email = document.getElementById('authEmailInput').value.trim();
       const password = document.getElementById('authPassInput').value;
       const name = document.getElementById('authNameInput').value.trim();
       const errEl = document.getElementById('authErrorMsg');
       errEl.style.display = 'none';
       try {
-        const res = await fetch('/api/auth', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: authMode, email, password, name, progress: state })
-        });
+        const payload = gmailFastMode ? { mode: 'google', email, progress: state } : { mode: authMode, email, password, name, progress: state };
+        const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const data = await res.json();
-        if (!res.ok || data.error) throw new Error(data.error || 'Auth failed');
+        if (!res.ok || data.error) throw new Error(data.error || 'Authentication failed');
         state.user = data.user;
-        if (data.progress) Object.assign(state, data.progress, { user: data.user });
+        if (data.progress) Object.assign(state, data.progress, { user: data.user, watchSec: Number(data.progress.watchSec) || state.watchSec, speakSec: Number(data.progress.speakSec) || state.speakSec, streak: Number(data.progress.streak) || state.streak });
         saveState();
         closeModal('authModal');
       } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
-    }
-
-    async function continueWithGmailQuick() {
-      const email = document.getElementById('authEmailInput').value.trim() || prompt('Enter your Gmail address (e.g. name@gmail.com):');
-      if (!email) return;
-      const res = await fetch('/api/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'google', email, progress: state })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        state.user = data.user;
-        if (data.progress) Object.assign(state, data.progress, { user: data.user });
-        saveState();
-        closeModal('authModal');
-      }
     }
 
     function signOutUser() { state.user = null; saveState(); }
 
     function extractYtId(url) {
       const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
-      return m ? m : null;
+      return m ? m.at(1) : null;
     }
 
     async function loadYouTubeVideo() {
       const id = extractYtId(document.getElementById('ytUrlInput').value.trim());
-      if (!id) return alert('Please paste a valid YouTube video URL.');
+      const errEl = document.getElementById('ytErrorMsg');
+      if (!id) { errEl.textContent = 'Please paste a valid YouTube video URL.'; errEl.style.display = 'block'; return; }
+      errEl.style.display = 'none';
       closeModal('ytModal');
-      document.getElementById('videoStatusText').textContent = 'Fetching real video title & transcript...';
-      const meta = await fetch('/api/youtube', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ videoId: id })
-      }).then(r => r.json()).catch(() => ({ videoId: id, title: 'YouTube Video', transcript: '' }));
-
+      document.getElementById('videoStatusText').textContent = 'Loading video title & captions...';
+      const meta = await fetch('/api/youtube', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId: id }) }).then(r => r.json()).catch(() => ({ videoId: id, title: 'YouTube Video', transcript: '' }));
       let vid = state.videos.find(v => v.id === id);
-      if (!vid) {
-        vid = { id, title: meta.title, transcript: meta.transcript || '', finished: false, words: [] };
-        state.videos.unshift(vid);
-      }
+      if (!vid) { vid = { id, title: meta.title, transcript: meta.transcript || '', finished: false }; state.videos.unshift(vid); }
       state.activeVideoId = id;
       saveState();
       mountYouTubePlayer(vid);
@@ -710,169 +622,51 @@
     function mountYouTubePlayer(vid) {
       document.getElementById('videoStatusText').textContent = 'Watching: ' + vid.title;
       document.getElementById('ytPlayerHost').innerHTML = '<div id="ytFrameTarget"></div>';
+      document.getElementById('btnDiscussVideo').disabled = !vid.finished;
       if (ytTimer) clearInterval(ytTimer);
-
-      const createPlayer = () => {
+      const initYt = () => {
         ytPlayer = new YT.Player('ytFrameTarget', {
-          videoId: vid.id,
-          playerVars: { rel: 0, modestbranding: 1 },
+          videoId: vid.id, playerVars: { rel: 0, modestbranding: 1 },
           events: {
             onStateChange: (ev) => {
               if (ev.data === YT.PlayerState.PLAYING) {
                 ytTimer = setInterval(() => {
                   state.watchSec += 1;
-                  const dur = ytPlayer.getDuration?.() || 0;
-                  const cur = ytPlayer.getCurrentTime?.() || 0;
+                  const dur = ytPlayer.getDuration?.() || 0, cur = ytPlayer.getCurrentTime?.() || 0;
                   const pct = dur > 0 ? Math.min(100, Math.round((cur / dur) * 100)) : 0;
-                  document.getElementById('videoProgressLabel').textContent = vid.finished ? 'Completed! Vocabulary & Discussion Unlocked' : `Watching (${pct}%) — Watch to the end to unlock`;
-                  if (pct >= 92 && !vid.finished) unlockCurrentVideo(vid);
+                  document.getElementById('videoProgressLabel').textContent = vid.finished ? 'Completed! Ready to discuss by voice' : 'Watching (' + pct + '%) — Finish video to unlock discussion';
+                  if (pct >= 92 && !vid.finished) { vid.finished = true; document.getElementById('btnDiscussVideo').disabled = false; }
                   saveState();
                 }, 1000);
-              } else {
-                clearInterval(ytTimer);
-                if (ev.data === YT.PlayerState.ENDED) unlockCurrentVideo(vid);
-              }
+              } else { clearInterval(ytTimer); if (ev.data === YT.PlayerState.ENDED) { vid.finished = true; document.getElementById('btnDiscussVideo').disabled = false; document.getElementById('videoProgressLabel').textContent = 'Completed! Ready to discuss by voice'; saveState(); } }
             }
           }
         });
       };
-      if (window.YT && YT.Player) createPlayer();
-      else setTimeout(createPlayer, 1000);
-    }
-
-    async function unlockCurrentVideo(vid) {
-      vid.finished = true;
-      document.getElementById('btnVideoVocab').disabled = false;
-      document.getElementById('btnDiscussVideo').disabled = false;
-      document.getElementById('videoProgressLabel').textContent = 'Completed! Extracting vocabulary...';
-      if (!vid.words.length) {
-        try {
-          const raw = await callBloomAI({ action: 'video_vocab', videoTitle: vid.title, videoContext: vid.transcript });
-          vid.words = JSON.parse(raw).words || [];
-          state.vocabBank.push(...vid.words);
-        } catch (_) {}
-      }
-      saveState();
-      showVideoVocab();
-    }
-
-    function showVideoVocab() {
-      const vid = state.videos.find(v => v.id === state.activeVideoId);
-      const panel = document.getElementById('videoVocabPanel');
-      panel.style.display = 'block';
-      panel.innerHTML = '<h3>Video Vocabulary</h3>' + (vid?.words || []).map(w =>
-        `<div class="card" style="margin-top:8px; padding:12px;"><strong>${w.term}</strong> (${w.partOfSpeech || ''}) — ${w.meaningInLang}<br><span class="muted">"${w.example}"</span></div>`
-      ).join('');
+      if (window.YT && YT.Player) initYt(); else setTimeout(initYt, 900);
     }
 
     function startVideoDiscussion() {
       const vid = state.videos.find(v => v.id === state.activeVideoId);
       speakMode = 'video';
-      speakTopic = vid?.title || 'Video';
+      chatHistory = [];
+      document.getElementById('speakContextBanner').textContent = 'Discussing Video: ' + (vid ? vid.title : 'Video');
+      document.getElementById('btnResetTopic').style.display = 'inline-flex';
       switchTab('speak');
-      handleUserSpokenText('I just finished watching ' + speakTopic + '. Let us discuss it!');
+      toggleRealCall();
     }
 
-    function openLearnTool(tool) {
-      const box = document.getElementById('learnWorkspace');
-      if (tool === 'flashcards') {
-        const card = state.vocabBank || { term: 'resilient', meaningInLang: 'able to recover quickly from difficulties', example: 'She is remarkably resilient.' };
-        box.innerHTML = `<h3>Voice Flashcard</h3><p style="font-size:18px; font-weight:800; margin:8px 0;">${card.term}</p><p class="muted">${card.example}</p><input id="fcAns" class="input-field" style="margin-top:8px;" placeholder="Speak or type the meaning..." /><button class="btn btn-primary" onclick="checkFlashcard('${card.term.replace(/'/g,"\\'")}','${card.meaningInLang.replace(/'/g,"\\'")}')">Check Recall</button><p id="fcResult" style="margin-top:8px; font-weight:700;"></p>`;
-      } else if (tool === 'photo') {
-        box.innerHTML = `<h3>Photo Chit Chat (1 Min)</h3><p class="muted">Upload any photo and describe it for 1 minute—Claire/Julian will analyze both the image and your speech!</p><input type="file" accept="image/*" id="photoInput" style="margin:8px 0;" /><textarea id="photoSpeech" class="input-field" rows="3" placeholder="Describe what you see in detail..."></textarea><button class="btn btn-primary" onclick="submitPhotoChat()">Get AI Coaching</button><div id="learnFeedback" class="muted" style="margin-top:8px;"></div>`;
-      } else if (tool === 'topic') {
-        const topics = ['Should cities ban private cars in downtown areas?', 'How social media shapes modern friendships', 'A difficult decision that changed your perspective'];
-        const t = topics[Math.floor(Math.random() * topics.length)];
-        box.innerHTML = `<h3>Topic Talk (1 Min)</h3><p style="font-weight:700; margin:6px 0;">${t}</p><textarea id="topicSpeech" class="input-field" rows="3" placeholder="Speak or type your 1-minute response..."></textarea><button class="btn btn-primary" onclick="submitLearnDrill('topic_talk','${t.replace(/'/g,"\\'")}',document.getElementById('topicSpeech').value)">Evaluate Speech</button><div id="learnFeedback" class="muted" style="margin-top:8px;"></div>`;
-      } else if (tool === 'wordlink') {
-        box.innerHTML = `<h3>Word Link (1 Min)</h3><p class="muted">Starting word: <strong>Journey</strong>. Say/type a chain of related words in ${state.lang.toUpperCase()}!</p><input id="wlInput" class="input-field" placeholder="e.g. journey, travel, passport, border..." /><button class="btn btn-primary" onclick="submitLearnDrill('word_link','Journey',document.getElementById('wlInput').value)">Check Word Chain</button><div id="learnFeedback" class="muted" style="margin-top:8px;"></div>`;
-      } else {
-        box.innerHTML = `<h3>Video Word & Talk Lab</h3><p class="muted">Saved words from your finished videos: <strong>${state.vocabBank.length}</strong> words.</p><button class="btn btn-primary" style="margin-top:8px;" onclick="switchTab('watch')">Go to Watch & Unlock More</button>`;
-      }
+    function resetToGeneralSpeak() {
+      speakMode = 'general';
+      chatHistory = [];
+      document.getElementById('speakContextBanner').textContent = 'General Voice Conversation';
+      document.getElementById('btnResetTopic').style.display = 'none';
     }
 
-    async function checkFlashcard(term, meaning) {
-      const msg = document.getElementById('fcAns').value;
-      const raw = await callBloomAI({ action: 'eval_flashcard', cardTerm: term, cardMeaning: meaning, message: msg });
-      const res = JSON.parse(raw);
-      document.getElementById('fcResult').textContent = (res.accurate ? '✅ ' : '💡 ') + res.gentleCorrection;
-      speakHumanVoice(res.gentleCorrection);
-    }
-
-        async function submitPhotoChat() {
-      const fileInput = document.getElementById('photoInput');
-      const file = fileInput && fileInput.files ? fileInput.files.item(0) : null;
-      const msg = document.getElementById('photoSpeech').value;
-      let imageBase64 = null;
-      if (file) {
-        imageBase64 = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); });
-      }
-      const reply = await callBloomAI({ action: 'photo_chit_chat', topic: 'Uploaded learner photo', message: msg, imageBase64 });
-      document.getElementById('learnFeedback').textContent = reply;
-      speakHumanVoice(reply);
-    }
-
-    async function submitLearnDrill(action, topic, message) {
-      const reply = await callBloomAI({ action, topic, word: topic, message });
-      document.getElementById('learnFeedback').textContent = reply;
-      speakHumanVoice(reply);
-    }
-
-    let currentQuizData = null;
-    async function openUnlockQuiz() {
-      const nextIdx = Math.min(LEVELS.length - 1, LEVELS.indexOf(state.level) + 1);
-      const targetLevel = LEVELS.at(nextIdx);
-      document.getElementById('quizHeaderTitle').textContent = `CEFR ${targetLevel} Certification Exam (20:00)`;
-      document.getElementById('quizBody').innerHTML = `<p class="muted">Generating a rigorous ${targetLevel} Reading, Listening, Grammar, Writing & Speaking exam...</p>`;
-      openModal('quizModal');
-      try {
-        const raw = await callBloomAI({ action: 'generate_quiz', targetLevel });
-        currentQuizData = JSON.parse(raw);
-        currentQuizData.targetLevel = targetLevel;
-        renderQuizForm(currentQuizData);
-      } catch (e) {
-        document.getElementById('quizBody').innerHTML = `<p style="color:var(--danger);">Failed to generate exam: ${e.message}</p>`;
-      }
-    }
-
-    function renderQuizForm(q) {
-      let html = `<div class="card"><strong>1. Reading Comprehension</strong><p style="margin-top:6px; font-size:14px; line-height:1.6;">${q.readingPassage}</p></div>`;
-      html += `<div class="card"><strong>2. Listening Comprehension</strong><br><button class="btn btn-primary" style="margin-top:6px;" onclick="speakHumanVoice(currentQuizData.listeningScript)">🔊 Play Listening Audio</button></div>`;
-      (q.mcqs || []).forEach((item, i) => {
-        html += `<div class="card"><strong>Q${i + 1} (${item.skill}): ${item.question}</strong>` +
-          item.options.map((opt, oi) => `<label style="display:block; margin-top:6px;"><input type="radio" name="mcq_${i}" value="${oi}"> ${opt}</label>`).join('') + `</div>`;
-      });
-      html += `<div class="card"><strong>Writing Task:</strong><p class="muted">${q.writingPrompt}</p><textarea id="quizWriting" class="input-field" rows="4" placeholder="Write at least 60 words..."></textarea></div>`;
-      html += `<div class="card"><strong>Speaking Task:</strong><p class="muted">${q.speakingPrompt}</p><textarea id="quizSpeaking" class="input-field" rows="3" placeholder="Speak or enter your spoken response..."></textarea></div>`;
-      html += `<button class="btn btn-success" style="width:100%;" onclick="submitUnlockQuiz()">Submit ${q.targetLevel} Exam for Grading</button>`;
-      document.getElementById('quizBody').innerHTML = html;
-    }
-
-    async function submitUnlockQuiz() {
-      const answers = {
-        mcqs: (currentQuizData.mcqs || []).map((m, i) => {
-          const sel = document.querySelector(`input[name="mcq_${i}"]:checked`);
-          return { question: m.question, chosen: sel ? Number(sel.value) : -1, correct: m.answerIndex };
-        }),
-        writingPrompt: currentQuizData.writingPrompt,
-        writingResponse: document.getElementById('quizWriting').value,
-        speakingPrompt: currentQuizData.speakingPrompt,
-        speakingResponse: document.getElementById('quizSpeaking').value
-      };
-      document.getElementById('quizBody').innerHTML = '<p class="muted">Examiner is grading your answers...</p>';
-      const raw = await callBloomAI({ action: 'grade_quiz', targetLevel: currentQuizData.targetLevel, quizAnswers: answers });
-      const result = JSON.parse(raw);
-      if (result.passed) {
-        state.level = currentQuizData.targetLevel;
-        saveState();
-      }
-      document.getElementById('quizBody').innerHTML = `<h3>Score: ${result.scorePercent}% — ${result.passed ? '🎉 Level ' + currentQuizData.targetLevel + ' Unlocked!' : 'Not Passed (75% Required)'}</h3><p style="margin:8px 0; font-weight:700;">${result.breakdown}</p><p class="muted">${result.feedback}</p>`;
-    }
-
-    function closeQuizModal() { closeModal('quizModal'); }
     renderTopStats();
   </script>
 </body>
 </html>
 
-                        
+
+      

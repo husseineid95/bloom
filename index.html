@@ -939,6 +939,77 @@
   }
 })();
   </script>
+  <script>
+(function () {
+  function enhanceAuthModal() {
+    var modal = document.getElementById('authModal');
+    if (!modal) return;
+    var panel = modal.querySelector('.modal-panel');
+    if (!panel) return;
+
+    if (!document.getElementById('authIntroNote')) {
+      var intro = document.createElement('p');
+      intro.id = 'authIntroNote';
+      intro.textContent = 'Welcome to Bloom — sign in immediately with your email or Gmail to start voice-first language immersion.';
+      intro.style.cssText = 'font-size:13px;color:#52647A;line-height:1.45;margin-bottom:12px;';
+      var modeRow = document.getElementById('authModeSignIn')?.parentElement;
+      if (modeRow && modeRow.parentElement) {
+        modeRow.parentElement.insertBefore(intro, modeRow);
+      } else {
+        panel.insertBefore(intro, panel.children[1] || null);
+      }
+    }
+
+    if (!document.getElementById('gmailQuickSignInBtn')) {
+      var submitBtn = panel.querySelector('[data-action="submit-auth"]');
+      var gmailBtn = document.createElement('button');
+      gmailBtn.type = 'button';
+      gmailBtn.id = 'gmailQuickSignInBtn';
+      gmailBtn.className = 'btn btn-soft';
+      gmailBtn.style.cssText = 'width:100%;margin-top:8px;';
+      gmailBtn.textContent = 'Continue with Gmail';
+
+      gmailBtn.onclick = function () {
+        var emailInput = document.getElementById('authEmailInput');
+        var nameInput = document.getElementById('authNameInput');
+        var typedEmail = (emailInput?.value || '').trim().toLowerCase();
+        var gmailAddr = typedEmail.endsWith('@gmail.com')
+          ? typedEmail
+          : prompt('Enter your Gmail address to sign in immediately:');
+        if (!gmailAddr) return;
+        gmailAddr = gmailAddr.trim().toLowerCase();
+        if (!/^[^\s@]+@gmail\.com$/.test(gmailAddr)) {
+          alert('Please enter a valid @gmail.com address.');
+          return;
+        }
+        var displayName = (nameInput?.value || '').trim() || gmailAddr.split('@')[0];
+        if (typeof app === 'object' && app) {
+          app.user = { name: displayName, email: gmailAddr, provider: 'gmail' };
+          app.accounts = app.accounts || {};
+          app.accounts[gmailAddr] = app.accounts[gmailAddr] || { name: displayName, email: gmailAddr, provider: 'gmail' };
+          if (typeof saveBloom === 'function') saveBloom();
+        }
+        modal.classList.remove('open');
+        modal.style.pointerEvents = 'none';
+        var authBtn = document.getElementById('authBtn');
+        if (authBtn) authBtn.textContent = displayName;
+      };
+
+      if (submitBtn && submitBtn.parentElement) {
+        submitBtn.parentElement.appendChild(gmailBtn);
+      } else {
+        panel.appendChild(gmailBtn);
+      }
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', enhanceAuthModal);
+  } else {
+    enhanceAuthModal();
+  }
+})();
+  </script>
   
 </body>
 </html>

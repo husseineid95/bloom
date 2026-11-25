@@ -4,94 +4,502 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#EFF7FF" />
-  <title>Bloom — Language Immersion</title>
+  <title>Bloom — Voice-First Language Immersion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
   <style>
     :root {
-      --bg-app: #F4F9FF; --bg-surface: #FFFFFF; --bg-sky-soft: #E5F1FF;
-      --primary: #0284C7; --primary-dark: #0369A1; --primary-deep: #0C4A6E;
-      --accent-ice: #38BDF8; --success: #0D9488; --text-main: #0F172A;
-      --text-muted: #52647A; --border: #D9E8F7;
+      --bg-app: #F4F9FF;
+      --bg-surface: #FFFFFF;
+      --bg-sky-soft: #E5F1FF;
+      --primary: #0284C7;
+      --primary-dark: #0369A1;
+      --primary-deep: #0C4A6E;
+      --accent-ice: #38BDF8;
+      --success: #0D9488;
+      --text-main: #0F172A;
+      --text-muted: #52647A;
+      --border: #D9E8F7;
       --shadow-sm: 0 2px 10px rgba(2, 132, 199, 0.06);
       --shadow-lg: 0 18px 42px rgba(12, 74, 110, 0.16);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(180deg, #EFF7FF 0%, #F9FCFF 45%, #F2F8FF 100%);
-      color: var(--text-main); min-height: 100vh; padding-top: 86px; padding-bottom: 94px; overflow-x: hidden;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-top: 86px;
+      padding-bottom: 94px;
+      overflow-x: hidden;
     }
-    .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 10px 16px; }
-    .topbar-inner { max-width: 920px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-    .brand-mark { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 800; color: var(--primary-deep); cursor: pointer; letter-spacing: -0.02em; }
-    .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-ice)); }
-    .timers-cluster { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .timer-chip { background: var(--bg-sky-soft); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--primary-deep); }
-    .timer-mini-bar { width: 44px; height: 5px; background: #CBE2FA; border-radius: 999px; overflow: hidden; }
-    .timer-mini-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.25s ease; }
-    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .select-pill { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--primary-deep); cursor: pointer; outline: none; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-main); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 0.12s ease, background 0.15s ease; }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-primary { background: var(--primary); border-color: var(--primary); color: #FFFFFF; box-shadow: var(--shadow-sm); }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-success { background: var(--success); border-color: var(--success); color: #FFFFFF; }
-    .btn-soft { background: var(--bg-sky-soft); border-color: #C7E0FA; color: var(--primary-deep); }
-    .container { max-width: 920px; margin: 0 auto; padding: 14px 16px 24px; }
-    .view { display: none; }
-    .view.active { display: block; animation: fadeUp 0.18s ease; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px 20px; box-shadow: var(--shadow-sm); }
-    .section-title { font-size: 24px; font-weight: 800; color: var(--primary-deep); letter-spacing: -0.02em; }
-    .muted { color: var(--text-muted); font-size: 13px; line-height: 1.5; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    @media (max-width: 680px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding-top: 126px; } }
-    .video-box { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #0B192C; }
-    .video-box iframe { width: 100%; height: 100%; border: 0; }
-    .tutor-toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .tutor-card { border: 2px solid var(--border); border-radius: 18px; padding: 12px 14px; background: var(--bg-surface); cursor: pointer; display: flex; align-items: center; gap: 12px; }
-    .tutor-card.selected { border-color: var(--primary); background: var(--bg-sky-soft); }
-    .voice-stage { padding: 18px; border-radius: 18px; background: #F8FBFF; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
-    .rec-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #E0F2FE; color: var(--primary-deep); font-size: 13px; font-weight: 800; }
-    .feedback-box { padding: 12px 14px; border-radius: 14px; background: #F8FBFF; border: 1px solid var(--border); font-size: 13px; line-height: 1.55; white-space: pre-line; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 10px; }
-    .cal-day { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
-    .cal-day.done { background: var(--primary); color: #FFF; }
-    .cal-day.today { border: 2px solid var(--primary-deep); }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 6px 12px; }
-    .nav-item { background: none; border: none; color: var(--text-muted); font-family: inherit; font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; min-width: 64px; }
-    .nav-item.active { color: var(--primary); }
-    .nav-pill { padding: 4px 14px; border-radius: 999px; }
-    .nav-item.active .nav-pill { background: var(--bg-sky-soft); }
-    .modal-bg { display: none; position: fixed; inset: 0; z-index: 60; background: rgba(12, 74, 110, 0.42); align-items: center; justify-content: center; padding: 16px; }
-    .modal-bg.open { display: flex; }
-    .modal-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 24px; width: 100%; max-width: 480px; padding: 20px; box-shadow: var(--shadow-lg); max-height: 88vh; overflow-y: auto; }
-    .field { width: 100%; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; outline: none; background: #FFF; }
-    .field:focus { border-color: var(--primary); }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+
+    .topbar-inner {
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary-deep);
+      cursor: pointer;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent-ice));
+    }
+
+    .timers-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .timer-chip {
+      background: var(--bg-sky-soft);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-deep);
+    }
+
+    .timer-mini-bar {
+      width: 44px;
+      height: 5px;
+      background: #CBE2FA;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .timer-mini-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.25s ease;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .select-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-deep);
+      cursor: pointer;
+      outline: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-success {
+      background: var(--success);
+      border-color: var(--success);
+      color: #FFFFFF;
+    }
+
+    .btn-soft {
+      background: var(--bg-sky-soft);
+      border-color: #C7E0FA;
+      color: var(--primary-deep);
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 14px 16px 24px;
+    }
+
+    .brand-banner {
+      background: linear-gradient(135deg, #E8F3FF 0%, #FFFFFF 100%);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-banner-copy {
+      max-width: 620px;
+    }
+
+    .brand-banner-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary-deep);
+      margin-bottom: 4px;
+    }
+
+    .brand-banner-text {
+      font-size: 13.5px;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+      animation: fadeUp 0.18s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary-deep);
+      letter-spacing: -0.02em;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 680px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      body {
+        padding-top: 126px;
+      }
+    }
+
+    .video-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0B192C;
+    }
+
+    .video-box iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .tutor-toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tutor-card {
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tutor-card.selected {
+      border-color: var(--primary);
+      background: var(--bg-sky-soft);
+    }
+
+    .voice-stage {
+      padding: 18px;
+      border-radius: 18px;
+      background: #F8FBFF;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rec-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #E0F2FE;
+      color: var(--primary-deep);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .feedback-box {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: #F8FBFF;
+      border: 1px solid var(--border);
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .cal-day.done {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    .cal-day.today {
+      border: 2px solid var(--primary-deep);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px 12px;
+    }
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      min-width: 64px;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-pill {
+      padding: 4px 14px;
+      border-radius: 999px;
+    }
+
+    .nav-item.active .nav-pill {
+      background: var(--bg-sky-soft);
+    }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(12, 74, 110, 0.45);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-bg.open {
+      display: flex;
+    }
+
+    .modal-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 480px;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+
+    .field {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      background: #FFF;
+    }
+
+    .field:focus {
+      border-color: var(--primary);
+    }
+
+    .status-note {
+      font-size: 12.5px;
+      color: var(--primary-deep);
+      background: var(--bg-sky-soft);
+      border: 1px solid #C7E0FA;
+      border-radius: 12px;
+      padding: 10px 12px;
+      line-height: 1.45;
+    }
   </style>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand-mark" data-nav="home"><span class="brand-dot"></span><span>Bloom</span></div>
+      <div class="brand-mark" data-nav="home">
+        <span class="brand-dot"></span>
+        <span>Bloom</span>
+      </div>
+
       <div class="timers-cluster">
         <div class="timer-chip" id="watchTimerChip">
-          <i data-lucide="eye" size="14"></i><span data-i18n="watchTimer">Watch</span>: <strong id="watchTimerText">0/60m</strong>
+          <i data-lucide="eye" size="14"></i>
+          <span data-i18n="watchTimer">Watch</span>:
+          <strong id="watchTimerText">0/60m</strong>
           <div class="timer-mini-bar"><div class="timer-mini-fill" id="watchTimerBar"></div></div>
         </div>
         <div class="timer-chip" id="speakTimerChip">
-          <i data-lucide="mic" size="14"></i><span data-i18n="speakTimer">Speak</span>: <strong id="speakTimerText">0/60m</strong>
+          <i data-lucide="mic" size="14"></i>
+          <span data-i18n="speakTimer">Speak</span>:
+          <strong id="speakTimerText">0/60m</strong>
           <div class="timer-mini-bar"><div class="timer-mini-fill" id="speakTimerBar"></div></div>
         </div>
       </div>
+
       <div class="top-actions">
         <select class="select-pill" id="langSwitcher" aria-label="Language switcher">
-          <option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option>
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
         </select>
         <button class="btn btn-soft" id="authBtn" data-action="open-auth">Sign In</button>
       </div>
@@ -99,7 +507,19 @@
   </header>
 
   <main class="container">
-    <section id="view-home" class="view active">
+    <div class="brand-banner" id="brandIntroBanner">
+      <div class="brand-banner-copy">
+        <div class="brand-banner-title">Bloom — Voice-First Language Immersion</div>
+        <p class="brand-banner-text">
+          Bloom gives you real-time voice conversations with AI tutors, video-gated vocabulary, and active recall tools across CEFR levels. Sign in or create an account with any email address to save your progress and start learning right away.
+        </p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="brandBannerActions">
+        <button class="btn btn-primary" data-action="open-auth" data-open-mode="signup">Create Account</button>
+        <button class="btn btn-soft" data-action="open-auth" data-open-mode="signin">Sign In</button>
+      </div>
+    </div>
+        <section id="view-home" class="view active">
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
           <div>
@@ -107,25 +527,39 @@
             <p class="muted" id="homeLevelSummary"></p>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-soft" data-action="cycle-level"><i data-lucide="award" size="15"></i><span data-i18n="levelBtn">Level</span>: <strong id="homeLevelBadge">B2</strong></button>
-            <button class="btn btn-primary" data-nav="watch"><i data-lucide="play-circle" size="16"></i><span data-i18n="watchBtn">Watch</span></button>
+            <button class="btn btn-soft" data-action="cycle-level">
+              <i data-lucide="award" size="15"></i>
+              <span data-i18n="levelBtn">Level</span>: <strong id="homeLevelBadge">B2</strong>
+            </button>
+            <button class="btn btn-primary" data-nav="watch">
+              <i data-lucide="play-circle" size="16"></i>
+              <span data-i18n="watchBtn">Watch</span>
+            </button>
           </div>
         </div>
       </div>
+
       <div class="grid-2" style="margin-bottom:14px;">
         <div class="card">
           <div style="font-weight:800;color:var(--primary-deep);margin-bottom:10px;" data-i18n="chooseTutor">Choose Your AI Tutor</div>
           <div class="tutor-toggle-row">
             <div class="tutor-card selected" id="tutorFemaleCard" data-gender="female">
               <i data-lucide="user-check" size="20" style="color:var(--primary);"></i>
-              <div><div style="font-weight:800;font-size:14px;" id="femaleTutorName">Claire</div><div class="muted" style="font-size:11px;" data-i18n="femaleVoiceLabel">Woman • Feminine Voice</div></div>
+              <div>
+                <div style="font-weight:800;font-size:14px;" id="femaleTutorName">Claire</div>
+                <div class="muted" style="font-size:11px;" data-i18n="femaleVoiceLabel">Woman • Feminine Voice</div>
+              </div>
             </div>
             <div class="tutor-card" id="tutorMaleCard" data-gender="male">
               <i data-lucide="user" size="20" style="color:var(--primary);"></i>
-              <div><div style="font-weight:800;font-size:14px;" id="maleTutorName">Julian</div><div class="muted" style="font-size:11px;" data-i18n="maleVoiceLabel">Man • Masculine Voice</div></div>
+              <div>
+                <div style="font-weight:800;font-size:14px;" id="maleTutorName">Julian</div>
+                <div class="muted" style="font-size:11px;" data-i18n="maleVoiceLabel">Man • Masculine Voice</div>
+              </div>
             </div>
           </div>
         </div>
+
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <span style="font-weight:800;color:var(--primary-deep);" data-i18n="streakCal">Streak & Calendar</span>
@@ -134,6 +568,7 @@
           <div class="cal-grid" id="homeCalendar"></div>
         </div>
       </div>
+
       <div class="card">
         <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;" data-i18n="cefrTitle">CEFR Levels, Hours & 20-Min Unlock Quiz</div>
         <p class="muted" style="margin-bottom:12px;" data-i18n="cefrDesc">Complete required study hours to advance, or pass a 20-minute quiz (4 skills + grammar) to unlock the next level immediately.</p>
@@ -144,44 +579,87 @@
     <section id="view-watch" class="view">
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-          <div><h2 class="section-title" data-i18n="watchTitle">Watch & Learn from YouTube</h2><p class="muted" data-i18n="watchSub">Watch the full video to the end to unlock in-video vocabulary with examples and voice-only discussion.</p></div>
-          <button class="btn btn-primary" data-action="open-yt-modal"><i data-lucide="youtube" size="16"></i><span data-i18n="uploadYt">Upload YouTube Video</span></button>
+          <div>
+            <h2 class="section-title" data-i18n="watchTitle">Watch & Learn from YouTube</h2>
+            <p class="muted" data-i18n="watchSub">Watch the full video to the end to unlock in-video vocabulary with examples and voice-only discussion.</p>
+          </div>
+          <button class="btn btn-primary" data-action="open-yt-modal">
+            <i data-lucide="youtube" size="16"></i>
+            <span data-i18n="uploadYt">Upload YouTube Video</span>
+          </button>
         </div>
       </div>
+
       <div class="card" style="margin-bottom:14px;">
-        <div class="video-box"><iframe id="ytPlayerFrame" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+        <div class="video-box">
+          <iframe id="ytPlayerFrame" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:12px;">
-          <div><div style="font-size:17px;font-weight:800;" id="activeVideoTitle">No video loaded yet</div><div class="muted" id="activeVideoMeta">Paste a YouTube link and watch through to the end.</div></div>
+          <div>
+            <div style="font-size:17px;font-weight:800;" id="activeVideoTitle">No video loaded yet</div>
+            <div class="muted" id="activeVideoMeta">Paste a YouTube link and watch through to the end.</div>
+          </div>
           <div class="rec-badge" id="watchGateStatus">Locked until finished</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-          <button class="btn" id="videoVocabBtn" data-action="open-video-vocab" disabled><i data-lucide="book-open" size="15"></i><span data-i18n="vocabBtn">Vocabulary</span></button>
-          <button class="btn" id="videoDiscussBtn" data-action="open-video-discuss" disabled><i data-lucide="mic" size="15"></i><span data-i18n="discussBtn">Discuss the Video</span></button>
+          <button class="btn" id="videoVocabBtn" data-action="open-video-vocab" disabled>
+            <i data-lucide="book-open" size="15"></i>
+            <span data-i18n="vocabBtn">Vocabulary</span>
+          </button>
+          <button class="btn" id="videoDiscussBtn" data-action="open-video-discuss" disabled>
+            <i data-lucide="mic" size="15"></i>
+            <span data-i18n="discussBtn">Discuss the Video</span>
+          </button>
         </div>
         <div id="videoVocabPanel" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);"></div>
         <div id="videoDiscussPanel" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);"></div>
       </div>
-      <div class="card"><div style="font-weight:800;color:var(--primary-deep);margin-bottom:10px;" data-i18n="savedVideos">Your Videos</div><div id="videoShelfList" class="grid-2"></div></div>
+
+      <div class="card">
+        <div style="font-weight:800;color:var(--primary-deep);margin-bottom:10px;" data-i18n="savedVideos">Your Videos</div>
+        <div id="videoShelfList" class="grid-2"></div>
+      </div>
     </section>
-        <section id="view-learn" class="view">
+
+    <section id="view-learn" class="view">
       <div class="card" style="margin-bottom:14px;">
         <h2 class="section-title" data-i18n="learnTitle">Learn</h2>
         <p class="muted" data-i18n="learnSub">Five focused practice tools tuned to your level and language.</p>
       </div>
       <div class="grid-3" style="margin-bottom:14px;">
-        <div class="card" style="cursor:pointer;" data-learn-tool="flashcards"><div style="font-weight:800;color:var(--primary-deep);">1. <span data-i18n="toolFlashcards">Flashcards</span></div><p class="muted" style="margin-top:4px;" data-i18n="toolFlashcardsDesc">Speak meaning or recall target word by voice.</p></div>
-        <div class="card" style="cursor:pointer;" data-learn-tool="photo"><div style="font-weight:800;color:var(--primary-deep);">2. <span data-i18n="toolPhoto">Photo Chit Chat</span></div><p class="muted" style="margin-top:4px;" data-i18n="toolPhotoDesc">Record 1 min with countdown & automatic feedback.</p></div>
-        <div class="card" style="cursor:pointer;" data-learn-tool="topic"><div style="font-weight:800;color:var(--primary-deep);">3. <span data-i18n="toolTopic">Topic Talk</span></div><p class="muted" style="margin-top:4px;" data-i18n="toolTopicDesc">Record 1 min with countdown & automatic correction.</p></div>
-        <div class="card" style="cursor:pointer;" data-learn-tool="wordlink"><div style="font-weight:800;color:var(--primary-deep);">4. <span data-i18n="toolWordLink">Word Link</span></div><p class="muted" style="margin-top:4px;" data-i18n="toolWordLinkDesc">Link words in 1 minute by voice with auto-check.</p></div>
-        <div class="card" style="cursor:pointer;" data-learn-tool="videolab"><div style="font-weight:800;color:var(--primary-deep);">5. <span data-i18n="toolVideoLab">Video Word & Talk Lab</span></div><p class="muted" style="margin-top:4px;" data-i18n="toolVideoLabDesc">Review finished-video words & voice discussion.</p></div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="flashcards">
+          <div style="font-weight:800;color:var(--primary-deep);">1. <span data-i18n="toolFlashcards">Flashcards</span></div>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolFlashcardsDesc">Speak meaning or recall target word by voice.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="photo">
+          <div style="font-weight:800;color:var(--primary-deep);">2. <span data-i18n="toolPhoto">Photo Chit Chat</span></div>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolPhotoDesc">Record 1 min with countdown & automatic feedback.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="topic">
+          <div style="font-weight:800;color:var(--primary-deep);">3. <span data-i18n="toolTopic">Topic Talk</span></div>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolTopicDesc">Record 1 min with countdown & automatic correction.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="wordlink">
+          <div style="font-weight:800;color:var(--primary-deep);">4. <span data-i18n="toolWordLink">Word Link</span></div>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolWordLinkDesc">Link words in 1 minute by voice with auto-check.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="videolab">
+          <div style="font-weight:800;color:var(--primary-deep);">5. <span data-i18n="toolVideoLab">Video Word & Talk Lab</span></div>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolVideoLabDesc">Review finished-video words & voice discussion.</p>
+        </div>
       </div>
-      <div class="card" id="learnToolContent"><p class="muted">Select one of the five tools above to begin.</p></div>
+      <div class="card" id="learnToolContent">
+        <p class="muted">Select one of the five tools above to begin.</p>
+      </div>
     </section>
 
     <section id="view-speak" class="view">
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-          <div><h2 class="section-title" data-i18n="speakTitle">Speak</h2><p class="muted" data-i18n="speakSub">Practice speaking freely, role-play situations, or shadow native sentences.</p></div>
+          <div>
+            <h2 class="section-title" data-i18n="speakTitle">Speak</h2>
+            <p class="muted" data-i18n="speakSub">Practice speaking freely, role-play situations, or shadow native sentences.</p>
+          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn btn-soft" data-speak-mode="practice" data-i18n="modePractice">Practice Speaking</button>
             <button class="btn btn-soft" data-speak-mode="roleplay" data-i18n="modeRolePlay">Role Play</button>
@@ -189,16 +667,28 @@
           </div>
         </div>
       </div>
+
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-          <div><strong style="color:var(--primary-deep);" id="speakActiveLabel">Practice Speaking</strong><div class="muted" style="font-size:12px;" id="speakActiveTutorLine"></div></div>
+          <div>
+            <strong style="color:var(--primary-deep);" id="speakActiveLabel">Practice Speaking</strong>
+            <div class="muted" style="font-size:12px;" id="speakActiveTutorLine"></div>
+          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <span class="rec-badge" id="speakCountdownBadge" style="display:none;">02:00</span>
-            <button class="btn btn-soft" id="rec2MinBtn" data-action="toggle-rec-2min"><i data-lucide="mic" size="15"></i><span id="rec2MinLabel">Record (2m)</span></button>
-            <button class="btn btn-primary" id="realCallBtn" data-action="toggle-real-call"><i data-lucide="phone-call" size="15"></i><span id="realCallLabel">Real Call</span></button>
+            <button class="btn btn-soft" id="rec2MinBtn" data-action="toggle-rec-2min">
+              <i data-lucide="mic" size="15"></i>
+              <span id="rec2MinLabel">Record (2m)</span>
+            </button>
+            <button class="btn btn-primary" id="realCallBtn" data-action="toggle-real-call">
+              <i data-lucide="phone-call" size="15"></i>
+              <span id="realCallLabel">Real Call</span>
+            </button>
           </div>
         </div>
+
         <div id="speakSubPicker" style="margin-bottom:12px;"></div>
+
         <div class="voice-stage">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
             <span class="rec-badge" id="callStatusPill">Voice Ready</span>
@@ -211,15 +701,30 @@
   </main>
 
   <nav class="bottom-nav">
-    <button class="nav-item active" data-nav="home"><div class="nav-pill"><i data-lucide="home" size="19"></i></div><span data-i18n="navHome">Home</span></button>
-    <button class="nav-item" data-nav="watch"><div class="nav-pill"><i data-lucide="play" size="19"></i></div><span data-i18n="navWatch">Watch</span></button>
-    <button class="nav-item" data-nav="learn"><div class="nav-pill"><i data-lucide="book-open" size="19"></i></div><span data-i18n="navLearn">Learn</span></button>
-    <button class="nav-item" data-nav="speak"><div class="nav-pill"><i data-lucide="message-square" size="19"></i></div><span data-i18n="navSpeak">Speak</span></button>
+    <button class="nav-item active" data-nav="home">
+      <div class="nav-pill"><i data-lucide="home" size="19"></i></div>
+      <span data-i18n="navHome">Home</span>
+    </button>
+    <button class="nav-item" data-nav="watch">
+      <div class="nav-pill"><i data-lucide="play" size="19"></i></div>
+      <span data-i18n="navWatch">Watch</span>
+    </button>
+    <button class="nav-item" data-nav="learn">
+      <div class="nav-pill"><i data-lucide="book-open" size="19"></i></div>
+      <span data-i18n="navLearn">Learn</span>
+    </button>
+    <button class="nav-item" data-nav="speak">
+      <div class="nav-pill"><i data-lucide="message-square" size="19"></i></div>
+      <span data-i18n="navSpeak">Speak</span>
+    </button>
   </nav>
 
   <div class="modal-bg" id="ytModal">
     <div class="modal-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3 style="font-weight:800;color:var(--primary-deep);" data-i18n="ytModalTitle">Upload YouTube Video</h3><button class="btn" data-close="ytModal">✕</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-weight:800;color:var(--primary-deep);" data-i18n="ytModalTitle">Upload YouTube Video</h3>
+        <button class="btn" data-close="ytModal">✕</button>
+      </div>
       <input type="text" class="field" id="ytLinkOnlyInput" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom:14px;" />
       <button class="btn btn-primary" style="width:100%;" data-action="add-yt-link" data-i18n="addBtn">Add</button>
     </div>
@@ -227,16 +732,26 @@
 
   <div class="modal-bg" id="authModal">
     <div class="modal-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3 style="font-weight:800;color:var(--primary-deep);">Sign In / Sign Up</h3><button class="btn" data-close="authModal">✕</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h3 style="font-weight:800;color:var(--primary-deep);" id="authModalTitle">Sign In / Sign Up</h3>
+        <button class="btn" data-close="authModal">✕</button>
+      </div>
+      <p class="muted" style="margin-bottom:12px;">
+        Sign in or create an account with any valid email address (Gmail, Outlook, Yahoo, or any email domain) and your password to save your CEFR progress, streak, and vocabulary.
+      </p>
       <div style="display:flex;gap:8px;margin-bottom:12px;">
         <button class="btn btn-soft" style="flex:1;" id="authModeSignIn" data-auth-mode="signin">Sign In</button>
         <button class="btn" style="flex:1;" id="authModeSignUp" data-auth-mode="signup">Sign Up</button>
       </div>
       <div style="display:grid;gap:10px;">
-        <input type="text" class="field" id="authNameInput" placeholder="Full Name" />
-        <input type="email" class="field" id="authEmailInput" placeholder="Email address" />
-        <input type="password" class="field" id="authPassInput" placeholder="Password (min 6 chars)" />
-        <button class="btn btn-primary" style="width:100%;margin-top:4px;" data-action="submit-auth">Continue</button>
+        <input type="text" class="field" id="authNameInput" placeholder="Full Name (required for Sign Up)" />
+        <input type="email" class="field" id="authEmailInput" placeholder="Email address (any provider)" autocomplete="email" />
+        <input type="password" class="field" id="authPassInput" placeholder="Password (min 6 characters)" autocomplete="current-password" />
+        <div id="authFeedbackNote" class="status-note" style="display:none;"></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:2px;" data-action="submit-auth" id="authSubmitBtn">Continue with Email & Password</button>
+        <p class="muted" style="font-size:11.5px;margin-top:2px;">
+          Note: Direct one-click Google login requires configuring a Google Cloud OAuth Client ID on your deployment; email + password sign-up and sign-in work immediately for any email provider.
+        </p>
       </div>
     </div>
   </div>
@@ -244,24 +759,97 @@
   <div class="modal-bg" id="quizModal">
     <div class="modal-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div><h3 style="font-weight:800;color:var(--primary-deep);" id="quizTitle">Level Unlock Quiz (20 min)</h3><div class="muted" style="font-size:12px;" id="quizClock">20:00 remaining • 4 Skills + Grammar</div></div>
+        <div>
+          <h3 style="font-weight:800;color:var(--primary-deep);" id="quizTitle">Level Unlock Quiz (20 min)</h3>
+          <div class="muted" style="font-size:12px;" id="quizClock">20:00 remaining • 4 Skills + Grammar</div>
+        </div>
         <button class="btn" data-close="quizModal">✕</button>
       </div>
       <div id="quizBody"></div>
     </div>
   </div>
-
-  <script>
+    <script>
     const I18N = {
-      en: { watchTimer: 'Watch', speakTimer: 'Speak', homeTitle: 'Welcome to Bloom', levelBtn: 'Level', watchBtn: 'Watch', chooseTutor: 'Choose Your AI Tutor', femaleVoiceLabel: 'Woman • Feminine Voice', maleVoiceLabel: 'Man • Masculine Voice', streakCal: 'Streak & Calendar', cefrTitle: 'CEFR Levels, Hours & 20-Min Unlock Quiz', cefrDesc: 'Complete required study hours to advance, or pass a 20-minute quiz (4 skills + grammar) to unlock the next level immediately.', watchTitle: 'Watch & Learn from YouTube', watchSub: 'Watch the full video to the end to unlock in-video vocabulary with examples and voice-only discussion.', uploadYt: 'Upload YouTube Video', vocabBtn: 'Vocabulary', discussBtn: 'Discuss the Video', savedVideos: 'Your Videos', learnTitle: 'Learn', learnSub: 'Five focused practice tools tuned to your level and language.', toolFlashcards: 'Flashcards', toolFlashcardsDesc: 'Speak meaning or recall target word by voice.', toolPhoto: 'Photo Chit Chat', toolPhotoDesc: 'Record 1 min with countdown & automatic feedback.', toolTopic: 'Topic Talk', toolTopicDesc: 'Record 1 min with countdown & automatic correction.', toolWordLink: 'Word Link', toolWordLinkDesc: 'Link words in 1 minute by voice with auto-check.', toolVideoLab: 'Video Word & Talk Lab', toolVideoLabDesc: 'Review finished-video words & voice discussion.', speakTitle: 'Speak', speakSub: 'Practice speaking freely, role-play situations, or shadow native sentences.', modePractice: 'Practice Speaking', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing', navHome: 'Home', navWatch: 'Watch', navLearn: 'Learn', navSpeak: 'Speak', ytModalTitle: 'Upload YouTube Video', addBtn: 'Add' },
-      de: { watchTimer: 'Sehen', speakTimer: 'Sprechen', homeTitle: 'Willkommen bei Bloom', levelBtn: 'Niveau', watchBtn: 'Sehen', chooseTutor: 'Wähle deine KI-Lehrkraft', femaleVoiceLabel: 'Frau • Weibliche Stimme', maleVoiceLabel: 'Mann • Männliche Stimme', streakCal: 'Serie & Kalender', cefrTitle: 'GER-Stufen, Stunden & 20-Min-Freischaltquiz', cefrDesc: 'Erfülle die Lernstunden oder bestehe ein 20-Minuten-Quiz (4 Fertigkeiten + Grammatik), um die nächste Stufe sofort freizuschalten.', watchTitle: 'YouTube-Videos ansehen & lernen', watchSub: 'Schaue das Video bis zum Ende, um Vokabeln aus dem Video mit Beispielen und Sprachdiskussion freizuschalten.', uploadYt: 'YouTube-Video hochladen', vocabBtn: 'Vokabeln', discussBtn: 'Video besprechen', savedVideos: 'Deine Videos', learnTitle: 'Lernen', learnSub: 'Fünf Übungswerkzeuge abgestimmt auf dein Niveau und deine Sprache.', toolFlashcards: 'Karteikarten', toolFlashcardsDesc: 'Sprich die Bedeutung oder nenne das Zielwort per Stimme.', toolPhoto: 'Foto-Gespräch', toolPhotoDesc: '1 Min. mit Countdown & automatischem Feedback aufnehmen.', toolTopic: 'Themenrede', toolTopicDesc: '1 Min. mit Countdown & automatischer Korrektur aufnehmen.', toolWordLink: 'Wortkette', toolWordLinkDesc: 'Wörter in 1 Min. per Stimme verketten & automatisch prüfen.', toolVideoLab: 'Video-Wörter & Gespräch', toolVideoLabDesc: 'Wiederhole Videowörter & nutze Sprachdiskussion.', speakTitle: 'Sprechen', speakSub: 'Übe freies Sprechen, Rollenspiele oder Shadowing mit Muttersprachlern.', modePractice: 'Freies Sprechen', modeRolePlay: 'Rollenspiel', modeShadowing: 'Shadowing', navHome: 'Start', navWatch: 'Sehen', navLearn: 'Lernen', navSpeak: 'Sprechen', ytModalTitle: 'YouTube-Video hochladen', addBtn: 'Hinzufügen' },
-      fr: { watchTimer: 'Regarder', speakTimer: 'Parler', homeTitle: 'Bienvenue sur Bloom', levelBtn: 'Niveau', watchBtn: 'Regarder', chooseTutor: 'Choisissez votre coach IA', femaleVoiceLabel: 'Femme • Voix féminine', maleVoiceLabel: 'Homme • Voix masculine', streakCal: 'Série & Calendrier', cefrTitle: 'Niveaux CECR, Heures & Quiz de 20 Min', cefrDesc: 'Complétez les heures requises ou réussissez un quiz de 20 minutes (4 compétences + grammaire) pour débloquer le niveau suivant.', watchTitle: 'Regarder & Apprendre sur YouTube', watchSub: 'Regardez la vidéo jusqu’à la fin pour débloquer le vocabulaire avec exemples et la discussion vocale.', uploadYt: 'Ajouter une vidéo YouTube', vocabBtn: 'Vocabulaire', discussBtn: 'Discuter de la vidéo', savedVideos: 'Vos vidéos', learnTitle: 'Apprendre', learnSub: 'Cinq outils adaptés à votre niveau et à votre langue.', toolFlashcards: 'Cartes mémoire', toolFlashcardsDesc: 'Dites le sens ou retrouvez le mot cible à l’oral.', toolPhoto: 'Discussion photo', toolPhotoDesc: '1 min avec minuteur et correction automatique.', toolTopic: 'Sujet libre', toolTopicDesc: '1 min avec minuteur et correction automatique.', toolWordLink: 'Chaîne de mots', toolWordLinkDesc: 'Reliez des mots en 1 min à l’oral avec vérification auto.', toolVideoLab: 'Mots & Débat Vidéo', toolVideoLabDesc: 'Revoyez les mots de la vidéo et discutez à l’oral.', speakTitle: 'Parler', speakSub: 'Pratiquez la conversation, des jeux de rôle ou le shadowing.', modePractice: 'Pratiquer l’oral', modeRolePlay: 'Jeu de rôle', modeShadowing: 'Shadowing', navHome: 'Accueil', navWatch: 'Regarder', navLearn: 'Apprendre', navSpeak: 'Parler', ytModalTitle: 'Ajouter une vidéo YouTube', addBtn: 'Ajouter' },
-      es: { watchTimer: 'Ver', speakTimer: 'Hablar', homeTitle: 'Bienvenido a Bloom', levelBtn: 'Nivel', watchBtn: 'Ver', chooseTutor: 'Elige tu tutor de IA', femaleVoiceLabel: 'Mujer • Voz femenina', maleVoiceLabel: 'Hombre • Voz masculina', streakCal: 'Racha y Calendario', cefrTitle: 'Niveles MCER, Horas y Quiz de 20 Min', cefrDesc: 'Completa las horas requeridas o aprueba un quiz de 20 minutos (4 destrezas + gramática) para desbloquear el siguiente nivel.', watchTitle: 'Ver y Aprender en YouTube', watchSub: 'Mira el video hasta el final para desbloquear vocabulario con ejemplos y charla solo por voz.', uploadYt: 'Subir video de YouTube', vocabBtn: 'Vocabulario', discussBtn: 'Comentar el video', savedVideos: 'Tus videos', learnTitle: 'Aprender', learnSub: 'Cinco herramientas adaptadas a tu nivel y tu idioma.', toolFlashcards: 'Tarjetas', toolFlashcardsDesc: 'Di el significado o recuerda la palabra meta por voz.', toolPhoto: 'Charla de foto', toolPhotoDesc: '1 min con cuenta atrás y evaluación automática.', toolTopic: 'Hablar del tema', toolTopicDesc: '1 min con cuenta atrás y corrección automática.', toolWordLink: 'Cadena de palabras', toolWordLinkDesc: 'Enlaza palabras en 1 min por voz con revisión auto.', toolVideoLab: 'Palabras y Charla de Video', toolVideoLabDesc: 'Repasa palabras del video y debate por voz.', speakTitle: 'Hablar', speakSub: 'Practica conversación libre, role play o shadowing.', modePractice: 'Practicar habla', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing', navHome: 'Inicio', navWatch: 'Ver', navLearn: 'Aprender', navSpeak: 'Hablar', ytModalTitle: 'Subir video de YouTube', addBtn: 'Añadir' }
+      en: {
+        watchTimer: 'Watch', speakTimer: 'Speak', homeTitle: 'Welcome to Bloom', levelBtn: 'Level', watchBtn: 'Watch',
+        chooseTutor: 'Choose Your AI Tutor', femaleVoiceLabel: 'Woman • Feminine Voice', maleVoiceLabel: 'Man • Masculine Voice',
+        streakCal: 'Streak & Calendar', cefrTitle: 'CEFR Levels, Hours & 20-Min Unlock Quiz',
+        cefrDesc: 'Complete required study hours to advance, or pass a 20-minute quiz (4 skills + grammar) to unlock the next level immediately.',
+        watchTitle: 'Watch & Learn from YouTube', watchSub: 'Watch the full video to the end to unlock in-video vocabulary with examples and voice-only discussion.',
+        uploadYt: 'Upload YouTube Video', vocabBtn: 'Vocabulary', discussBtn: 'Discuss the Video', savedVideos: 'Your Videos',
+        learnTitle: 'Learn', learnSub: 'Five focused practice tools tuned to your level and language.',
+        toolFlashcards: 'Flashcards', toolFlashcardsDesc: 'Speak meaning or recall target word by voice.',
+        toolPhoto: 'Photo Chit Chat', toolPhotoDesc: 'Record 1 min with countdown & automatic feedback.',
+        toolTopic: 'Topic Talk', toolTopicDesc: 'Record 1 min with countdown & automatic correction.',
+        toolWordLink: 'Word Link', toolWordLinkDesc: 'Link words in 1 minute by voice with auto-check.',
+        toolVideoLab: 'Video Word & Talk Lab', toolVideoLabDesc: 'Review finished-video words & voice discussion.',
+        speakTitle: 'Speak', speakSub: 'Practice speaking freely, role-play situations, or shadow native sentences.',
+        modePractice: 'Practice Speaking', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing',
+        navHome: 'Home', navWatch: 'Watch', navLearn: 'Learn', navSpeak: 'Speak', ytModalTitle: 'Upload YouTube Video', addBtn: 'Add'
+      },
+      de: {
+        watchTimer: 'Sehen', speakTimer: 'Sprechen', homeTitle: 'Willkommen bei Bloom', levelBtn: 'Niveau', watchBtn: 'Sehen',
+        chooseTutor: 'Wähle deine KI-Lehrkraft', femaleVoiceLabel: 'Frau • Weibliche Stimme', maleVoiceLabel: 'Mann • Männliche Stimme',
+        streakCal: 'Serie & Kalender', cefrTitle: 'GER-Stufen, Stunden & 20-Min-Freischaltquiz',
+        cefrDesc: 'Erfülle die Lernstunden oder bestehe ein 20-Minuten-Quiz (4 Fertigkeiten + Grammatik), um die nächste Stufe sofort freizuschalten.',
+        watchTitle: 'YouTube-Videos ansehen & lernen', watchSub: 'Schaue das Video bis zum Ende, um Vokabeln aus dem Video mit Beispielen und Sprachdiskussion freizuschalten.',
+        uploadYt: 'YouTube-Video hochladen', vocabBtn: 'Vokabeln', discussBtn: 'Video besprechen', savedVideos: 'Deine Videos',
+        learnTitle: 'Lernen', learnSub: 'Fünf Übungswerkzeuge abgestimmt auf dein Niveau und deine Sprache.',
+        toolFlashcards: 'Karteikarten', toolFlashcardsDesc: 'Sprich die Bedeutung oder nenne das Zielwort per Stimme.',
+        toolPhoto: 'Foto-Gespräch', toolPhotoDesc: '1 Min. mit Countdown & automatischem Feedback aufnehmen.',
+        toolTopic: 'Themenrede', toolTopicDesc: '1 Min. mit Countdown & automatischer Korrektur aufnehmen.',
+        toolWordLink: 'Wortkette', toolWordLinkDesc: 'Wörter in 1 Min. per Stimme verketten & automatisch prüfen.',
+        toolVideoLab: 'Video-Wörter & Gespräch', toolVideoLabDesc: 'Wiederhole Videowörter & nutze Sprachdiskussion.',
+        speakTitle: 'Sprechen', speakSub: 'Übe freies Sprechen, Rollenspiele oder Shadowing mit Muttersprachlern.',
+        modePractice: 'Freies Sprechen', modeRolePlay: 'Rollenspiel', modeShadowing: 'Shadowing',
+        navHome: 'Start', navWatch: 'Sehen', navLearn: 'Lernen', navSpeak: 'Sprechen', ytModalTitle: 'YouTube-Video hochladen', addBtn: 'Hinzufügen'
+      },
+      fr: {
+        watchTimer: 'Regarder', speakTimer: 'Parler', homeTitle: 'Bienvenue sur Bloom', levelBtn: 'Niveau', watchBtn: 'Regarder',
+        chooseTutor: 'Choisissez votre coach IA', femaleVoiceLabel: 'Femme • Voix féminine', maleVoiceLabel: 'Homme • Voix masculine',
+        streakCal: 'Série & Calendrier', cefrTitle: 'Niveaux CECR, Heures & Quiz de 20 Min',
+        cefrDesc: 'Complétez les heures requises ou réussissez un quiz de 20 minutes (4 compétences + grammaire) pour débloquer le niveau suivant.',
+        watchTitle: 'Regarder & Apprendre sur YouTube', watchSub: 'Regardez la vidéo jusqu’à la fin pour débloquer le vocabulaire avec exemples et la discussion vocale.',
+        uploadYt: 'Ajouter une vidéo YouTube', vocabBtn: 'Vocabulaire', discussBtn: 'Discuter de la vidéo', savedVideos: 'Vos vidéos',
+        learnTitle: 'Apprendre', learnSub: 'Cinq outils adaptés à votre niveau et à votre langue.',
+        toolFlashcards: 'Cartes mémoire', toolFlashcardsDesc: 'Dites le sens ou retrouvez le mot cible à l’oral.',
+        toolPhoto: 'Discussion photo', toolPhotoDesc: '1 min avec minuteur et correction automatique.',
+        toolTopic: 'Sujet libre', toolTopicDesc: '1 min avec minuteur et correction automatique.',
+        toolWordLink: 'Chaîne de mots', toolWordLinkDesc: 'Reliez des mots en 1 min à l’oral avec vérification auto.',
+        toolVideoLab: 'Mots & Débat Vidéo', toolVideoLabDesc: 'Revoyez les mots de la vidéo et discutez à l’oral.',
+        speakTitle: 'Parler', speakSub: 'Pratiquez la conversation, des jeux de rôle ou le shadowing.',
+        modePractice: 'Pratiquer l’oral', modeRolePlay: 'Jeu de rôle', modeShadowing: 'Shadowing',
+        navHome: 'Accueil', navWatch: 'Regarder', navLearn: 'Apprendre', navSpeak: 'Parler', ytModalTitle: 'Ajouter une vidéo YouTube', addBtn: 'Ajouter'
+      },
+      es: {
+        watchTimer: 'Ver', speakTimer: 'Hablar', homeTitle: 'Bienvenido a Bloom', levelBtn: 'Nivel', watchBtn: 'Ver',
+        chooseTutor: 'Elige tu tutor de IA', femaleVoiceLabel: 'Mujer • Voz femenina', maleVoiceLabel: 'Hombre • Voz masculina',
+        streakCal: 'Racha y Calendario', cefrTitle: 'Niveles MCER, Horas y Quiz de 20 Min',
+        cefrDesc: 'Completa las horas requeridas o aprueba un quiz de 20 minutos (4 destrezas + gramática) para desbloquear el siguiente nivel.',
+        watchTitle: 'Ver y Aprender en YouTube', watchSub: 'Mira el video hasta el final para desbloquear vocabulario con ejemplos y charla solo por voz.',
+        uploadYt: 'Subir video de YouTube', vocabBtn: 'Vocabulario', discussBtn: 'Comentar el video', savedVideos: 'Tus videos',
+        learnTitle: 'Aprender', learnSub: 'Cinco herramientas adaptadas a tu nivel y tu idioma.',
+        toolFlashcards: 'Tarjetas', toolFlashcardsDesc: 'Di el significado o recuerda la palabra meta por voz.',
+        toolPhoto: 'Charla de foto', toolPhotoDesc: '1 min con cuenta atrás y evaluación automática.',
+        toolTopic: 'Hablar del tema', toolTopicDesc: '1 min con cuenta atrás y corrección automática.',
+        toolWordLink: 'Cadena de palabras', toolWordLinkDesc: 'Enlaza palabras en 1 min por voz con revisión auto.',
+        toolVideoLab: 'Palabras y Charla de Video', toolVideoLabDesc: 'Repasa palabras del video y debate por voz.',
+        speakTitle: 'Hablar', speakSub: 'Practica conversación libre, role play o shadowing.',
+        modePractice: 'Practicar habla', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing',
+        navHome: 'Inicio', navWatch: 'Ver', navLearn: 'Aprender', navSpeak: 'Hablar', ytModalTitle: 'Subir video de YouTube', addBtn: 'Añadir'
+      }
     };
 
-    const TUTORS_BY_LANG = { en: { female: 'Claire', male: 'Julian', bcp47: 'en-US' }, de: { female: 'Hannah', male: 'Lukas', bcp47: 'de-DE' }, fr: { female: 'Camille', male: 'Julien', bcp47: 'fr-FR' }, es: { female: 'Sofia', male: 'Mateo', bcp47: 'es-ES' } };
+    const TUTORS_BY_LANG = {
+      en: { female: 'Claire', male: 'Julian', bcp47: 'en-US' },
+      de: { female: 'Hannah', male: 'Lukas', bcp47: 'de-DE' },
+      fr: { female: 'Camille', male: 'Julien', bcp47: 'fr-FR' },
+      es: { female: 'Sofia', male: 'Mateo', bcp47: 'es-ES' }
+    };
+
     const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
     const CEFR_HOURS = { A1: 100, A2: 225, B1: 400, B2: 800, C1: 1200, C2: 2000 };
+
     const LEVEL_BANKS = {
       A1: { topics: ['My Morning Routine', 'Favorite Food', 'My Family & Home', 'Shopping for Basics'], photos: [{ url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80', hint: 'coffee cup, table, morning light' }], wordStarters: ['bread', 'water', 'house', 'friend', 'morning'], rolePlays: ['Ordering Coffee', 'Asking Directions', 'Greeting a Neighbor'] },
       A2: { topics: ['Last Weekend Trip', 'Buying Train Tickets', 'Daily Commute', 'Healthy Habits'], photos: [{ url: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=900&q=80', hint: 'bridge, water, sunny day, city' }], wordStarters: ['train', 'market', 'weather', 'travel', 'dinner'], rolePlays: ['Hotel Check-In', 'At the Train Station', 'Shopping for Clothes'] },
@@ -270,33 +858,143 @@
       C1: { topics: ['Institutional Incentives & Behavior', 'Nuance in Cross-Cultural Persuasion', 'Technological Bottlenecks', 'Autonomy & Accountability'], photos: [{ url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80', hint: 'modern workspace, architecture, structure, clarity' }], wordStarters: ['ambiguity', 'leverage', 'precedent', 'candor', 'synthesis'], rolePlays: ['Executive Feedback Session', 'Stakeholder Alignment', 'Debating Policy Tradeoffs'] },
       C2: { topics: ['Epistemic Humility in Complex Systems', 'Rhetorical Framing & Subtle Irony', 'Cultural Evolution Over Centuries', 'Strategic Patience'], photos: [{ url: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80', hint: 'tailored composure, leadership presence, deliberate calm' }], wordStarters: ['quintessential', 'equanimity', 'paradox', 'verisimilitude', 'nuance'], rolePlays: ['High-Stakes Mediation', 'Keynote Q&A', 'Advisory Board Review'] }
     };
+
     const CALL_STATE = { IDLE: 'IDLE', SPEAKING: 'SPEAKING', THINKING: 'THINKING', LISTENING: 'LISTENING' };
 
-    let app = JSON.parse(localStorage.getItem('bloom_v4_state')) || {
-      lang: 'en', level: 'B2', unlockedLevels: ['A1', 'A2', 'B1', 'B2'], tutorGender: 'female',
-      watchMinutesToday: 0, speakMinutesToday: 0, hoursByLevel: { A1: 100, A2: 225, B1: 400, B2: 45, C1: 0, C2: 0 },
-      streakDays: 1, activeDays: [new Date().getDate()], user: null, accounts: {}, videos: [], activeVideoId: null, srsCards: {}
-    };
+    function loadInitialState() {
+      const fallback = {
+        lang: 'en',
+        level: 'B2',
+        unlockedLevels: ['A1', 'A2', 'B1', 'B2'],
+        tutorGender: 'female',
+        watchMinutesToday: 0,
+        speakMinutesToday: 0,
+        hoursByLevel: { A1: 100, A2: 225, B1: 400, B2: 45, C1: 0, C2: 0 },
+        streakDays: 1,
+        activeDays: [new Date().getDate()],
+        user: null,
+        accounts: {},
+        videos: [],
+        activeVideoId: null,
+        srsCards: {}
+      };
+      try {
+        const raw = localStorage.getItem('bloom_v4_state');
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return {
+          ...fallback,
+          ...(parsed && typeof parsed === 'object' ? parsed : {}),
+          unlockedLevels: Array.isArray(parsed?.unlockedLevels) && parsed.unlockedLevels.length ? parsed.unlockedLevels : fallback.unlockedLevels,
+          hoursByLevel: { ...fallback.hoursByLevel, ...(parsed?.hoursByLevel || {}) },
+          activeDays: Array.isArray(parsed?.activeDays) && parsed.activeDays.length ? parsed.activeDays : fallback.activeDays,
+          accounts: parsed?.accounts && typeof parsed.accounts === 'object' ? parsed.accounts : {},
+          videos: Array.isArray(parsed?.videos) ? parsed.videos : [],
+          srsCards: parsed?.srsCards && typeof parsed.srsCards === 'object' ? parsed.srsCards : {}
+        };
+      } catch (_) {
+        return fallback;
+      }
+    }
 
-    let audioSessionId = 0, blockAudioFlag = false, activeRec = null, recTimer = null, recRemaining = 0, recStopFn = null;
-    let watchProgressTimer = null, ytApiReady = false, ytPlayerObj = null;
-    let callState = CALL_STATE.IDLE, authMode = 'signin', speakMode = 'practice', activeRolePlayTopic = '';
-    let lastCoachReply = '', currentShadowSentence = '', flashcardCursor = 0, flashcardDirection = 'target_to_meaning', flashcardRevealed = false;
-    let quizInterval = null, activeQuizData = null;
-           </script>
-             <script>
-    function fmtClock(sec) { const s = Math.max(0, Math.floor(sec)); return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; }
+    let app = loadInitialState();
+    let audioSessionId = 0;
+    let blockAudioFlag = false;
+    let activeRec = null;
+    let recTimer = null;
+    let recRemaining = 0;
+    let recStopFn = null;
+    let watchProgressTimer = null;
+    let ytApiReady = false;
+    let ytPlayerObj = null;
+    let callState = CALL_STATE.IDLE;
+    let authMode = 'signin';
+    let speakMode = 'practice';
+    let activeRolePlayTopic = '';
+    let lastCoachReply = '';
+    let currentShadowSentence = '';
+    let flashcardCursor = 0;
+    let flashcardDirection = 'target_to_meaning';
+    let flashcardRevealed = false;
+    let quizInterval = null;
+    let activeQuizData = null;
+
+    function fmtClock(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function escAttr(s) {
+      return esc(s).replace(/`/g, '');
+    }
+
+    function showAuthFeedback(msg, isError = false) {
+      const box = document.getElementById('authFeedbackNote');
+      if (!box) return;
+      box.style.display = 'block';
+      box.style.background = isError ? '#FEF2F2' : '#E5F1FF';
+      box.style.borderColor = isError ? '#FECACA' : '#C7E0FA';
+      box.style.color = isError ? '#991B1B' : '#0C4A6E';
+      box.textContent = msg;
+    }
+
+    function clearAuthFeedback() {
+      const box = document.getElementById('authFeedbackNote');
+      if (!box) return;
+      box.style.display = 'none';
+      box.textContent = '';
+    }
+
+    function setAuthModeUI(mode) {
+      authMode = mode === 'signup' ? 'signup' : 'signin';
+      clearAuthFeedback();
+      const signInBtn = document.getElementById('authModeSignIn');
+      const signUpBtn = document.getElementById('authModeSignUp');
+      const nameInput = document.getElementById('authNameInput');
+      const submitBtn = document.getElementById('authSubmitBtn');
+      if (signInBtn) signInBtn.className = authMode === 'signin' ? 'btn btn-soft' : 'btn';
+      if (signUpBtn) signUpBtn.className = authMode === 'signup' ? 'btn btn-soft' : 'btn';
+      if (nameInput) {
+        nameInput.placeholder = authMode === 'signup' ? 'Full Name (required)' : 'Full Name (optional on Sign In)';
+      }
+      if (submitBtn) {
+        submitBtn.textContent = authMode === 'signup' ? 'Create Account' : 'Sign In';
+      }
+    }
+
+    function openAuthModal(mode = null) {
+      if (mode) setAuthModeUI(mode);
+      else setAuthModeUI(authMode);
+      document.getElementById('authModal')?.classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id)?.classList.remove('open');
+    }
 
     function stopAllAudioAndVideo(keepPlayer = false) {
-      audioSessionId += 1; blockAudioFlag = true;
+      audioSessionId += 1;
+      blockAudioFlag = true;
       setTimeout(() => { blockAudioFlag = false; }, 160);
-      if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
       if (recTimer) { clearInterval(recTimer); recTimer = null; }
-      if (activeRec) { try { activeRec.onend = null; activeRec.stop(); } catch (_) {} activeRec = null; }
+      if (activeRec) {
+        try { activeRec.onend = null; activeRec.stop(); } catch (_) {}
+        activeRec = null;
+      }
       if (watchProgressTimer) { clearInterval(watchProgressTimer); watchProgressTimer = null; }
       const badge = document.getElementById('speakCountdownBadge');
       if (badge) badge.style.display = 'none';
-      if (!keepPlayer) { const frame = document.getElementById('ytPlayerFrame'); if (frame && frame.src !== 'about:blank') frame.src = 'about:blank'; }
+      if (!keepPlayer) {
+        const frame = document.getElementById('ytPlayerFrame');
+        if (frame && frame.src !== 'about:blank') frame.src = 'about:blank';
+      }
     }
 
     function pickGenderVoice(bcp47, gender) {
@@ -304,25 +1002,33 @@
       const list = window.speechSynthesis.getVoices() || [];
       if (!list.length) return null;
       const prefix = (bcp47 || 'en').slice(0, 2).toLowerCase();
-      const matching = list.filter(v => (v.lang || '').toLowerCase().startsWith(prefix));
+      const matching = list.filter((v) => (v.lang || '').toLowerCase().startsWith(prefix));
       const pool = matching.length ? matching : list;
-      const femWords = ['female','woman','claire','hannah','camille','sofia','samantha','victoria','serena','ava','paulina','helena','anna','amelie'];
-      const mascWords = ['male','man','julian','lukas','julien','mateo','daniel','arthur','george','jorge','diego','thomas'];
+      const femWords = ['female', 'woman', 'claire', 'hannah', 'camille', 'sofia', 'samantha', 'victoria', 'serena', 'ava', 'paulina', 'helena', 'anna', 'amelie'];
+      const mascWords = ['male', 'man', 'julian', 'lukas', 'julien', 'mateo', 'daniel', 'arthur', 'george', 'jorge', 'diego', 'thomas'];
       const targetWords = gender === 'male' ? mascWords : femWords;
-      return pool.map(v => {
-        const hay = `${v.name} ${v.voiceURI}`.toLowerCase();
-        let score = targetWords.some(w => hay.includes(w)) ? 10 : 0;
-        if (hay.includes('natural') || hay.includes('neural') || hay.includes('google')) score += 4;
-        return { v, score };
-      }).sort((a, b) => b.score - a.score)[0]?.v || null;
+      return pool
+        .map((v) => {
+          const hay = `${v.name} ${v.voiceURI}`.toLowerCase();
+          let score = targetWords.some((w) => hay.includes(w)) ? 10 : 0;
+          if (hay.includes('natural') || hay.includes('neural') || hay.includes('google')) score += 4;
+          return { v, score };
+        })
+        .sort((a, b) => b.score - a.score)[0]?.v || null;
     }
 
     function speakCoachLine(text, onDone = null, allowInterrupt = false) {
-      if (blockAudioFlag || !('speechSynthesis' in window)) { if (onDone) onDone(); return; }
+      if (blockAudioFlag || !('speechSynthesis' in window)) {
+        if (onDone) onDone();
+        return;
+      }
       const token = ++audioSessionId;
       try { window.speechSynthesis.cancel(); } catch (_) {}
       const clean = String(text || '').trim();
-      if (!clean) { if (onDone) onDone(); return; }
+      if (!clean) {
+        if (onDone) onDone();
+        return;
+      }
       lastCoachReply = clean;
       const replayBtn = document.getElementById('replayLastCoachBtn');
       if (replayBtn) replayBtn.disabled = false;
@@ -336,43 +1042,103 @@
       utter.rate = (app.level === 'A1' || app.level === 'A2') ? 0.88 : 0.98;
 
       let interrupter = null;
-      const cleanup = () => { if (interrupter) { try { interrupter.onend = null; interrupter.stop(); } catch (_) {} interrupter = null; } };
+      const cleanup = () => {
+        if (interrupter) {
+          try { interrupter.onend = null; interrupter.stop(); } catch (_) {}
+          interrupter = null;
+        }
+      };
 
       if (allowInterrupt && callState !== CALL_STATE.IDLE) {
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SR) {
           interrupter = new SR();
-          interrupter.lang = tm.bcp47; interrupter.interimResults = false; interrupter.continuous = true;
+          interrupter.lang = tm.bcp47;
+          interrupter.interimResults = false;
+          interrupter.continuous = true;
           interrupter.onresult = (ev) => {
             const heard = ev.results?.[ev.results.length - 1]?.[0]?.transcript?.trim() || '';
             if (heard.length >= 2 && token === audioSessionId && callState !== CALL_STATE.IDLE) {
-              cleanup(); try { window.speechSynthesis.cancel(); } catch (_) {} audioSessionId += 1;
-              callState = CALL_STATE.LISTENING; renderAll();
+              cleanup();
+              try { window.speechSynthesis.cancel(); } catch (_) {}
+              audioSessionId += 1;
+              callState = CALL_STATE.LISTENING;
+              renderAll();
               startVoiceTurnWithSilence(120, async (fullSpoken) => {
-                if (fullSpoken && callState !== CALL_STATE.IDLE) { callState = CALL_STATE.THINKING; renderAll(); await sendSpeakMessage(fullSpoken); }
-                else if (callState !== CALL_STATE.IDLE) { callState = CALL_STATE.LISTENING; renderAll(); }
+                if (fullSpoken && callState !== CALL_STATE.IDLE) {
+                  callState = CALL_STATE.THINKING;
+                  renderAll();
+                  await sendSpeakMessage(fullSpoken);
+                } else if (callState !== CALL_STATE.IDLE) {
+                  callState = CALL_STATE.LISTENING;
+                  renderAll();
+                }
               });
             }
           };
           try { interrupter.start(); } catch (_) {}
         }
       }
-      utter.onstart = () => { if (token !== audioSessionId || blockAudioFlag) { cleanup(); try { window.speechSynthesis.cancel(); } catch (_) {} } };
-      utter.onend = () => { cleanup(); if (token === audioSessionId && onDone) onDone(); };
-      utter.onerror = () => { cleanup(); if (token === audioSessionId && onDone) onDone(); };
+
+      utter.onstart = () => {
+        if (token !== audioSessionId || blockAudioFlag) {
+          cleanup();
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+      };
+      utter.onend = () => {
+        cleanup();
+        if (token === audioSessionId && onDone) onDone();
+      };
+      utter.onerror = () => {
+        cleanup();
+        if (token === audioSessionId && onDone) onDone();
+      };
       window.speechSynthesis.speak(utter);
     }
 
-    function saveBloom() { localStorage.setItem('bloom_v4_state', JSON.stringify(app)); renderAll(); }
-    function markTodayActive() { const d = new Date().getDate(); if (!app.activeDays.includes(d)) { app.activeDays.push(d); app.streakDays += 1; } }
-    function addWatchMin(m) { app.watchMinutesToday = Math.min(60, app.watchMinutesToday + m); app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60); markTodayActive(); saveBloom(); }
-    function addSpeakMin(m) { app.speakMinutesToday = Math.min(60, app.speakMinutesToday + m); app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60); markTodayActive(); saveBloom(); }
+    function saveBloom() {
+      try {
+        localStorage.setItem('bloom_v4_state', JSON.stringify(app));
+      } catch (_) {}
+      renderAll();
+    }
+
+    function markTodayActive() {
+      const d = new Date().getDate();
+      if (!app.activeDays.includes(d)) {
+        app.activeDays.push(d);
+        app.streakDays += 1;
+      }
+    }
+
+    function addWatchMin(m) {
+      app.watchMinutesToday = Math.min(60, app.watchMinutesToday + m);
+      app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60);
+      markTodayActive();
+      saveBloom();
+    }
+
+    function addSpeakMin(m) {
+      app.speakMinutesToday = Math.min(60, app.speakMinutesToday + m);
+      app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60);
+      markTodayActive();
+      saveBloom();
+    }
 
     async function callBloomAI(payload) {
       const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
       const res = await fetch('/api/bloom', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang: app.lang, level: app.level, tutorGender: app.tutorGender, tutorName: tm[app.tutorGender], userName: app.user?.name || 'Learner', ...payload })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lang: app.lang,
+          level: app.level,
+          tutorGender: app.tutorGender,
+          tutorName: tm[app.tutorGender],
+          userName: app.user?.name || 'Learner',
+          ...payload
+        })
       });
       const data = await res.json();
       if (!res.ok || !data.reply) throw new Error(data.error || 'AI error');
@@ -382,27 +1148,49 @@
     async function hashPassword(password, email) {
       const data = new TextEncoder().encode(`${email.toLowerCase().trim()}::${password}`);
       const digest = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
     }
 
     async function handleAuthSubmit() {
-      const name = document.getElementById('authNameInput').value.trim();
-      const email = document.getElementById('authEmailInput').value.trim().toLowerCase();
-      const pass = document.getElementById('authPassInput').value;
-      if (!email || !pass || pass.length < 6) return alert('Enter a valid email and password (min 6 chars).');
+      const name = (document.getElementById('authNameInput')?.value || '').trim();
+      const email = (document.getElementById('authEmailInput')?.value || '').trim().toLowerCase();
+      const pass = document.getElementById('authPassInput')?.value || '';
+
+      const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+      if (!validEmail) {
+        return showAuthFeedback('Please enter a valid email address (any provider is supported).', true);
+      }
+      if (!pass || pass.length < 6) {
+        return showAuthFeedback('Please enter a password of at least 6 characters.', true);
+      }
+
       const passHash = await hashPassword(pass, email);
       app.accounts = app.accounts || {};
+
       if (authMode === 'signup') {
-        if (!name) return alert('Please enter your full name.');
-        if (app.accounts[email]) return alert('Email already registered. Switch to Sign In.');
-        app.accounts[email] = { name, email, passHash }; app.user = { name, email };
+        if (!name || name.length < 2) {
+          return showAuthFeedback('Please enter your full name to create your account.', true);
+        }
+        if (app.accounts[email]) {
+          return showAuthFeedback('An account with this email already exists. Switch to Sign In and enter your password.', true);
+        }
+        app.accounts[email] = { name, email, passHash };
+        app.user = { name, email };
       } else {
         const acct = app.accounts[email];
-        if (!acct || acct.passHash !== passHash) return alert('Invalid email or password.');
+        if (!acct) {
+          return showAuthFeedback('No account found for that email on this device. Switch to Sign Up to create one.', true);
+        }
+        if (acct.passHash !== passHash) {
+          return showAuthFeedback('Incorrect password for this account. Please try again.', true);
+        }
         app.user = { name: acct.name, email: acct.email };
       }
-      document.getElementById('authPassInput').value = '';
-      document.getElementById('authModal').classList.remove('open');
+
+      const passEl = document.getElementById('authPassInput');
+      if (passEl) passEl.value = '';
+      clearAuthFeedback();
+      closeModal('authModal');
       saveBloom();
     }
 
@@ -410,30 +1198,48 @@
       const m = String(input || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([A-Za-z0-9_-]{11})/);
       return m ? m[1] : null;
     }
-    function getActiveVideo() { return app.videos.find(v => v.id === app.activeVideoId) || null; }
+
+    function getActiveVideo() {
+      return app.videos.find((v) => v.id === app.activeVideoId) || null;
+    }
 
     function loadYouTubePlayer(ytId) {
       const frame = document.getElementById('ytPlayerFrame');
-      frame.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0`;
+      if (frame) frame.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0`;
       if (watchProgressTimer) clearInterval(watchProgressTimer);
-      const vid = app.videos.find(v => v.id === ytId);
+
+      const vid = app.videos.find((v) => v.id === ytId);
       if (vid && !vid.completed) {
         vid.watchedSec = vid.watchedSec || 0;
         watchProgressTimer = setInterval(() => {
           const curVid = getActiveVideo();
-          if (!curVid || curVid.id !== ytId || curVid.completed) { clearInterval(watchProgressTimer); return; }
+          if (!curVid || curVid.id !== ytId || curVid.completed) {
+            clearInterval(watchProgressTimer);
+            return;
+          }
           if (document.visibilityState === 'visible') {
             curVid.watchedSec = (curVid.watchedSec || 0) + 1;
             const dur = curVid.durationSec || 60;
-            if (curVid.watchedSec >= dur) { clearInterval(watchProgressTimer); completeVerifiedVideo(curVid); }
-            else { const gate = document.getElementById('watchGateStatus'); if (gate) gate.textContent = `Watching: ${curVid.watchedSec}s / ${dur}s to unlock`; }
+            if (curVid.watchedSec >= dur) {
+              clearInterval(watchProgressTimer);
+              completeVerifiedVideo(curVid);
+            } else {
+              const gate = document.getElementById('watchGateStatus');
+              if (gate) gate.textContent = `Watching: ${curVid.watchedSec}s / ${dur}s to unlock`;
+            }
           }
         }, 1000);
       }
       if (!window.YT && !document.getElementById('ytIframeApiScript')) {
-        const tag = document.createElement('script'); tag.id = 'ytIframeApiScript'; tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag);
+        const tag = document.createElement('script');
+        tag.id = 'ytIframeApiScript';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
       }
-      window.onYouTubeIframeAPIReady = () => { ytApiReady = true; mountYTPlayerObj(ytId); };
+      window.onYouTubeIframeAPIReady = () => {
+        ytApiReady = true;
+        mountYTPlayerObj(ytId);
+      };
       if (ytApiReady && window.YT?.Player) mountYTPlayerObj(ytId);
     }
 
@@ -442,8 +1248,18 @@
         if (ytPlayerObj && typeof ytPlayerObj.destroy === 'function') ytPlayerObj.destroy();
         ytPlayerObj = new window.YT.Player('ytPlayerFrame', {
           events: {
-            onReady: (ev) => { const dur = Math.floor(ev.target.getDuration?.() || 0); const curVid = app.videos.find(v => v.id === ytId); if (curVid && dur > 0) curVid.durationSec = Math.max(20, Math.min(dur, 900)); },
-            onStateChange: (ev) => { const curVid = app.videos.find(v => v.id === ytId); if (!curVid) return; const title = ev.target.getVideoData?.()?.title; if (title) curVid.title = title; if (ev.data === window.YT.PlayerState.ENDED) completeVerifiedVideo(curVid); }
+            onReady: (ev) => {
+              const dur = Math.floor(ev.target.getDuration?.() || 0);
+              const curVid = app.videos.find((v) => v.id === ytId);
+              if (curVid && dur > 0) curVid.durationSec = Math.max(20, Math.min(dur, 900));
+            },
+            onStateChange: (ev) => {
+              const curVid = app.videos.find((v) => v.id === ytId);
+              if (!curVid) return;
+              const title = ev.target.getVideoData?.()?.title;
+              if (title) curVid.title = title;
+              if (ev.data === window.YT.PlayerState.ENDED) completeVerifiedVideo(curVid);
+            }
           }
         });
       } catch (_) {}
@@ -451,42 +1267,58 @@
 
     async function completeVerifiedVideo(vid) {
       if (!vid || vid.completed) return;
-      vid.completed = true; addWatchMin(10);
+      vid.completed = true;
+      addWatchMin(10);
       if (!vid.vocab || !vid.vocab.length) {
         try {
-          const rawReply = await callBloomAI({ action: 'video_vocab', videoTitle: vid.title, videoContext: `YouTube ID ${vid.id} — finished watching full video` });
+          const rawReply = await callBloomAI({
+            action: 'video_vocab',
+            videoTitle: vid.title,
+            videoContext: `YouTube ID ${vid.id} — finished watching full video`
+          });
           const parsed = JSON.parse(rawReply.replace(/```json|```/g, '').trim());
           if (Array.isArray(parsed.words) && parsed.words.length) vid.vocab = parsed.words;
         } catch (_) {
-          vid.vocab = [{ term: 'core premise', meaningInLang: 'Main central idea presented in the video', example: 'The core premise of the talk is daily consistency.' }, { term: 'practical application', meaningInLang: 'How an idea is used in real life', example: 'We can apply this in practical application right away.' }];
+          vid.vocab = [
+            { term: 'core premise', meaningInLang: 'Main central idea presented in the video', example: 'The core premise of the talk is daily consistency.' },
+            { term: 'practical application', meaningInLang: 'How an idea is used in real life', example: 'We can apply this in practical application right away.' }
+          ];
         }
       }
       saveBloom();
     }
 
     function handleAddYouTubeLink() {
-      const raw = document.getElementById('ytLinkOnlyInput').value.trim();
-      const ytId = parseYouTubeId(raw);
+      const input = document.getElementById('ytLinkOnlyInput');
+      const ytId = parseYouTubeId(input?.value.trim());
       if (!ytId) return alert('Please paste a valid YouTube link.');
-      const existing = app.videos.find(v => v.id === ytId);
+      const existing = app.videos.find((v) => v.id === ytId);
       const vid = existing || { id: ytId, title: `YouTube Video (${ytId})`, completed: false, watchedSec: 0, durationSec: 60, vocab: [] };
       if (!existing) app.videos.unshift(vid);
       app.activeVideoId = ytId;
-      document.getElementById('ytLinkOnlyInput').value = '';
-      document.getElementById('ytModal').classList.remove('open');
-      saveBloom(); switchView('watch'); loadYouTubePlayer(ytId);
+      if (input) input.value = '';
+      closeModal('ytModal');
+      saveBloom();
+      switchView('watch');
+      loadYouTubePlayer(ytId);
     }
 
     function renderVideoVocabPanel() {
-      const vid = getActiveVideo(); if (!vid || !vid.completed) return;
-      const panel = document.getElementById('videoVocabPanel'); panel.style.display = 'block';
+      const vid = getActiveVideo();
+      if (!vid || !vid.completed) return;
+      const panel = document.getElementById('videoVocabPanel');
+      if (!panel) return;
+      panel.style.display = 'block';
       panel.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">In-Video Vocabulary & Examples</div>` +
-        (vid.vocab || []).map(w => `<div style="padding:12px 14px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;background:#F8FBFF;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong style="font-size:15px;color:var(--primary-deep);">${esc(w.term)}</strong><button class="btn btn-soft" style="padding:4px 10px;font-size:12px;" data-speak-line="${escAttr(w.term + '. ' + w.example)}">🔊</button></div><div class="muted" style="font-size:12px;margin-top:3px;">${esc(w.meaningInLang)}</div><div style="font-size:13px;margin-top:6px;"><em>Example: ${esc(w.example)}</em></div></div>`).join('');
+        (vid.vocab || []).map((w) => `<div style="padding:12px 14px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;background:#F8FBFF;"><div style="display:flex;justify-content:space-between;align-items:center;"><strong style="font-size:15px;color:var(--primary-deep);">${esc(w.term)}</strong><button class="btn btn-soft" style="padding:4px 10px;font-size:12px;" data-speak-line="${escAttr(`${w.term}. ${w.example}`)}">🔊</button></div><div class="muted" style="font-size:12px;margin-top:3px;">${esc(w.meaningInLang)}</div><div style="font-size:13px;margin-top:6px;"><em>Example: ${esc(w.example)}</em></div></div>`).join('');
     }
 
     function renderVideoDiscussPanel() {
-      const vid = getActiveVideo(); if (!vid || !vid.completed) return;
-      const panel = document.getElementById('videoDiscussPanel'); panel.style.display = 'block';
+      const vid = getActiveVideo();
+      if (!vid || !vid.completed) return;
+      const panel = document.getElementById('videoDiscussPanel');
+      if (!panel) return;
+      panel.style.display = 'block';
       panel.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Voice Discussion: ${esc(vid.title)}</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;"><span class="rec-badge" id="vidDiscussCountdown" style="display:none;">01:00</span><button class="btn btn-primary" data-rec-sec="60" data-rec-mode="video_discuss">🎙️ Record & Send</button><button class="btn btn-soft" data-action="start-video-call">📞 Real Call on Video</button></div><div class="feedback-box" id="vidDiscussFeedback">Speak using Record & Send or start a Real Call on this video. No text chat is used.</div>`;
     }
 
@@ -495,8 +1327,14 @@
       if (!SR) return alert('Speech recognition is not supported in this browser.');
       stopAllAudioAndVideo(true);
       const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
-      const rec = new SR(); activeRec = rec; rec.lang = tm.bcp47; rec.interimResults = true; rec.continuous = true;
-      let transcript = '', lastSpeechAt = Date.now(), hasSpoken = false;
+      const rec = new SR();
+      activeRec = rec;
+      rec.lang = tm.bcp47;
+      rec.interimResults = true;
+      rec.continuous = true;
+      let transcript = '';
+      let lastSpeechAt = Date.now();
+      let hasSpoken = false;
       recRemaining = maxSec;
       const badge = badgeId ? document.getElementById(badgeId) : null;
       if (badge) { badge.style.display = 'inline-flex'; badge.textContent = fmtClock(recRemaining); }
@@ -504,33 +1342,58 @@
         if (recTimer) { clearInterval(recTimer); recTimer = null; }
         if (badge) badge.style.display = 'none';
         try { rec.onend = null; rec.stop(); } catch (_) {}
-        activeRec = null; recStopFn = null;
+        activeRec = null;
+        recStopFn = null;
         if (onFinishedTranscript) onFinishedTranscript(transcript.trim());
       };
       recStopFn = finalize;
       rec.onresult = (ev) => {
         let combined = '';
-        for (let i = 0; i < ev.results.length; i++) combined += ev.results[i][0].transcript + ' ';
+        for (let i = 0; i < ev.results.length; i++) combined += `${ev.results[i][0].transcript} `;
         transcript = combined.trim();
         if (transcript.length > 0) { hasSpoken = true; lastSpeechAt = Date.now(); }
       };
-      rec.onend = () => { if (recRemaining > 0 && activeRec) { try { rec.start(); } catch (_) { finalize(); } } else finalize(); };
+      rec.onend = () => {
+        if (recRemaining > 0 && activeRec) {
+          try { rec.start(); } catch (_) { finalize(); }
+        } else {
+          finalize();
+        }
+      };
       recTimer = setInterval(() => {
         recRemaining -= 1;
         if (badge) badge.textContent = fmtClock(recRemaining);
-        if (silenceAutoSend && hasSpoken && (Date.now() - lastSpeechAt) >= 1600) { finalize(); return; }
+        if (silenceAutoSend && hasSpoken && (Date.now() - lastSpeechAt) >= 1600) {
+          finalize();
+          return;
+        }
         if (recRemaining <= 0) finalize();
-      }, 1000);function openLearnTool(tool) {
+      }, 1000);
+      try { rec.start(); } catch (_) { finalize(); }
+    }
+
+    function startVoiceTurnWithSilence(maxSec, onTurnDone) {
+      startTimedRecording(maxSec, 'speakCountdownBadge', onTurnDone, true);
+    }
+
+    function openLearnTool(tool) {
       stopAllAudioAndVideo(true);
       const bank = LEVEL_BANKS[app.level] || LEVEL_BANKS.B2;
       const box = document.getElementById('learnToolContent');
+      if (!box) return;
+
       if (tool === 'flashcards') {
-        const pool = app.videos.filter(v => v.completed).flatMap(v => v.vocab || []);
-        if (!pool.length) { box.innerHTML = `<p class="muted">Finish watching a YouTube video first so flashcards have real words from your video.</p>`; return; }
+        const pool = app.videos.filter((v) => v.completed).flatMap((v) => v.vocab || []);
+        if (!pool.length) {
+          box.innerHTML = `<p class="muted">Finish watching a YouTube video first so flashcards have real words from your video.</p>`;
+          return;
+        }
         const card = pool[flashcardCursor % pool.length];
         const srs = (app.srsCards || {})[card.term] || { intervalDays: 1, reps: 0 };
         const promptText = flashcardDirection === 'target_to_meaning' ? card.term : card.meaningInLang;
-        const promptLabel = flashcardDirection === 'target_to_meaning' ? 'Target word shown — speak its meaning by voice' : 'Meaning/native clue shown — recall and speak the target word';
+        const promptLabel = flashcardDirection === 'target_to_meaning'
+          ? 'Target word shown — speak its meaning by voice'
+          : 'Meaning/native clue shown — recall and speak the target word';
         box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><strong style="color:var(--primary-deep);">Flashcards • ${esc(app.level)}</strong><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;"><button class="btn btn-soft" style="padding:5px 12px;font-size:12px;" data-action="toggle-flashcard-dir">Switch Direction</button><span class="muted" style="font-size:12px;">Interval: ${srs.intervalDays}d</span></div></div><div style="padding:18px;border:1px solid var(--border);border-radius:16px;text-align:center;background:#F8FBFF;"><div class="muted" style="font-size:12px;margin-bottom:6px;">${esc(promptLabel)}</div><div style="font-size:22px;font-weight:800;color:var(--primary-deep);">${esc(promptText)}</div><div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:14px;"><span class="rec-badge" id="fcCountdown" style="display:none;">00:20</span><button class="btn btn-primary" data-rec-sec="20" data-rec-mode="flashcard" data-fc-term="${escAttr(card.term)}" data-fc-meaning="${escAttr(card.meaningInLang)}">🎙️ Speak Answer</button><button class="btn btn-soft" data-action="reveal-flashcard">Show Answer</button></div><div id="fcAnswerBox" class="feedback-box" style="display:${flashcardRevealed ? 'block' : 'none'};margin-top:12px;text-align:left;"><strong>Word:</strong> ${esc(card.term)}<br/><strong>Meaning:</strong> ${esc(card.meaningInLang)}<br/><em>Example: ${esc(card.example)}</em></div><div id="fcEvalBox" class="feedback-box" style="display:none;margin-top:10px;text-align:left;"></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px;"><button class="btn" data-srs-rate="again" data-srs-term="${escAttr(card.term)}">Again</button><button class="btn" data-srs-rate="hard" data-srs-term="${escAttr(card.term)}">Hard</button><button class="btn btn-primary" data-srs-rate="good" data-srs-term="${escAttr(card.term)}">Good</button><button class="btn btn-success" data-srs-rate="easy" data-srs-term="${escAttr(card.term)}">Easy</button></div></div>`;
       } else if (tool === 'photo') {
         const photo = bank.photos[0];
@@ -543,18 +1406,23 @@
         box.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Word Link (1 Min) — Start: <span style="color:var(--primary);">${esc(startWord)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;"><span class="rec-badge" id="wordlinkCountdown" style="display:none;">01:00</span><button class="btn btn-primary" data-rec-sec="60" data-rec-mode="wordlink" data-start-word="${escAttr(startWord)}">🎙️ Record 1 Min</button></div><div class="feedback-box" id="wordlinkFeedback">Press Record 1 Min and speak linked words. Evaluation runs automatically when time is up.</div>`;
       } else if (tool === 'videolab') {
         const vid = getActiveVideo();
-        box.innerHTML = vid && vid.completed ? `<div style="font-weight:800;color:var(--primary-deep);">Video Lab: ${esc(vid.title)}</div><p class="muted" style="margin-top:6px;">Switch to Watch to review your finished video's vocabulary or run voice discussion.</p>` : `<p class="muted">Finish watching a YouTube video in Watch to unlock its vocabulary and voice discussion.</p>`;
+        box.innerHTML = vid && vid.completed
+          ? `<div style="font-weight:800;color:var(--primary-deep);">Video Lab: ${esc(vid.title)}</div><p class="muted" style="margin-top:6px;">Switch to Watch to review your finished video's vocabulary or run voice discussion.</p>`
+          : `<p class="muted">Finish watching a YouTube video in Watch to unlock its vocabulary and voice discussion.</p>`;
       }
     }
-
-    function reviewFlashcardWithRating(term, rating) {
+      function reviewFlashcardWithRating(term, rating) {
       app.srsCards = app.srsCards || {};
       const cur = app.srsCards[term] || { intervalDays: 1, reps: 0 };
       if (rating === 'again') { cur.intervalDays = 1; cur.reps = 0; }
       else if (rating === 'hard') { cur.intervalDays = Math.max(1, Math.round(cur.intervalDays * 1.2)); cur.reps += 1; }
       else if (rating === 'good') { cur.intervalDays = Math.max(2, Math.round(cur.intervalDays * 2.2)); cur.reps += 1; }
       else if (rating === 'easy') { cur.intervalDays = Math.max(4, Math.round(cur.intervalDays * 3.0)); cur.reps += 1; }
-      app.srsCards[term] = cur; flashcardCursor += 1; flashcardRevealed = false; addSpeakMin(1); openLearnTool('flashcards');
+      app.srsCards[term] = cur;
+      flashcardCursor += 1;
+      flashcardRevealed = false;
+      addSpeakMin(1);
+      openLearnTool('flashcards');
     }
 
     function validateWordChain(startWord, spokenText) {
@@ -562,63 +1430,113 @@
       if (!tokens.length) return 'No words captured.';
       let lastChar = String(startWord || '').trim().slice(-1).toLowerCase();
       const chained = [];
-      for (const t of tokens) { if (!lastChar || t.startsWith(lastChar)) { chained.push(t); lastChar = t.slice(-1); } }
+      for (const t of tokens) {
+        if (!lastChar || t.startsWith(lastChar)) {
+          chained.push(t);
+          lastChar = t.slice(-1);
+        }
+      }
       return chained.length ? `Chain matched (${chained.length}): ${chained.join(' → ')}` : `No word started with "${lastChar}".`;
     }
 
     function setSpeakMode(mode) {
-      stopAllAudioAndVideo(true); callState = CALL_STATE.IDLE; speakMode = mode;
+      stopAllAudioAndVideo(true);
+      callState = CALL_STATE.IDLE;
+      speakMode = mode;
       const bank = LEVEL_BANKS[app.level] || LEVEL_BANKS.B2;
       const labelMap = { practice: 'Practice Speaking', roleplay: 'Role Play', shadowing: 'Shadowing' };
-      document.getElementById('speakActiveLabel').textContent = labelMap[mode] || 'Practice Speaking';
-      document.getElementById('callStatusPill').textContent = 'Voice Ready';
+      const labelEl = document.getElementById('speakActiveLabel');
+      const statusEl = document.getElementById('callStatusPill');
       const sub = document.getElementById('speakSubPicker');
-      if (mode === 'roleplay') {
-        activeRolePlayTopic = bank.rolePlays[0];
-        sub.innerHTML = `<select class="select-pill" id="rolePlaySelect">${bank.rolePlays.map(r => `<option value="${escAttr(r)}">${esc(r)}</option>`).join('')}</select>`;
-        document.getElementById('rolePlaySelect').addEventListener('change', (e) => { activeRolePlayTopic = e.target.value; });
-        document.getElementById('speakCoachFeedback').textContent = `Role Play: ${activeRolePlayTopic}. Start a Real Call or press Record (2m) to speak directly.`;
-      } else if (mode === 'shadowing') {
-        sub.innerHTML = `<button class="btn btn-soft" data-action="next-shadow-sentence">New Shadow Sentence</button>`;
-        requestShadowSentence();
-      } else {
-        sub.innerHTML = '';
-        document.getElementById('speakCoachFeedback').textContent = 'Press Record (2m) to speak and send directly when you stop or time ends, or start a Real Call to speak back and forth.';
+      const fb = document.getElementById('speakCoachFeedback');
+      if (labelEl) labelEl.textContent = labelMap[mode] || 'Practice Speaking';
+      if (statusEl) statusEl.textContent = 'Voice Ready';
+
+      if (sub) {
+        if (mode === 'roleplay') {
+          activeRolePlayTopic = bank.rolePlays[0];
+          sub.innerHTML = `<select class="select-pill" id="rolePlaySelect">${bank.rolePlays.map((r) => `<option value="${escAttr(r)}">${esc(r)}</option>`).join('')}</select>`;
+          document.getElementById('rolePlaySelect')?.addEventListener('change', (e) => { activeRolePlayTopic = e.target.value; });
+          if (fb) fb.textContent = `Role Play: ${activeRolePlayTopic}. Start a Real Call or press Record (2m) to speak directly.`;
+        } else if (mode === 'shadowing') {
+          sub.innerHTML = `<button class="btn btn-soft" data-action="next-shadow-sentence">New Shadow Sentence</button>`;
+          requestShadowSentence();
+        } else {
+          sub.innerHTML = '';
+          if (fb) fb.textContent = 'Press Record (2m) to speak and send directly when you stop or time ends, or start a Real Call to speak back and forth.';
+        }
       }
       renderAll();
     }
 
     async function requestShadowSentence() {
-      const box = document.getElementById('speakCoachFeedback'); box.textContent = 'Preparing sentence...';
+      const box = document.getElementById('speakCoachFeedback');
+      if (box) box.textContent = 'Preparing sentence...';
       try {
         const reply = await callBloomAI({ action: 'shadowing', message: '__NEXT_SENTENCE__' });
         currentShadowSentence = String(reply || '').replace(/^["']|["']$/g, '').trim();
-        box.textContent = `Shadow this sentence:\n"${currentShadowSentence}"`; speakCoachLine(currentShadowSentence);
-      } catch (err) { box.textContent = err.message || 'Could not load sentence.'; }
+        if (box) box.textContent = `Shadow this sentence:\n"${currentShadowSentence}"`;
+        speakCoachLine(currentShadowSentence);
+      } catch (err) {
+        if (box) box.textContent = err.message || 'Could not load sentence.';
+      }
     }
 
     async function sendSpeakMessage(spokenText) {
       const clean = String(spokenText || '').trim();
-      if (!clean) { if (callState !== CALL_STATE.IDLE) { callState = CALL_STATE.LISTENING; renderAll(); listenNextCallTurn(); } return; }
+      if (!clean) {
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.LISTENING;
+          renderAll();
+          listenNextCallTurn();
+        }
+        return;
+      }
       const feedback = document.getElementById('speakCoachFeedback');
       const actionMap = { practice: 'practice_speaking', roleplay: 'role_play', shadowing: 'shadowing' };
-      const topic = speakMode === 'roleplay' ? (activeRolePlayTopic || (LEVEL_BANKS[app.level] || LEVEL_BANKS.B2).rolePlays[0]) : (speakMode === 'shadowing' ? currentShadowSentence : '');
+      const topic = speakMode === 'roleplay'
+        ? (activeRolePlayTopic || (LEVEL_BANKS[app.level] || LEVEL_BANKS.B2).rolePlays[0])
+        : (speakMode === 'shadowing' ? currentShadowSentence : '');
       if (callState !== CALL_STATE.IDLE) callState = CALL_STATE.THINKING;
-      if (feedback) feedback.textContent = 'Listening & preparing gentle feedback...'; renderAll();
+      if (feedback) feedback.textContent = 'Listening & preparing gentle feedback...';
+      renderAll();
+
       try {
-        const reply = await callBloomAI({ action: actionMap[speakMode] || 'practice_speaking', topic, message: clean });
-        lastCoachReply = reply; if (feedback) feedback.textContent = reply; addSpeakMin(1);
+        const reply = await callBloomAI({
+          action: actionMap[speakMode] || 'practice_speaking',
+          topic,
+          message: clean
+        });
+        lastCoachReply = reply;
+        if (feedback) feedback.textContent = reply;
+        addSpeakMin(1);
+
         if (speakMode === 'shadowing') {
           const nextLine = reply.split('\n').pop().replace(/^["']|["']$/g, '').trim() || reply;
-          currentShadowSentence = nextLine; speakCoachLine(nextLine); return;
+          currentShadowSentence = nextLine;
+          speakCoachLine(nextLine);
+          return;
         }
         if (callState !== CALL_STATE.IDLE) {
-          callState = CALL_STATE.SPEAKING; renderAll();
-          speakCoachLine(reply, () => { if (callState !== CALL_STATE.IDLE) { callState = CALL_STATE.LISTENING; renderAll(); listenNextCallTurn(); } }, true);
-        } else speakCoachLine(reply);
+          callState = CALL_STATE.SPEAKING;
+          renderAll();
+          speakCoachLine(reply, () => {
+            if (callState !== CALL_STATE.IDLE) {
+              callState = CALL_STATE.LISTENING;
+              renderAll();
+              listenNextCallTurn();
+            }
+          }, true);
+        } else {
+          speakCoachLine(reply);
+        }
       } catch (err) {
         if (feedback) feedback.textContent = err.message || 'Voice request failed.';
-        if (callState !== CALL_STATE.IDLE) { callState = CALL_STATE.LISTENING; renderAll(); listenNextCallTurn(); }
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.LISTENING;
+          renderAll();
+          listenNextCallTurn();
+        }
       }
     }
 
@@ -626,19 +1544,38 @@
       if (callState === CALL_STATE.IDLE) return;
       startVoiceTurnWithSilence(120, async (fullSpoken) => {
         if (callState === CALL_STATE.IDLE) return;
-        if (fullSpoken) await sendSpeakMessage(fullSpoken); else listenNextCallTurn();
+        if (fullSpoken) await sendSpeakMessage(fullSpoken);
+        else listenNextCallTurn();
       });
     }
 
     async function handleRealCallToggle() {
-      if (callState !== CALL_STATE.IDLE) { callState = CALL_STATE.IDLE; stopAllAudioAndVideo(true); document.getElementById('callStatusPill').textContent = 'Call Ended'; renderAll(); return; }
-      stopAllAudioAndVideo(true); callState = CALL_STATE.SPEAKING;
+      if (callState !== CALL_STATE.IDLE) {
+        callState = CALL_STATE.IDLE;
+        stopAllAudioAndVideo(true);
+        const pill = document.getElementById('callStatusPill');
+        if (pill) pill.textContent = 'Call Ended';
+        renderAll();
+        return;
+      }
+      stopAllAudioAndVideo(true);
+      callState = CALL_STATE.SPEAKING;
       const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
       const greeting = `Hi, I'm ${tm[app.tutorGender]}. Go ahead and speak whenever you're ready.`;
-      document.getElementById('callStatusPill').textContent = 'Connected • Tutor Speaking';
-      document.getElementById('speakCoachFeedback').textContent = greeting; renderAll();
+      const pill = document.getElementById('callStatusPill');
+      const fb = document.getElementById('speakCoachFeedback');
+      if (pill) pill.textContent = 'Connected • Tutor Speaking';
+      if (fb) fb.textContent = greeting;
+      renderAll();
+
       speakCoachLine(greeting, () => {
-        if (callState !== CALL_STATE.IDLE) { callState = CALL_STATE.LISTENING; document.getElementById('callStatusPill').textContent = 'Connected • Listening (Pause to Reply)'; renderAll(); listenNextCallTurn(); }
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.LISTENING;
+          const activePill = document.getElementById('callStatusPill');
+          if (activePill) activePill.textContent = 'Connected • Listening (Pause to Reply)';
+          renderAll();
+          listenNextCallTurn();
+        }
       }, true);
     }
 
@@ -653,128 +1590,230 @@
       ];
       activeQuizData = { targetLevel, questions };
       let secLeft = 20 * 60;
-      document.getElementById('quizTitle').textContent = `Unlock ${targetLevel} Quiz (20 min)`;
-      document.getElementById('quizClock').textContent = `${fmtClock(secLeft)} remaining • 4 Skills + Grammar`;
-      document.getElementById('quizBody').innerHTML = questions.map(item => item.opts
-        ? `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:6px;">${item.label}: ${esc(item.q)}</div>${item.opts.map(o => `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="q_${item.id}" value="${escAttr(o)}"> ${esc(o)}</label>`).join('')}</div>`
-        : `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:6px;">${item.label}: ${esc(item.q)}</div><input type="text" class="field" id="q_${item.id}" placeholder="Type or speak your answer..." /></div>`
-      ).join('') + `<button class="btn btn-primary" style="width:100%;" id="submitQuizBtn" data-unlock-target="${targetLevel}">Submit Quiz</button><div class="feedback-box" id="quizResultBox" style="display:none;margin-top:10px;"></div>`;
-      document.getElementById('quizModal').classList.add('open');
+      const titleEl = document.getElementById('quizTitle');
+      const clockEl = document.getElementById('quizClock');
+      const bodyEl = document.getElementById('quizBody');
+      if (titleEl) titleEl.textContent = `Unlock ${targetLevel} Quiz (20 min)`;
+      if (clockEl) clockEl.textContent = `${fmtClock(secLeft)} remaining • 4 Skills + Grammar`;
+      if (bodyEl) {
+        bodyEl.innerHTML = questions.map((item) => item.opts
+          ? `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:6px;">${item.label}: ${esc(item.q)}</div>${item.opts.map((o) => `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="q_${item.id}" value="${escAttr(o)}"> ${esc(o)}</label>`).join('')}</div>`
+          : `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:6px;">${item.label}: ${esc(item.q)}</div><input type="text" class="field" id="q_${item.id}" placeholder="Type or speak your answer..." /></div>`
+        ).join('') + `<button class="btn btn-primary" style="width:100%;" id="submitQuizBtn" data-unlock-target="${targetLevel}">Submit Quiz</button><div class="feedback-box" id="quizResultBox" style="display:none;margin-top:10px;"></div>`;
+      }
+      document.getElementById('quizModal')?.classList.add('open');
       quizInterval = setInterval(() => {
         secLeft -= 1;
         const clk = document.getElementById('quizClock');
         if (clk) clk.textContent = `${fmtClock(secLeft)} remaining • 4 Skills + Grammar`;
-        if (secLeft <= 0) { clearInterval(quizInterval); gradeAndSubmitQuiz(targetLevel); }
+        if (secLeft <= 0) {
+          clearInterval(quizInterval);
+          gradeAndSubmitQuiz(targetLevel);
+        }
       }, 1000);
-    }
-
-    async function gradeAndSubmitQuiz(targetLevel) {
+      }
+      async function gradeAndSubmitQuiz(targetLevel) {
       if (quizInterval) { clearInterval(quizInterval); quizInterval = null; }
       const answers = {};
-      (activeQuizData?.questions || []).forEach(q => {
-        answers[q.id] = q.opts ? (document.querySelector(`input[name="q_${q.id}"]:checked`)?.value || '') : (document.getElementById(`q_${q.id}`)?.value.trim() || '');
+      (activeQuizData?.questions || []).forEach((q) => {
+        answers[q.id] = q.opts
+          ? (document.querySelector(`input[name="q_${q.id}"]:checked`)?.value || '')
+          : (document.getElementById(`q_${q.id}`)?.value.trim() || '');
       });
-      const resBox = document.getElementById('quizResultBox'); resBox.style.display = 'block'; resBox.textContent = 'Grading your 4-skill + grammar quiz...';
+      const resBox = document.getElementById('quizResultBox');
+      if (resBox) {
+        resBox.style.display = 'block';
+        resBox.textContent = 'Grading your 4-skill + grammar quiz...';
+      }
       try {
         const raw = await callBloomAI({ action: 'grade_quiz', level: targetLevel, quizAnswers: answers });
         const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
-        const score = Number(parsed.scorePercent || 0); const passed = score >= 70;
-        if (passed && !app.unlockedLevels.includes(targetLevel)) { app.unlockedLevels.push(targetLevel); app.level = targetLevel; saveBloom(); }
-        resBox.textContent = `Score: ${score}% — ${passed ? `${targetLevel} Unlocked!` : 'Needs 70% to unlock.'}\n${parsed.feedback || ''}`;
-      } catch (err) { resBox.textContent = err.message || 'Could not grade quiz.'; }
+        const score = Number(parsed.scorePercent || 0);
+        const passed = score >= 70;
+        if (passed && !app.unlockedLevels.includes(targetLevel)) {
+          app.unlockedLevels.push(targetLevel);
+          app.level = targetLevel;
+          saveBloom();
+        }
+        if (resBox) resBox.textContent = `Score: ${score}% — ${passed ? `${targetLevel} Unlocked!` : 'Needs 70% to unlock.'}\n${parsed.feedback || ''}`;
+      } catch (err) {
+        if (resBox) resBox.textContent = err.message || 'Could not grade quiz.';
+      }
     }
 
     function switchView(name) {
       stopAllAudioAndVideo(name === 'watch');
       if (name !== 'speak') callState = CALL_STATE.IDLE;
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('view-' + name)?.classList.add('active');
+      document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach((n) => n.classList.remove('active'));
+      document.getElementById(`view-${name}`)?.classList.add('active');
       document.querySelector(`.nav-item[data-nav="${name}"]`)?.classList.add('active');
       if (name === 'watch' && app.activeVideoId) loadYouTubePlayer(app.activeVideoId);
       renderAll();
     }
 
-    function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-    function escAttr(s) { return esc(s).replace(/`/g, ''); }
-
     function renderAll() {
       const dict = I18N[app.lang] || I18N.en;
-      document.documentElement.lang = app.lang; document.getElementById('langSwitcher').value = app.lang;
-      document.querySelectorAll('[data-i18n]').forEach(el => { if (dict[el.dataset.i18n]) el.textContent = dict[el.dataset.i18n]; });
+      document.documentElement.lang = app.lang;
+      const langEl = document.getElementById('langSwitcher');
+      if (langEl) langEl.value = app.lang;
+
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        if (dict[el.dataset.i18n]) el.textContent = dict[el.dataset.i18n];
+      });
+
       const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
-      document.getElementById('femaleTutorName').textContent = tm.female; document.getElementById('maleTutorName').textContent = tm.male;
-      document.getElementById('tutorFemaleCard').classList.toggle('selected', app.tutorGender === 'female');
-      document.getElementById('tutorMaleCard').classList.toggle('selected', app.tutorGender === 'male');
-      document.getElementById('watchTimerText').textContent = `${app.watchMinutesToday}/60m`;
-      document.getElementById('speakTimerText').textContent = `${app.speakMinutesToday}/60m`;
-      document.getElementById('watchTimerBar').style.width = `${Math.round((app.watchMinutesToday / 60) * 100)}%`;
-      document.getElementById('speakTimerBar').style.width = `${Math.round((app.speakMinutesToday / 60) * 100)}%`;
-      document.getElementById('homeLevelBadge').textContent = app.level;
-      document.getElementById('homeLevelSummary').textContent = `${app.lang.toUpperCase()} • ${app.level} • ${app.user ? app.user.name : 'Guest'}`;
-      document.getElementById('streakLabel').textContent = `${app.streakDays}d`;
-      document.getElementById('authBtn').textContent = app.user ? app.user.name : 'Sign In';
+      const fName = document.getElementById('femaleTutorName');
+      const mName = document.getElementById('maleTutorName');
+      if (fName) fName.textContent = tm.female;
+      if (mName) mName.textContent = tm.male;
+      document.getElementById('tutorFemaleCard')?.classList.toggle('selected', app.tutorGender === 'female');
+      document.getElementById('tutorMaleCard')?.classList.toggle('selected', app.tutorGender === 'male');
 
-      const now = new Date(), daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      let calHtml = '';
-      for (let d = 1; d <= daysInMonth; d++) calHtml += `<div class="cal-day ${app.activeDays.includes(d) ? 'done' : ''} ${d === now.getDate() ? 'today' : ''}">${d}</div>`;
-      document.getElementById('homeCalendar').innerHTML = calHtml;
+      const wText = document.getElementById('watchTimerText');
+      const sText = document.getElementById('speakTimerText');
+      const wBar = document.getElementById('watchTimerBar');
+      const sBar = document.getElementById('speakTimerBar');
+      if (wText) wText.textContent = `${app.watchMinutesToday}/60m`;
+      if (sText) sText.textContent = `${app.speakMinutesToday}/60m`;
+      if (wBar) wBar.style.width = `${Math.round((app.watchMinutesToday / 60) * 100)}%`;
+      if (sBar) sBar.style.width = `${Math.round((app.speakMinutesToday / 60) * 100)}%`;
 
-      document.getElementById('cefrLevelsList').innerHTML = CEFR_ORDER.map(lvl => {
-        const reqH = CEFR_HOURS[lvl], doneH = Number((app.hoursByLevel[lvl] || 0).toFixed(1));
-        const unlocked = app.unlockedLevels.includes(lvl) || doneH >= reqH;
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;flex-wrap:wrap;gap:8px;"><div><strong>${lvl}</strong> — <span class="muted">${doneH} / ${reqH} hrs</span><span style="margin-left:8px;font-size:11px;font-weight:700;color:${unlocked ? 'var(--success)' : 'var(--primary)'};">${unlocked ? 'Unlocked' : 'Locked'}</span></div>${!unlocked ? `<button class="btn btn-soft" data-quiz-unlock="${lvl}">20-Min Unlock Quiz</button>` : `<button class="btn" data-select-level="${lvl}">Use ${lvl}</button>`}</div>`;
-      }).join('');
+      const lvlBadge = document.getElementById('homeLevelBadge');
+      const lvlSummary = document.getElementById('homeLevelSummary');
+      const streakEl = document.getElementById('streakLabel');
+      const authBtn = document.getElementById('authBtn');
+      const bannerActions = document.getElementById('brandBannerActions');
+      if (lvlBadge) lvlBadge.textContent = app.level;
+      if (lvlSummary) lvlSummary.textContent = `${app.lang.toUpperCase()} • ${app.level} • ${app.user ? `${app.user.name} (${app.user.email})` : 'Guest — Sign in to save progress'}`;
+      if (streakEl) streakEl.textContent = `${app.streakDays}d`;
+      if (authBtn) authBtn.textContent = app.user ? app.user.name : 'Sign In';
+      if (bannerActions) {
+        bannerActions.innerHTML = app.user
+          ? `<span class="rec-badge">Signed in: ${esc(app.user.email)}</span>`
+          : `<button class="btn btn-primary" data-action="open-auth" data-open-mode="signup">Create Account</button><button class="btn btn-soft" data-action="open-auth" data-open-mode="signin">Sign In</button>`;
+      }
 
-      const vid = getActiveVideo(), unlocked = Boolean(vid && vid.completed);
-      document.getElementById('activeVideoTitle').textContent = vid ? vid.title : 'No video loaded yet';
-      document.getElementById('activeVideoMeta').textContent = vid ? (unlocked ? 'Completed — In-video vocabulary & voice discussion unlocked.' : 'Watch until the video finishes to unlock vocabulary & discussion.') : 'Click "Upload YouTube Video" and paste a link.';
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const calEl = document.getElementById('homeCalendar');
+      if (calEl) {
+        let calHtml = '';
+        for (let d = 1; d <= daysInMonth; d++) {
+          calHtml += `<div class="cal-day ${app.activeDays.includes(d) ? 'done' : ''} ${d === now.getDate() ? 'today' : ''}">${d}</div>`;
+        }
+        calEl.innerHTML = calHtml;
+      }
+
+      const cefrEl = document.getElementById('cefrLevelsList');
+      if (cefrEl) {
+        cefrEl.innerHTML = CEFR_ORDER.map((lvl) => {
+          const reqH = CEFR_HOURS[lvl];
+          const doneH = Number((app.hoursByLevel[lvl] || 0).toFixed(1));
+          const unlocked = app.unlockedLevels.includes(lvl) || doneH >= reqH;
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;flex-wrap:wrap;gap:8px;"><div><strong>${lvl}</strong> — <span class="muted">${doneH} / ${reqH} hrs</span><span style="margin-left:8px;font-size:11px;font-weight:700;color:${unlocked ? 'var(--success)' : 'var(--primary)'};">${unlocked ? 'Unlocked' : 'Locked'}</span></div>${!unlocked ? `<button class="btn btn-soft" data-quiz-unlock="${lvl}">20-Min Unlock Quiz</button>` : `<button class="btn" data-select-level="${lvl}">Use ${lvl}</button>`}</div>`;
+        }).join('');
+      }
+
+      const vid = getActiveVideo();
+      const unlocked = Boolean(vid && vid.completed);
+      const vTitle = document.getElementById('activeVideoTitle');
+      const vMeta = document.getElementById('activeVideoMeta');
       const gateBadge = document.getElementById('watchGateStatus');
+      const vocabBtn = document.getElementById('videoVocabBtn');
+      const discussBtn = document.getElementById('videoDiscussBtn');
+      if (vTitle) vTitle.textContent = vid ? vid.title : 'No video loaded yet';
+      if (vMeta) vMeta.textContent = vid ? (unlocked ? 'Completed — In-video vocabulary & voice discussion unlocked.' : 'Watch until the video finishes to unlock vocabulary & discussion.') : 'Click "Upload YouTube Video" and paste a link.';
       if (gateBadge) gateBadge.textContent = !vid ? 'No video' : (unlocked ? 'Unlocked ✓' : `Locked (${vid.watchedSec || 0}s / ${vid.durationSec || 60}s)`);
-      const vocabBtn = document.getElementById('videoVocabBtn'), discussBtn = document.getElementById('videoDiscussBtn');
-      vocabBtn.disabled = !unlocked; discussBtn.disabled = !unlocked;
-      vocabBtn.className = unlocked ? 'btn btn-success' : 'btn'; discussBtn.className = unlocked ? 'btn btn-success' : 'btn';
-      if (!unlocked) { document.getElementById('videoVocabPanel').style.display = 'none'; document.getElementById('videoDiscussPanel').style.display = 'none'; }
+      if (vocabBtn && discussBtn) {
+        vocabBtn.disabled = !unlocked;
+        discussBtn.disabled = !unlocked;
+        vocabBtn.className = unlocked ? 'btn btn-success' : 'btn';
+        discussBtn.className = unlocked ? 'btn btn-success' : 'btn';
+      }
+      if (!unlocked) {
+        const vp = document.getElementById('videoVocabPanel');
+        const dp = document.getElementById('videoDiscussPanel');
+        if (vp) vp.style.display = 'none';
+        if (dp) dp.style.display = 'none';
+      }
 
-      document.getElementById('videoShelfList').innerHTML = app.videos.map(v => `<div class="card" style="cursor:pointer;" data-pick-video="${v.id}"><div style="font-weight:800;">${esc(v.title)}</div><div class="muted" style="font-size:12px;">${v.completed ? '✓ Completed' : 'Locked until finished'}</div></div>`).join('');
-      document.getElementById('speakActiveTutorLine').textContent = `${tm[app.tutorGender]} (${app.tutorGender === 'female' ? 'Woman' : 'Man'}) • ${app.level}`;
-      document.getElementById('realCallLabel').textContent = callState === CALL_STATE.IDLE ? 'Real Call' : `In Call (${callState.toLowerCase()}) • End`;
-      if (callState !== CALL_STATE.IDLE) document.getElementById('callStatusPill').textContent = `Connected • ${callState}`;
-      lucide.createIcons();
+      const shelfEl = document.getElementById('videoShelfList');
+      if (shelfEl) {
+        shelfEl.innerHTML = app.videos.map((v) => `<div class="card" style="cursor:pointer;" data-pick-video="${v.id}"><div style="font-weight:800;">${esc(v.title)}</div><div class="muted" style="font-size:12px;">${v.completed ? '✓ Completed' : 'Locked until finished'}</div></div>`).join('');
+      }
+
+      const tutorLine = document.getElementById('speakActiveTutorLine');
+      const callLabel = document.getElementById('realCallLabel');
+      const callPill = document.getElementById('callStatusPill');
+      if (tutorLine) tutorLine.textContent = `${tm[app.tutorGender]} (${app.tutorGender === 'female' ? 'Woman' : 'Man'}) • ${app.level}`;
+      if (callLabel) callLabel.textContent = callState === CALL_STATE.IDLE ? 'Real Call' : `In Call (${callState.toLowerCase()}) • End`;
+      if (callPill && callState !== CALL_STATE.IDLE) callPill.textContent = `Connected • ${callState}`;
+
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try { window.lucide.createIcons(); } catch (_) {}
+      }
     }
 
     async function runAutoEvaluatedRecording(el) {
-      const sec = Number(el.dataset.recSec) || 60, mode = el.dataset.recMode;
-      const badgeMap = { flashcard: 'fcCountdown', photo: 'photoCountdown', topic: 'topicCountdown', wordlink: 'wordlinkCountdown', video_discuss: 'vidDiscussCountdown' };
+      const sec = Number(el.dataset.recSec) || 60;
+      const mode = el.dataset.recMode;
+      const badgeMap = {
+        flashcard: 'fcCountdown',
+        photo: 'photoCountdown',
+        topic: 'topicCountdown',
+        wordlink: 'wordlinkCountdown',
+        video_discuss: 'vidDiscussCountdown'
+      };
       startTimedRecording(sec, badgeMap[mode] || null, async (spoken) => {
         if (mode === 'flashcard') {
-          const evalBox = document.getElementById('fcEvalBox'); if (!evalBox) return;
-          evalBox.style.display = 'block'; evalBox.textContent = 'Evaluating your spoken recall...';
+          const evalBox = document.getElementById('fcEvalBox');
+          if (!evalBox) return;
+          evalBox.style.display = 'block';
+          evalBox.textContent = 'Evaluating your spoken recall...';
           try {
-            const raw = await callBloomAI({ action: 'eval_flashcard', direction: flashcardDirection, cardTerm: el.dataset.fcTerm || '', cardMeaning: el.dataset.fcMeaning || '', message: spoken || '(no speech captured)' });
+            const raw = await callBloomAI({
+              action: 'eval_flashcard',
+              direction: flashcardDirection,
+              cardTerm: el.dataset.fcTerm || '',
+              cardMeaning: el.dataset.fcMeaning || '',
+              message: spoken || '(no speech captured)'
+            });
             const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
             evalBox.textContent = `${parsed.accurate ? '✓ Accurate' : '• Needs refinement'}\n${parsed.gentleCorrection || ''}\nExpected: ${parsed.expectedAnswer || el.dataset.fcMeaning || ''}`;
-          } catch (err) { evalBox.textContent = err.message || 'Evaluation error.'; }
+          } catch (err) {
+            evalBox.textContent = err.message || 'Evaluation error.';
+          }
           addSpeakMin(1);
         } else if (mode === 'photo') {
-          const out = document.getElementById('photoFeedback'); if (!out) return;
+          const out = document.getElementById('photoFeedback');
+          if (!out) return;
           out.textContent = 'Evaluating your photo description...';
-          out.textContent = await callBloomAI({ action: 'photo_chit_chat', topic: el.dataset.photoHint || '', message: spoken || '(no speech captured)' }); addSpeakMin(1);
+          out.textContent = await callBloomAI({ action: 'photo_chit_chat', topic: el.dataset.photoHint || '', message: spoken || '(no speech captured)' });
+          addSpeakMin(1);
         } else if (mode === 'topic') {
-          const out = document.getElementById('topicFeedback'); if (!out) return;
+          const out = document.getElementById('topicFeedback');
+          if (!out) return;
           out.textContent = 'Evaluating your topic talk...';
-          out.textContent = await callBloomAI({ action: 'topic_talk', topic: el.dataset.topicName || '', message: spoken || '(no speech captured)' }); addSpeakMin(1);
+          out.textContent = await callBloomAI({ action: 'topic_talk', topic: el.dataset.topicName || '', message: spoken || '(no speech captured)' });
+          addSpeakMin(1);
         } else if (mode === 'wordlink') {
-          const out = document.getElementById('wordlinkFeedback'); if (!out) return;
+          const out = document.getElementById('wordlinkFeedback');
+          if (!out) return;
           const chainCheck = validateWordChain(el.dataset.startWord || '', spoken);
           out.textContent = `${chainCheck} — Reviewing with coach...`;
           const aiNote = await callBloomAI({ action: 'word_link', word: el.dataset.startWord || '', message: spoken || el.dataset.startWord || '' });
-          out.textContent = `${chainCheck}\n\n${aiNote}`; addSpeakMin(1);
+          out.textContent = `${chainCheck}\n\n${aiNote}`;
+          addSpeakMin(1);
         } else if (mode === 'video_discuss') {
-          const out = document.getElementById('vidDiscussFeedback'), vid = getActiveVideo(); if (!out || !vid) return;
+          const out = document.getElementById('vidDiscussFeedback');
+          const vid = getActiveVideo();
+          if (!out || !vid) return;
           out.textContent = 'Evaluating your spoken thoughts on the video...';
           const reply = await callBloomAI({ action: 'discuss_video', videoTitle: vid.title, videoContext: `Video ID ${vid.id}`, message: spoken || '(no speech captured)' });
-          out.textContent = reply; addSpeakMin(1); speakCoachLine(reply);
+          out.textContent = reply;
+          addSpeakMin(1);
+          speakCoachLine(reply);
         }
       }, false);
     }
@@ -782,8 +1821,9 @@
     document.addEventListener('click', async (e) => {
       const el = e.target.closest('[data-nav],[data-action],[data-close],[data-gender],[data-learn-tool],[data-speak-mode],[data-rec-sec],[data-speak-line],[data-quiz-unlock],[data-select-level],[data-pick-video],[data-auth-mode],[data-srs-rate]');
       if (!el) return;
+
       if (el.dataset.nav) return switchView(el.dataset.nav);
-      if (el.dataset.close) return document.getElementById(el.dataset.close)?.classList.remove('open');
+      if (el.dataset.close) return closeModal(el.dataset.close);
       if (el.dataset.gender) { stopAllAudioAndVideo(true); app.tutorGender = el.dataset.gender; return saveBloom(); }
       if (el.dataset.learnTool) return openLearnTool(el.dataset.learnTool);
       if (el.dataset.speakMode) return setSpeakMode(el.dataset.speakMode);
@@ -792,224 +1832,85 @@
       if (el.dataset.selectLevel) { app.level = el.dataset.selectLevel; return saveBloom(); }
       if (el.dataset.srsRate) return reviewFlashcardWithRating(el.dataset.srsTerm, el.dataset.srsRate);
       if (el.dataset.recSec) return runAutoEvaluatedRecording(el);
-      if (el.dataset.pickVideo) { stopAllAudioAndVideo(false); app.activeVideoId = el.dataset.pickVideo; saveBloom(); loadYouTubePlayer(el.dataset.pickVideo); return; }
-      if (el.dataset.authMode) {
-        authMode = el.dataset.authMode;
-        document.getElementById('authModeSignIn').className = authMode === 'signin' ? 'btn btn-soft' : 'btn';
-        document.getElementById('authModeSignUp').className = authMode === 'signup' ? 'btn btn-soft' : 'btn';
+      if (el.dataset.pickVideo) {
+        stopAllAudioAndVideo(false);
+        app.activeVideoId = el.dataset.pickVideo;
+        saveBloom();
+        loadYouTubePlayer(el.dataset.pickVideo);
         return;
       }
+      if (el.dataset.authMode) return setAuthModeUI(el.dataset.authMode);
+
       const act = el.dataset.action;
-      if (act === 'cycle-level') { app.level = CEFR_ORDER[(CEFR_ORDER.indexOf(app.level) + 1) % CEFR_ORDER.length]; saveBloom(); }
-      else if (act === 'open-yt-modal') { stopAllAudioAndVideo(true); document.getElementById('ytModal').classList.add('open'); }
-      else if (act === 'add-yt-link') handleAddYouTubeLink();
-      else if (act === 'open-video-vocab') renderVideoVocabPanel();
-      else if (act === 'open-video-discuss') renderVideoDiscussPanel();
-      else if (act === 'start-video-call') { const vid = getActiveVideo(); if (!vid || !vid.completed) return; switchView('speak'); setSpeakMode('practice'); handleRealCallToggle(); }
-      else if (act === 'toggle-flashcard-dir') { flashcardDirection = flashcardDirection === 'target_to_meaning' ? 'meaning_to_target' : 'target_to_meaning'; flashcardRevealed = false; openLearnTool('flashcards'); }
-      else if (act === 'reveal-flashcard') { flashcardRevealed = !flashcardRevealed; openLearnTool('flashcards'); }
-      else if (act === 'toggle-rec-2min') {
-        if (recStopFn) { recStopFn(); document.getElementById('rec2MinLabel').textContent = 'Record (2m)'; }
-        else { document.getElementById('rec2MinLabel').textContent = 'Stop & Send'; startTimedRecording(120, 'speakCountdownBadge', async (spoken) => { document.getElementById('rec2MinLabel').textContent = 'Record (2m)'; if (spoken) await sendSpeakMessage(spoken); }, false); }
+      if (act === 'cycle-level') {
+        app.level = CEFR_ORDER[(CEFR_ORDER.indexOf(app.level) + 1) % CEFR_ORDER.length];
+        saveBloom();
+      } else if (act === 'open-yt-modal') {
+        stopAllAudioAndVideo(true);
+        document.getElementById('ytModal')?.classList.add('open');
+      } else if (act === 'add-yt-link') {
+        handleAddYouTubeLink();
+      } else if (act === 'open-video-vocab') {
+        renderVideoVocabPanel();
+      } else if (act === 'open-video-discuss') {
+        renderVideoDiscussPanel();
+      } else if (act === 'start-video-call') {
+        const vid = getActiveVideo();
+        if (!vid || !vid.completed) return;
+        switchView('speak');
+        setSpeakMode('practice');
+        handleRealCallToggle();
+      } else if (act === 'toggle-flashcard-dir') {
+        flashcardDirection = flashcardDirection === 'target_to_meaning' ? 'meaning_to_target' : 'target_to_meaning';
+        flashcardRevealed = false;
+        openLearnTool('flashcards');
+      } else if (act === 'reveal-flashcard') {
+        flashcardRevealed = !flashcardRevealed;
+        openLearnTool('flashcards');
+      } else if (act === 'toggle-rec-2min') {
+        if (recStopFn) {
+          recStopFn();
+          const lbl = document.getElementById('rec2MinLabel');
+          if (lbl) lbl.textContent = 'Record (2m)';
+        } else {
+          const lbl = document.getElementById('rec2MinLabel');
+          if (lbl) lbl.textContent = 'Stop & Send';
+          startTimedRecording(120, 'speakCountdownBadge', async (spoken) => {
+            const resetLbl = document.getElementById('rec2MinLabel');
+            if (resetLbl) resetLbl.textContent = 'Record (2m)';
+            if (spoken) await sendSpeakMessage(spoken);
+          }, false);
+        }
+      } else if (act === 'toggle-real-call') {
+        handleRealCallToggle();
+      } else if (act === 'replay-coach') {
+        if (lastCoachReply) speakCoachLine(lastCoachReply);
+      } else if (act === 'next-shadow-sentence') {
+        requestShadowSentence();
+      } else if (act === 'open-auth') {
+        openAuthModal(el.dataset.openMode || null);
+      } else if (act === 'submit-auth') {
+        await handleAuthSubmit();
       }
-      else if (act === 'toggle-real-call') handleRealCallToggle();
-      else if (act === 'replay-coach') { if (lastCoachReply) speakCoachLine(lastCoachReply); }
-      else if (act === 'next-shadow-sentence') requestShadowSentence();
-      else if (act === 'open-auth') document.getElementById('authModal').classList.add('open');
-      else if (act === 'submit-auth') await handleAuthSubmit();
-      if (el.id === 'submitQuizBtn') await gradeAndSubmitQuiz(el.dataset.unlockTarget);
+
+      if (el.id === 'submitQuizBtn') {
+        await gradeAndSubmitQuiz(el.dataset.unlockTarget);
+      }
     });
 
-    document.getElementById('langSwitcher').addEventListener('change', (e) => { stopAllAudioAndVideo(true); app.lang = e.target.value; saveBloom(); });
-    if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
+    document.getElementById('langSwitcher')?.addEventListener('change', (e) => {
+      stopAllAudioAndVideo(true);
+      app.lang = e.target.value;
+      saveBloom();
+    });
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+
+    setAuthModeUI('signin');
     renderAll();
-      <script>
-  window.addEventListener('error', (ev) => {
-    console.error('Bloom runtime error:', ev.message);
-  });
-
-  function ensureAuthModalReady() {
-    const modal = document.getElementById('authModal');
-    if (!modal) return;
-    if (!app.user) {
-      modal.classList.add('open');
-    }
-  }
-
-  (function patchAuthAndBoot() {
-    const origHandleAuth = typeof handleAuthSubmit === 'function' ? handleAuthSubmit : null;
-
-    window.handleAuthSubmit = async function () {
-      const nameEl = document.getElementById('authNameInput');
-      const emailEl = document.getElementById('authEmailInput');
-      const passEl = document.getElementById('authPassInput');
-      const name = (nameEl?.value || '').trim();
-      const email = (emailEl?.value || '').trim().toLowerCase();
-      const pass = passEl?.value || '';
-
-      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      if (!emailOk) {
-        alert('Please enter a valid email or Gmail address (e.g. name@gmail.com).');
-        return;
-      }
-      if (pass.length < 6) {
-        alert('Password must be at least 6 characters.');
-        return;
-      }
-
-      if (origHandleAuth) {
-        await origHandleAuth();
-      } else {
-        app.user = { name: name || email.split('@')[0], email };
-        document.getElementById('authModal')?.classList.remove('open');
-        if (typeof saveBloom === 'function') saveBloom();
-      }
-    };
-
-    const origRenderAll = typeof renderAll === 'function' ? renderAll : null;
-    window.renderAll = function () {
-      try {
-        if (origRenderAll) origRenderAll();
-      } catch (err) {
-        console.error('Render error:', err);
-      } finally {
-        if (window.lucide && typeof window.lucide.createIcons === 'function') {
-          try { window.lucide.createIcons(); } catch (_) {}
-        }
-      }
-    };
-
-    window.renderAll();
-    ensureAuthModalReady();
-  })();
-</script>
-  
   </script>
-  <script>
-(function () {
-  window.addEventListener('error', function (e) {
-    console.warn('Caught script error:', e.message);
-  });
-
-  function emergencyUnfreeze() {
-    document.querySelectorAll('.modal-bg:not(.open)').forEach(function (el) {
-      el.style.pointerEvents = 'none';
-    });
-    document.querySelectorAll('.modal-bg.open').forEach(function (el) {
-      el.style.pointerEvents = 'auto';
-    });
-
-    document.querySelectorAll('[data-nav]').forEach(function (btn) {
-      btn.onclick = function (ev) {
-        ev.preventDefault();
-        var target = btn.getAttribute('data-nav');
-        document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('active'); });
-        document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
-        var viewEl = document.getElementById('view-' + target);
-        if (viewEl) viewEl.classList.add('active');
-        btn.classList.add('active');
-      };
-    });
-
-    var signInBtn = document.getElementById('authBtn');
-    var authModal = document.getElementById('authModal');
-    if (signInBtn && authModal) {
-      signInBtn.onclick = function () {
-        authModal.classList.add('open');
-        authModal.style.pointerEvents = 'auto';
-      };
-    }
-
-    document.querySelectorAll('[data-close]').forEach(function (closeBtn) {
-      closeBtn.onclick = function () {
-        var id = closeBtn.getAttribute('data-close');
-        var m = document.getElementById(id);
-        if (m) {
-          m.classList.remove('open');
-          m.style.pointerEvents = 'none';
-        }
-      };
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', emergencyUnfreeze);
-  } else {
-    emergencyUnfreeze();
-  }
-})();
-  </script>
-  <script>
-(function () {
-  function enhanceAuthModal() {
-    var modal = document.getElementById('authModal');
-    if (!modal) return;
-    var panel = modal.querySelector('.modal-panel');
-    if (!panel) return;
-
-    if (!document.getElementById('authIntroNote')) {
-      var intro = document.createElement('p');
-      intro.id = 'authIntroNote';
-      intro.textContent = 'Welcome to Bloom — sign in immediately with your email or Gmail to start voice-first language immersion.';
-      intro.style.cssText = 'font-size:13px;color:#52647A;line-height:1.45;margin-bottom:12px;';
-      var modeRow = document.getElementById('authModeSignIn')?.parentElement;
-      if (modeRow && modeRow.parentElement) {
-        modeRow.parentElement.insertBefore(intro, modeRow);
-      } else {
-        panel.insertBefore(intro, panel.children[1] || null);
-      }
-    }
-
-    if (!document.getElementById('gmailQuickSignInBtn')) {
-      var submitBtn = panel.querySelector('[data-action="submit-auth"]');
-      var gmailBtn = document.createElement('button');
-      gmailBtn.type = 'button';
-      gmailBtn.id = 'gmailQuickSignInBtn';
-      gmailBtn.className = 'btn btn-soft';
-      gmailBtn.style.cssText = 'width:100%;margin-top:8px;';
-      gmailBtn.textContent = 'Continue with Gmail';
-
-      gmailBtn.onclick = function () {
-        var emailInput = document.getElementById('authEmailInput');
-        var nameInput = document.getElementById('authNameInput');
-        var typedEmail = (emailInput?.value || '').trim().toLowerCase();
-        var gmailAddr = typedEmail.endsWith('@gmail.com')
-          ? typedEmail
-          : prompt('Enter your Gmail address to sign in immediately:');
-        if (!gmailAddr) return;
-        gmailAddr = gmailAddr.trim().toLowerCase();
-        if (!/^[^\s@]+@gmail\.com$/.test(gmailAddr)) {
-          alert('Please enter a valid @gmail.com address.');
-          return;
-        }
-        var displayName = (nameInput?.value || '').trim() || gmailAddr.split('@')[0];
-        if (typeof app === 'object' && app) {
-          app.user = { name: displayName, email: gmailAddr, provider: 'gmail' };
-          app.accounts = app.accounts || {};
-          app.accounts[gmailAddr] = app.accounts[gmailAddr] || { name: displayName, email: gmailAddr, provider: 'gmail' };
-          if (typeof saveBloom === 'function') saveBloom();
-        }
-        modal.classList.remove('open');
-        modal.style.pointerEvents = 'none';
-        var authBtn = document.getElementById('authBtn');
-        if (authBtn) authBtn.textContent = displayName;
-      };
-
-      if (submitBtn && submitBtn.parentElement) {
-        submitBtn.parentElement.appendChild(gmailBtn);
-      } else {
-        panel.appendChild(gmailBtn);
-      }
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', enhanceAuthModal);
-  } else {
-    enhanceAuthModal();
-  }
-})();
-  </script>
-  
 </body>
 </html>

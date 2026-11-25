@@ -16,6 +16,7 @@ export default {
           videoContext = "",
           topic = "",
           word = "",
+          quizAnswers = null,
           history = [],
           userName = "Learner"
         } = body;
@@ -32,30 +33,31 @@ export default {
 
         let taskPrompt = "";
         if (action === "video_vocab") {
-          taskPrompt = `Extract 6 high-utility, practical words or short phrases directly relevant to the video "${videoTitle}" (${videoContext || "general immersion video"}) at CEFR level ${level}. Return STRICT JSON only with this exact shape: {"words":[{"term":"...","meaningInLang":"...","example":"..."}]}. No markdown fences.`;
+          taskPrompt = `Extract 6 practical, high-utility words or phrases fit for CEFR ${level} from the video "${videoTitle}" (${videoContext || ""}). Return STRICT JSON only: {"words":[{"term":"...","meaningInLang":"...","example":"..."}]}. No markdown.`;
         } else if (action === "discuss_video") {
-          taskPrompt = `You are discussing the video "${videoTitle}" (${videoContext || ""}) with ${userName} in a natural conversation (or live voice call). Ask engaging questions, build on what they watched, and keep responses concise and natural in ${lm.name} at level ${level}.`;
+          taskPrompt = `Discuss the video "${videoTitle}" (${videoContext || ""}) with ${userName} in ${lm.name} at CEFR ${level}. Ask focused follow-up questions and keep turns natural and concise.`;
         } else if (action === "photo_chit_chat") {
-          taskPrompt = `The learner just described a photo (${topic || "scene"}) for up to 1 minute. Give: 1) brief encouraging feedback, 2) clear written corrections if needed, and 3) 2-3 natural phrasing ideas at CEFR ${level} in ${lm.name}.`;
+          taskPrompt = `Evaluate ${userName}'s 1-minute photo description for scene "${topic}" at CEFR ${level} in ${lm.name}. Give: 1) Accuracy & clarity check, 2) Specific corrections for errors, 3) 2-3 stronger level-matched phrasing ideas.`;
         } else if (action === "topic_talk") {
-          taskPrompt = `The learner spoke for up to 1 minute on the topic "${topic}". Provide concise written corrections on grammar/phrasing and one natural follow-up question in ${lm.name} at CEFR ${level}.`;
+          taskPrompt = `Evaluate ${userName}'s 1-minute speech on topic "${topic}" at CEFR ${level} in ${lm.name}. Give concise grammar/word-choice corrections and 1 follow-up prompt.`;
         } else if (action === "word_link") {
-          taskPrompt = `The learner played 1-minute Word Link starting from "${word}". Check any linked words they gave, briefly note any corrections, and suggest a clean chain of 4 related ${lm.name} words at CEFR ${level}.`;
+          taskPrompt = `Evaluate ${userName}'s 1-minute Word Link starting from "${word}" at CEFR ${level} in ${lm.name}. Check word validity and connections, note mistakes, and give a 5-word chain starting from "${word}".`;
         } else if (action === "shadowing") {
           if (!message || message === "__NEXT_SENTENCE__") {
-            taskPrompt = `Give ONE natural ${lm.name} sentence (8-15 words) suited to CEFR ${level} for pronunciation shadowing. Reply with ONLY the sentence.`;
+            taskPrompt = `Output ONE natural ${lm.name} sentence (9-15 words) calibrated to CEFR ${level}. Output ONLY the sentence.`;
           } else {
-            taskPrompt = `Compare the learner's shadowing attempt "${message}" against the target sentence "${topic || "the sentence"}". Point out any pronunciation/word/grammar issue clearly and concisely in ${lm.name}, then provide the next ${lm.name} sentence at CEFR ${level}.`;
+            taskPrompt = `Compare learner attempt "${message}" against target "${topic}" at CEFR ${level} in ${lm.name}. Note any word/grammar/pronunciation error clearly, then give the next ${lm.name} sentence.`;
           }
         } else if (action === "role_play") {
-          taskPrompt = `Stay in character for the role-play scenario "${topic || "everyday situation"}". Speak naturally in ${lm.name} at CEFR ${level} and keep the scene moving.`;
+          taskPrompt = `Role-play "${topic || "everyday situation"}" in ${lm.name} at CEFR ${level}. Stay in character and keep responses natural.`;
+        } else if (action === "grade_quiz") {
+          taskPrompt = `Grade these CEFR ${level} 4-skills + grammar answers in ${lm.name}: ${JSON.stringify(quizAnswers || {})}. Return STRICT JSON only: {"scorePercent":0,"passed":false,"feedback":"...","skillBreakdown":{"grammar":0,"reading":0,"listening":0,"writing":0,"speaking":0}}. Pass threshold is 70.`;
         } else {
-          taskPrompt = `Have a helpful, natural conversation with ${userName} in ${lm.name} adapted to CEFR level ${level} (vocabulary complexity, sentence length, and clarity suited to ${level}).`;
+          taskPrompt = `Converse naturally with ${userName} in ${lm.name} calibrated to CEFR ${level}.`;
         }
 
         const systemInstruction = `You are ${activeTutor}, a ${tutorGender === "male" ? "male" : "female"} language coach on Bloom.
-Target language: ${lm.name} (code: ${lang}). Learner CEFR level: ${level}.
-Be accurate, encouraging, and free of mistakes. Write naturally in ${lm.name} unless translating into ${lm.name} for video vocabulary meanings.
+Target language: ${lm.name} (${lang}). CEFR level: ${level}. Be accurate, clear, and helpful.
 ${taskPrompt}`;
 
         const safeHistory = Array.isArray(history)
@@ -68,7 +70,7 @@ ${taskPrompt}`;
         const messages = [
           { role: "system", content: systemInstruction },
           ...safeHistory,
-          { role: "user", content: message || "Hello" }
+          { role: "user", content: message || "Start" }
         ];
 
         const models = [
@@ -79,7 +81,6 @@ ${taskPrompt}`;
 
         let reply = "";
         let lastErr = "";
-
         for (const model of models) {
           try {
             const out = await env.AI.run(model, { messages });
@@ -93,13 +94,10 @@ ${taskPrompt}`;
           }
         }
 
-        if (!reply) {
-          return Response.json({ error: lastErr || "AI model unavailable" }, { status: 500 });
-        }
-
+        if (!reply) return Response.json({ error: lastErr || "AI unavailable" }, { status: 500 });
         return Response.json({ reply, tutor: activeTutor, gender: tutorGender, lang, level });
       } catch (err) {
-        return Response.json({ error: err?.message || "Bad request" }, { status: 400 });
+        return Response.json({ error: err?.message || "Invalid request" }, { status: 400 });
       }
     }
 

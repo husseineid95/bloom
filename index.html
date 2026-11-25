@@ -3,1451 +3,1199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#F7F5EE" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>Bloom — Natural English Immersion</title>
+  <meta name="theme-color" content="#EFF7FF" />
+  <title>Bloom — Language Immersion</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg-cream: #F7F5EE;
-      --bg-card: #FFFFFF;
-      --bg-soft: #EFECE3;
-      --bg-green-tint: #ECF7D8;
-      --bg-deep-green: #143D2B;
-      --bg-amber-tint: #FDF2E4;
-      --forest: #174B36;
-      --forest-dark: #0F3526;
-      --lime: #8CE027;
-      --lime-hover: #7ED11E;
-      --lime-ring: #96E833;
-      --text-main: #1A2E25;
-      --text-muted: #66756D;
-      --border: #E2DFD5;
-      --flame: #D96B27;
-      --shadow-sm: 0 2px 8px rgba(23, 75, 54, 0.05);
-      --shadow-md: 0 6px 20px rgba(23, 75, 54, 0.08);
-      --shadow-lg: 0 14px 36px rgba(23, 75, 54, 0.15);
+      --bg-app: #F4F9FF;
+      --bg-surface: #FFFFFF;
+      --bg-sky-soft: #E5F1FF;
+      --bg-sky-tint: #D6E9FF;
+      --primary: #0284C7;
+      --primary-dark: #0369A1;
+      --primary-deep: #0C4A6E;
+      --accent-ice: #38BDF8;
+      --success: #0D9488;
+      --success-soft: #CCFBF1;
+      --text-main: #0F172A;
+      --text-muted: #52647A;
+      --border: #D9E8F7;
+      --shadow-sm: 0 2px 10px rgba(2, 132, 199, 0.06);
+      --shadow-md: 0 8px 24px rgba(2, 132, 199, 0.10);
+      --shadow-lg: 0 18px 42px rgba(12, 74, 110, 0.16);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-cream);
+      background: linear-gradient(180deg, #EFF7FF 0%, #F9FCFF 45%, #F2F8FF 100%);
       color: var(--text-main);
       min-height: 100vh;
-      padding-top: 108px;
-      padding-bottom: 96px;
+      padding-top: 84px;
+      padding-bottom: 94px;
       overflow-x: hidden;
     }
 
-    .live-banner {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 48;
-      background: var(--lime); color: var(--forest-dark);
-      padding: 8px 38px 8px 14px; display: flex; align-items: center;
-      justify-content: center; gap: 8px; font-size: 13px; font-weight: 700;
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+    }
+    .topbar-inner {
+      max-width: 920px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; flex-wrap: wrap;
+    }
+    .brand-mark {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 20px; font-weight: 800; color: var(--primary-deep);
+      cursor: pointer; letter-spacing: -0.02em;
+    }
+    .brand-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent-ice));
+    }
+
+    .timers-cluster { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .timer-chip {
+      background: var(--bg-sky-soft); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 12px;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 700; color: var(--primary-deep);
+    }
+    .timer-mini-bar {
+      width: 44px; height: 5px; background: #CBE2FA;
+      border-radius: 999px; overflow: hidden;
+    }
+    .timer-mini-fill {
+      height: 100%; width: 0%; background: var(--primary);
+      transition: width 0.25s ease;
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .select-pill {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 12px;
+      font-family: inherit; font-size: 12px; font-weight: 700;
+      color: var(--primary-deep); cursor: pointer; outline: none;
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--bg-surface); color: var(--text-main);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: transform 0.12s ease, background 0.15s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: var(--primary); border-color: var(--primary); color: #FFFFFF;
       box-shadow: var(--shadow-sm);
     }
-    .live-banner.hidden { display: none; }
-    .live-banner a { color: var(--forest-dark); font-weight: 800; text-decoration: underline; cursor: pointer; }
-    .live-banner-close {
-      position: absolute; right: 10px; background: none; border: none;
-      color: var(--forest-dark); cursor: pointer; width: 28px; height: 28px;
-      display: flex; align-items: center; justify-content: center;
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-success {
+      background: var(--success); border-color: var(--success); color: #FFFFFF;
+    }
+    .btn-soft {
+      background: var(--bg-sky-soft); border-color: #C7E0FA; color: var(--primary-deep);
     }
 
-    .top-bar {
-      position: fixed; top: 44px; left: 0; right: 0; z-index: 40;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0 14px; pointer-events: none; transition: top 0.2s ease;
+    .container { max-width: 920px; margin: 0 auto; padding: 14px 16px 24px; }
+    .view { display: none; }
+    .view.active { display: block; animation: fadeUp 0.18s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    body.banner-dismissed { padding-top: 74px; }
-    body.banner-dismissed .top-bar { top: 10px; }
 
-    .top-bar-inner { width: 100%; max-width: 820px; display: flex; align-items: center; justify-content: center; position: relative; }
-    .goal-pill {
-      pointer-events: auto; background: var(--bg-card); border: 1px solid var(--border);
-      box-shadow: var(--shadow-md); border-radius: 999px; padding: 7px 14px;
-      display: flex; align-items: center; gap: 10px; width: 100%; max-width: 390px;
+    .card {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 22px; padding: 18px 20px; box-shadow: var(--shadow-sm);
     }
-    .goal-text { font-size: 13px; font-weight: 700; color: var(--forest); white-space: nowrap; text-decoration: underline; cursor: pointer; }
-    .goal-track { flex: 1; height: 6px; background: var(--bg-soft); border-radius: 999px; overflow: hidden; }
-    .goal-fill { height: 100%; width: 0%; background: var(--lime); border-radius: 999px; transition: width 0.3s ease; }
-    .goal-add-btn { background: none; border: none; color: var(--text-main); font-size: 18px; font-weight: 700; cursor: pointer; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .section-title { font-size: 24px; font-weight: 800; color: var(--primary-deep); letter-spacing: -0.02em; }
+    .muted { color: var(--text-muted); font-size: 13px; line-height: 1.5; }
 
-    .streak-pill {
-      pointer-events: auto; position: absolute; right: 0; background: var(--bg-card);
-      border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: 999px;
-      padding: 7px 13px; display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 14px; cursor: pointer;
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 680px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding-top: 124px; }
     }
-    .streak-pill svg { color: var(--flame); }
 
-    .container { max-width: 820px; margin: 0 auto; padding: 6px 18px 24px; }
-    .tab-view { display: none; }
-    .tab-view.active { display: block; animation: fadeIn 0.18s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
-
-    h1.page-title { font-size: 27px; font-weight: 800; color: var(--forest); letter-spacing: -0.02em; }
-    .subtitle { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-sm); padding: 18px 20px; }
-
-    .pill-toggle { display: inline-flex; background: var(--bg-soft); padding: 4px; border-radius: 999px; border: 1px solid var(--border); }
-    .pill-toggle button { border: none; background: transparent; padding: 7px 16px; border-radius: 999px; font-family: inherit; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
-    .pill-toggle button.active { background: var(--bg-card); color: var(--forest); box-shadow: var(--shadow-sm); }
-
-    .btn-pill {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      padding: 10px 16px; border-radius: 999px; border: 1px solid var(--border);
-      background: var(--bg-card); color: var(--text-main); font-family: inherit;
-      font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 0.1s ease, background 0.15s ease;
+    .video-box {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      border-radius: 16px; overflow: hidden; background: #0B192C;
     }
-    .btn-pill:active { transform: scale(0.97); }
-    .btn-lime { background: var(--lime); border-color: var(--lime); color: var(--forest-dark); }
-    .btn-lime:hover { background: var(--lime-hover); }
+    .video-box iframe { width: 100%; height: 100%; border: 0; }
+
+    .tutor-toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tutor-card {
+      border: 2px solid var(--border); border-radius: 18px; padding: 12px 14px;
+      background: var(--bg-surface); cursor: pointer;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .tutor-card.selected { border-color: var(--primary); background: var(--bg-sky-soft); }
+
+    .chat-log {
+      height: 290px; overflow-y: auto; padding: 14px;
+      background: #F8FBFF; border: 1px solid var(--border);
+      border-radius: 16px; display: flex; flex-direction: column; gap: 10px;
+    }
+    .bubble { max-width: 82%; padding: 11px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
+    .bubble.ai { align-self: flex-start; background: var(--bg-surface); border: 1px solid var(--border); }
+    .bubble.user { align-self: flex-end; background: var(--primary); color: #FFF; }
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 10px; }
+    .cal-day { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .cal-day.done { background: var(--primary); color: #FFF; }
+    .cal-day.today { border: 2px solid var(--primary-deep); }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; padding: 8px 6px 12px;
+    }
+    .nav-item {
+      background: none; border: none; color: var(--text-muted);
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      cursor: pointer; min-width: 64px;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-pill { padding: 4px 14px; border-radius: 999px; }
+    .nav-item.active .nav-pill { background: var(--bg-sky-soft); }
+
+    .modal-bg {
+      display: none; position: fixed; inset: 0; z-index: 60;
+      background: rgba(12, 74, 110, 0.42);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal-panel {
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 24px; width: 100%; max-width: 480px;
+      padding: 20px; box-shadow: var(--shadow-lg); max-height: 88vh; overflow-y: auto;
+    }
+    .field { width: 100%; padding: 10px 14px; border-radius: 14px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; outline: none; background: #FFF; }
+    .field:focus { border-color: var(--primary); }
   </style>
 </head>
-  <style>
-    .lesson-steps { display: flex; align-items: center; justify-content: space-between; max-width: 520px; margin: 22px auto 18px; }
-    .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 10px 24px; }
-    .step-line.done { background: var(--lime); }
-    .step-node { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
-    .step-circle { width: 60px; height: 60px; border-radius: 50%; background: var(--bg-soft); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
-    .step-node.active .step-circle { background: var(--bg-card); border: 4px solid var(--lime-ring); color: var(--forest); box-shadow: var(--shadow-md); }
-    .step-node.completed .step-circle { background: var(--bg-green-tint); border-color: var(--lime); color: var(--forest); }
-    .step-label { font-size: 13px; font-weight: 700; }
-
-    .current-video-card { margin-top: 18px; border-radius: 22px; overflow: hidden; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-md); }
-    .video-embed-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #111; }
-    .video-embed-wrap iframe { width: 100%; height: 100%; border: 0; }
-
-    .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 14px 0; position: relative; }
-    .filter-select, .search-input { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 14px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-main); outline: none; cursor: pointer; }
-    .search-wrap { flex: 1; min-width: 170px; position: relative; }
-    .search-wrap input { width: 100%; padding-left: 36px; cursor: text; }
-    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); pointer-events: none; }
-
-    .popover-menu {
-      display: none; position: absolute; top: 44px; left: 0; background: var(--bg-card);
-      border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-lg);
-      padding: 12px; width: 260px; z-index: 35;
-    }
-    .popover-menu.open { display: block; }
-    .popover-item { padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
-    .popover-item:hover { background: var(--bg-soft); }
-    .popover-item.selected { background: var(--bg-green-tint); color: var(--forest); font-weight: 700; }
-    .mode-pill-switch { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-soft); border-radius: 999px; padding: 3px; margin-bottom: 10px; }
-    .mode-pill-switch button { border: none; background: transparent; padding: 5px; border-radius: 999px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; color: var(--text-muted); }
-    .mode-pill-switch button.active { background: var(--lime); color: var(--forest-dark); }
-
-    .switch-wrap { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .switch { width: 42px; height: 24px; background: #D6D3C9; border-radius: 999px; position: relative; transition: background 0.2s; flex-shrink: 0; }
-    .switch.on { background: var(--lime); }
-    .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #FFF; border-radius: 50%; transition: transform 0.2s; }
-    .switch.on::after { transform: translateX(18px); }
-
-    .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 15px; }
-    .video-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); cursor: pointer; }
-    .thumb-box { position: relative; aspect-ratio: 16 / 9; background: #23332B; overflow: hidden; }
-    .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
-    .level-badge { position: absolute; top: 10px; left: 10px; background: #F59E0B; color: #FFF; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
-    .level-badge.b1 { background: #10B981; }
-    .level-badge.c1 { background: #6366F1; }
-    .duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.78); color: #FFF; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
-    .video-card-body { padding: 13px 14px; }
-    .video-card-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
-    .video-card-meta { font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; }
-
-    .deep-study-overlay { display: none; position: fixed; inset: 0; z-index: 55; background: var(--bg-deep-green); color: #FFF; overflow-y: auto; padding: 18px 18px 44px; }
-    .deep-study-overlay.open { display: block; }
-    .deep-inner { max-width: 720px; margin: 0 auto; }
-    .deep-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-    .deep-icon-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #FFF; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .study-word-card { background: var(--bg-card); color: var(--text-main); border-radius: 22px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-lg); }
-    .study-word-top { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; }
-    .study-subtabs { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--border); padding-top: 10px; gap: 6px; }
-    .study-subtab { background: none; border: none; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 5px; border-radius: 10px; }
-    .study-subtab.active { color: var(--forest); background: var(--bg-green-tint); }
-    .study-detail-box { margin-top: 12px; padding: 12px 14px; border-radius: 14px; background: var(--bg-soft); font-size: 13px; line-height: 1.5; color: var(--text-main); }
-
-    .photo-stage { position: relative; border-radius: 20px; overflow: hidden; background: #0c2218; aspect-ratio: 16 / 9; max-height: 290px; width: 100%; }
-    .photo-stage img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-pill-btn { position: absolute; background: rgba(15, 36, 26, 0.82); color: #FFF; border: 1px solid rgba(255,255,255,0.22); border-radius: 999px; padding: 6px 12px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
-    .chit-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
-    @media (max-width: 520px) { .chit-cards-row { grid-template-columns: 1fr; } }
-    .chit-mode-card { border-radius: 18px; padding: 15px 16px; cursor: pointer; border: 1px solid rgba(255,255,255,0.16); }
-    .chit-mode-card.listen { background: rgba(255,255,255,0.09); color: #FFF; }
-    .chit-mode-card.speak { background: var(--lime); color: var(--forest-dark); border-color: var(--lime); }
-
-    .chit-speak-inline-box {
-      display: none; margin-top: 14px; background: #FFFFFF; color: var(--text-main);
-      border-radius: 20px; padding: 16px; box-shadow: var(--shadow-lg);
-    }
-    .chit-speak-inline-box.open { display: block; }
-
-    .exercise-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
-    @media (max-width: 520px) { .exercise-grid { grid-template-columns: 1fr; } }
-    .exercise-tile { border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; background: var(--bg-card); cursor: pointer; }
-    .exercise-tile svg { color: var(--forest); margin-bottom: 8px; }
-    .exercise-tile h4 { font-size: 14px; font-weight: 700; }
-    .exercise-tile p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-    .vocab-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
-    .vocab-stat-box { border-radius: 16px; padding: 14px; text-align: center; border: 1px solid var(--border); cursor: pointer; }
-    .vocab-stat-box.learning { background: var(--bg-green-tint); }
-    .vocab-stat-box.learned { background: var(--bg-amber-tint); }
-    .vocab-stat-num { font-size: 22px; font-weight: 800; color: var(--forest); }
-    .vocab-stat-lbl { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
-    .word-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
-    .word-row:last-child { border-bottom: none; }
-    .word-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); display: inline-block; margin-right: 10px; }
-    .word-dot.learned { background: #F59E0B; }
-
-    .tutor-selector-wrap { display: flex; flex-direction: column; align-items: center; margin: 12px 0 18px; position: relative; }
-    .tutor-label { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px; }
-    .tutor-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px; padding: 8px 18px 8px 10px; display: flex; align-items: center; gap: 10px; box-shadow: var(--shadow-sm); cursor: pointer; font-weight: 700; font-size: 16px; }
-    .tutor-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--forest); color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
-    .tutor-dropdown { display: none; position: absolute; top: 76px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-lg); padding: 8px; width: 255px; z-index: 30; }
-    .tutor-dropdown.open { display: block; }
-    .tutor-option { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 14px; }
-    .tutor-option:hover { background: var(--bg-soft); }
-
-    .speak-mode-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 15px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; box-shadow: var(--shadow-sm); cursor: pointer; }
-    .speak-mode-left { display: flex; align-items: center; gap: 14px; }
-    .speak-mode-icon { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-green-tint); color: var(--forest); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-    .chat-panel { display: none; background: var(--bg-card); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-md); overflow: hidden; margin-top: 12px; }
-    .chat-panel.active { display: block; }
-    .chat-header { background: var(--bg-soft); padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); gap: 8px; flex-wrap: wrap; }
-    .chat-messages { height: 320px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 11px; background: #FCFBF7; }
-    .msg-bubble { max-width: 82%; padding: 12px 15px; border-radius: 18px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
-    .msg-bubble.ai { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border); }
-    .msg-bubble.user { align-self: flex-end; background: var(--forest); color: #FFF; }
-    .msg-actions { display: flex; gap: 8px; margin-top: 8px; font-size: 11px; font-weight: 700; color: var(--forest); flex-wrap: wrap; }
-    .msg-actions span { cursor: pointer; background: var(--bg-soft); padding: 3px 8px; border-radius: 999px; }
-
-    .listening-bar { display: none; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: var(--bg-green-tint); border-top: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--forest); }
-    .listening-bar.active { display: flex; }
-    .chat-input-bar { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--border); background: var(--bg-card); }
-    .chat-input-bar input { flex: 1; border: 1px solid var(--border); border-radius: 999px; padding: 10px 15px; font-family: inherit; font-size: 14px; outline: none; }
-    .icon-circle-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-soft); color: var(--forest); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-    .icon-circle-btn.recording { background: #EF4444; color: #FFF; border-color: #EF4444; }
-
-    .menu-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 16px; }
-    .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; font-weight: 600; gap: 12px; }
-    .menu-item:last-child { border-bottom: none; }
-    .menu-item-left { display: flex; align-items: center; gap: 12px; color: var(--forest); }
-
-    .progress-hero { background: var(--bg-amber-tint); border-radius: 18px; padding: 20px; text-align: center; margin-bottom: 12px; }
-    .progress-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 520px) { .progress-grid-2 { grid-template-columns: 1fr; } }
-    .progress-green-box { background: var(--bg-green-tint); border-radius: 18px; padding: 16px; }
-
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 12px; }
-    .cal-day-name { font-size: 11px; font-weight: 700; color: var(--text-muted); padding-bottom: 6px; }
-    .cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border-radius: 50%; }
-    .cal-cell.today { border: 2px solid var(--forest); font-weight: 800; }
-    .cal-cell.active-day { background: var(--lime); color: var(--forest-dark); font-weight: 800; }
-
-    .fluency-node { border: 2px solid var(--lime); border-radius: 18px; padding: 15px 18px; background: var(--bg-card); margin-bottom: 10px; cursor: pointer; }
-    .fluency-node.current { background: var(--lime); color: var(--forest-dark); }
-    .fluency-tip { display: none; font-size: 12px; margin-top: 8px; line-height: 1.45; }
-    .fluency-node.open .fluency-tip, .fluency-node.current .fluency-tip { display: block; }
-
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-cream); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 6px 12px; z-index: 45; }
-    .nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: inherit; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; min-width: 60px; }
-    .nav-icon-pill { padding: 5px 15px; border-radius: 999px; display: flex; align-items: center; justify-content: center; }
-    .nav-btn.active { color: var(--forest); }
-    .nav-btn.active .nav-icon-pill { background: #DCEBD5; }
-
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(15, 53, 38, 0.48); z-index: 60; align-items: center; justify-content: center; padding: 16px; }
-    .modal-backdrop.open { display: flex; }
-    .modal-card { background: var(--bg-cream); border: 1px solid var(--border); border-radius: 24px; width: 100%; max-width: 460px; padding: 20px; box-shadow: var(--shadow-lg); max-height: 88vh; overflow-y: auto; }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .activity-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-    .activity-type-btn { background: var(--bg-card); border: 2px solid var(--border); border-radius: 16px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--text-main); cursor: pointer; }
-    .activity-type-btn.selected { border-color: var(--lime); background: var(--bg-green-tint); color: var(--forest); }
-    .form-group { margin-bottom: 13px; }
-    .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--forest); margin-bottom: 6px; }
-    .form-control { width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; font-family: inherit; font-size: 14px; outline: none; }
-  </style>
-</head>
-  <body>
-  <div class="live-banner" id="topLiveBanner">
-    <span>🟢 Immersion Session Ready with <strong id="bannerTutorName">Clara</strong>!</span>
-    <a data-action="quick-speak">Start talking now</a>
-    <button class="live-banner-close" data-action="dismiss-banner" aria-label="Dismiss banner"><i data-lucide="x" size="16"></i></button>
-  </div>
-
-  <header class="top-bar">
-    <div class="top-bar-inner">
-      <div class="goal-pill">
-        <span class="goal-text" id="goalDisplayText" data-action="go-more">0/60 min</span>
-        <div class="goal-track"><div class="goal-fill" id="goalFillBar"></div></div>
-        <button class="goal-add-btn" data-action="open-outside-modal" aria-label="Log time outside Bloom">+</button>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-mark" data-nav="home">
+        <span class="brand-dot"></span>
+        <span>Bloom</span>
       </div>
-      <div class="streak-pill" data-action="go-more">
-        <i data-lucide="flame" size="18"></i>
-        <span id="streakCount">1</span>
+
+      <div class="timers-cluster">
+        <div class="timer-chip" id="watchTimerChip">
+          <i data-lucide="eye" size="14"></i>
+          <span data-i18n="watchTimer">Watch</span>: <strong id="watchTimerText">0/60m</strong>
+          <div class="timer-mini-bar"><div class="timer-mini-fill" id="watchTimerBar"></div></div>
+        </div>
+        <div class="timer-chip" id="speakTimerChip">
+          <i data-lucide="mic" size="14"></i>
+          <span data-i18n="speakTimer">Speak</span>: <strong id="speakTimerText">0/60m</strong>
+          <div class="timer-mini-bar"><div class="timer-mini-fill" id="speakTimerBar"></div></div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <select class="select-pill" id="langSwitcher" aria-label="Language switcher">
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
+        </select>
+        <button class="btn btn-soft" id="authBtn" data-action="open-auth">Sign In</button>
       </div>
     </div>
   </header>
 
   <main class="container">
-    <section id="tab-home" class="tab-view active">
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-        <div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <h1 class="page-title">Current Lesson</h1>
-            <i data-lucide="info" size="18" style="color:var(--text-muted);"></i>
-          </div>
-          <p class="subtitle">Watch the video, learn the words, then speak.</p>
-        </div>
-        <button class="btn-pill" data-action="open-lesson-settings"><i data-lucide="settings" size="15"></i> Lesson Settings</button>
-      </div>
-
-      <div class="lesson-steps">
-        <div class="step-node active" id="stepNode1" data-step="1"><div class="step-circle"><i data-lucide="play" size="22"></i></div><span class="step-label">1. Watch</span></div>
-        <div class="step-line" id="stepLine1"></div>
-        <div class="step-node" id="stepNode2" data-step="2"><div class="step-circle"><i data-lucide="book-open" size="22"></i></div><span class="step-label">2. Learn</span></div>
-        <div class="step-line" id="stepLine2"></div>
-        <div class="step-node" id="stepNode3" data-step="3"><div class="step-circle"><i data-lucide="message-square" size="22"></i></div><span class="step-label">3. Speak</span></div>
-      </div>
-
-      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-        <button class="btn-pill" data-action="open-add-video"><i data-lucide="video" size="16"></i> Add a video</button>
-        <button class="btn-pill btn-lime" data-action="mark-watched"><i data-lucide="check-circle" size="16"></i> Mark Watched (+10 min)</button>
-      </div>
-
-      <div class="current-video-card">
-        <div class="video-embed-wrap"><iframe id="currentVideoFrame" src="about:blank" allowfullscreen></iframe></div>
-        <div style="padding: 16px 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
           <div>
-            <span style="font-size:11px;font-weight:800;color:var(--forest);background:var(--bg-green-tint);padding:4px 10px;border-radius:999px;" id="currentVideoLevel">B2 Level</span>
-            <h3 style="font-size:18px;font-weight:800;margin-top:8px;" id="currentVideoTitle"></h3>
-            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;" id="currentVideoDesc"></p>
+            <h1 class="section-title" data-i18n="homeTitle">Welcome to Bloom</h1>
+            <p class="muted" id="homeLevelSummary"></p>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn-pill" data-action="open-vocab-overlay"><i data-lucide="book-open" size="15"></i> 2. Vocabulary</button>
-            <button class="btn-pill btn-lime" data-action="discuss-video"><i data-lucide="mic" size="15"></i> 3. Speak</button>
+            <button class="btn btn-soft" data-action="cycle-level">
+              <i data-lucide="award" size="15"></i>
+              <span data-i18n="levelBtn">Level</span>: <strong id="homeLevelBadge">B2</strong>
+            </button>
+            <button class="btn btn-primary" data-nav="watch">
+              <i data-lucide="play-circle" size="16"></i>
+              <span data-i18n="watchBtn">Watch</span>
+            </button>
           </div>
         </div>
       </div>
-    </section>
 
-    <section id="tab-watch" class="tab-view">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div class="pill-toggle">
-          <button class="active" id="watchSubBrowse" data-watch-sub="browse">Browse Videos</button>
-          <button id="watchSubHistory" data-watch-sub="history">History</button>
-        </div>
-        <button class="btn-pill btn-lime" data-action="open-add-video"><i data-lucide="plus" size="16"></i> Add a video</button>
-      </div>
-
-      <div class="filter-bar">
-        <button class="filter-select" id="sortFilterBtn" data-popover="sortPopover">Featured ⇅</button>
-        <button class="filter-select" id="levelFilterBtn" data-popover="levelPopover">All Levels ▾</button>
-        <button class="filter-select" id="countryFilterBtn" data-popover="countryPopover">All Countries ▾</button>
-        <select class="filter-select" id="tutorCreatorFilter">
-          <option value="ALL">All Tutors</option>
-          <option value="Clara">Clara 🇬🇧</option>
-          <option value="Liam">Liam 🇺🇸</option>
-          <option value="Callum">Callum 🇦🇺</option>
-        </select>
-        <label class="switch-wrap" data-action="toggle-hide-watched">
-          <div class="switch" id="hideWatchedSwitch"></div>
-          <span>Hide watched</span>
-        </label>
-        <div class="search-wrap"><i data-lucide="search"></i><input type="text" class="search-input" id="videoSearchInput" placeholder="Search videos..." /></div>
-
-        <div class="popover-menu" id="sortPopover"></div>
-        <div class="popover-menu" id="levelPopover"></div>
-        <div class="popover-menu" id="countryPopover"></div>
-      </div>
-
-      <div id="activeVideoLessonPanel" style="display:none; margin-bottom:18px;" class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-          <button class="btn-pill" data-action="close-watch-lesson">← Browse Videos</button>
-          <button class="btn-pill" data-action="next-video">My Next Video →</button>
-        </div>
-        <div class="video-embed-wrap" style="border-radius:16px;overflow:hidden;"><iframe id="watchLessonFrame" src="about:blank" allowfullscreen></iframe></div>
-        <h3 style="font-size:18px;font-weight:800;margin-top:12px;" id="watchLessonTitle"></h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
-          <button class="btn-pill" style="flex:1;min-width:150px;" data-action="open-vocab-overlay"><i data-lucide="book-open" size="16"></i> 2. Learn Vocabulary</button>
-          <button class="btn-pill btn-lime" style="flex:1;min-width:150px;" data-action="discuss-video"><i data-lucide="message-square" size="16"></i> 3. Speak about Video</button>
-        </div>
-      </div>
-
-      <div class="video-grid" id="videoGrid"></div>
-    </section>
-        <section id="tab-learn" class="tab-view">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h1 class="page-title">Learn</h1>
-        <button class="icon-circle-btn" data-action="open-lesson-settings"><i data-lucide="settings" size="18"></i></button>
-      </div>
-      <div style="margin: 12px 0 16px;">
-        <div class="pill-toggle">
-          <button class="active" id="learnSubPractice" data-learn-sub="practice">Practice</button>
-          <button id="learnSubHistory" data-learn-sub="history">History</button>
-        </div>
-      </div>
-
-      <div id="learnPracticeView">
-        <div class="card" style="margin-bottom: 16px;">
-          <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:var(--forest);"><i data-lucide="dumbbell" size="18"></i> Exercises</div>
-          <div class="exercise-grid">
-            <div class="exercise-tile" data-action="open-flashcards"><i data-lucide="layers" size="20"></i><h4>Flashcards</h4><p>Recall, Listen & Produce modes</p></div>
-            <div class="exercise-tile" data-action="open-photo-chit-chat"><i data-lucide="image" size="20"></i><h4>Photo Chit Chat</h4><p>Listen & describe scenes in-place</p></div>
-            <div class="exercise-tile" data-action="topic-talk"><i data-lucide="message-circle" size="20"></i><h4>Topic Talk</h4><p>Speak freely on a topic</p></div>
-            <div class="exercise-tile" data-action="word-link"><i data-lucide="git-branch" size="20"></i><h4>Word Link</h4><p>Build a chain of words</p></div>
-          </div>
-          <div class="menu-item" style="margin-top:12px; padding:12px 4px 2px;" data-action="conversation-practice">
-            <span style="display:flex;align-items:center;gap:8px;color:var(--forest);font-weight:700;"><i data-lucide="messages-square" size="18"></i> Conversation practice</span>
-            <i data-lucide="chevron-right" size="18"></i>
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div class="card">
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:10px;" data-i18n="chooseTutor">Choose Your AI Tutor</div>
+          <div class="tutor-toggle-row">
+            <div class="tutor-card selected" id="tutorFemaleCard" data-gender="female">
+              <i data-lucide="user-check" size="20" style="color:var(--primary);"></i>
+              <div>
+                <div style="font-weight:800;font-size:14px;" id="femaleTutorName">Claire</div>
+                <div class="muted" style="font-size:11px;" data-i18n="femaleVoiceLabel">Woman • Feminine Voice</div>
+              </div>
+            </div>
+            <div class="tutor-card" id="tutorMaleCard" data-gender="male">
+              <i data-lucide="user" size="20" style="color:var(--primary);"></i>
+              <div>
+                <div style="font-weight:800;font-size:14px;" id="maleTutorName">Julian</div>
+                <div class="muted" style="font-size:11px;" data-i18n="maleVoiceLabel">Man • Masculine Voice</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:var(--forest);"><i data-lucide="sprout" size="18"></i> Vocab Garden</div>
-            <span style="font-size:13px; font-weight:700; color:var(--text-muted);" id="totalWordsLabel">0 words</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-weight:800;color:var(--primary-deep);" data-i18n="streakCal">Streak & Calendar</span>
+            <strong style="color:var(--primary);" id="streakLabel">1 day</strong>
           </div>
-          <div class="vocab-stats">
-            <div class="vocab-stat-box learning" data-vocab-filter="learning"><div class="vocab-stat-num" id="learningCount">0</div><div class="vocab-stat-lbl">Learning</div></div>
-            <div class="vocab-stat-box learned" data-vocab-filter="learned"><div class="vocab-stat-num" id="learnedCount">0</div><div class="vocab-stat-lbl">Learned</div></div>
-          </div>
-          <div style="display:flex; gap:8px; margin-bottom:12px;">
-            <div class="search-wrap"><i data-lucide="search"></i><input type="text" class="search-input" id="vocabSearchInput" placeholder="Search words..." /></div>
-            <button class="btn-pill btn-lime" data-action="open-add-word">+ Add</button>
-          </div>
-          <div id="vocabList"></div>
-        </div>
-      </div>
-
-      <div id="learnHistoryView" style="display:none;"><div class="card" id="sessionHistoryList"></div></div>
-    </section>
-
-    <section id="tab-speak" class="tab-view">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div class="pill-toggle">
-          <button class="active" id="speakSubNew" data-action="reset-speak">New</button>
-          <button id="speakSubHistory" data-action="go-history">History</button>
-        </div>
-        <button class="icon-circle-btn" data-action="open-lesson-settings"><i data-lucide="sliders-horizontal" size="18"></i></button>
-      </div>
-
-      <div class="tutor-selector-wrap">
-        <div class="tutor-label">AI TUTOR</div>
-        <div class="tutor-pill" data-action="toggle-tutor-menu">
-          <div class="tutor-avatar" id="activeTutorAvatar">C</div>
-          <span id="activeTutorName">Clara 🇬🇧</span>
-          <i data-lucide="chevron-down" size="18"></i>
-        </div>
-        <div class="tutor-dropdown" id="tutorDropdown">
-          <div class="tutor-option" data-tutor="Clara 🇬🇧|C|en-GB|British English"><div class="tutor-avatar">C</div> Clara 🇬🇧 (British • Female)</div>
-          <div class="tutor-option" data-tutor="Liam 🇺🇸|L|en-US|American English"><div class="tutor-avatar" style="background:#2E6F54;">L</div> Liam 🇺🇸 (American • Male)</div>
-          <div class="tutor-option" data-tutor="Callum 🇦🇺|K|en-AU|Australian English"><div class="tutor-avatar" style="background:#3F7A4A;">K</div> Callum 🇦🇺 (Australian • Male)</div>
-        </div>
-      </div>
-
-      <div id="speakModesList">
-        <div class="speak-mode-card" data-speak-mode="general"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="message-square"></i></div><div><div style="font-weight:700;font-size:15px;">General Conversation</div><div style="font-size:12px;color:var(--text-muted);">Choose any topic to improve your speaking</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="speak-mode-card" data-action="open-roleplay-cats"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="users"></i></div><div><div style="font-weight:700;font-size:15px;">Role Play</div><div style="font-size:12px;color:var(--text-muted);">Practice a real-life situation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="speak-mode-card" data-speak-mode="discuss_video"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="video"></i></div><div><div style="font-weight:700;font-size:15px;">Discuss a Video</div><div style="font-size:12px;color:var(--text-muted);">Master the topic and vocabulary</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="speak-mode-card" data-action="open-shadowing"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="repeat"></i></div><div><div style="font-weight:700;font-size:15px;">Shadowing</div><div style="font-size:12px;color:var(--text-muted);">Listen and repeat to improve pronunciation</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="speak-mode-card" data-speak-mode="exercises"><div class="speak-mode-left"><div class="speak-mode-icon"><i data-lucide="dumbbell"></i></div><div><div style="font-weight:700;font-size:15px;">Exercises</div><div style="font-size:12px;color:var(--text-muted);">Speaking exercises with words from your vocab garden</div></div></div><i data-lucide="chevron-right" size="18"></i></div>
-      </div>
-
-      <div id="rolePlayCategoriesView" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-          <button class="btn-pill" data-action="reset-speak">← Back</button>
-          <h3 style="font-size:18px;font-weight:800;color:var(--forest);">Choose a Scenario Type</h3>
-        </div>
-        <div id="scenarioCategoryCards"></div>
-      </div>
-
-      <div id="rolePlaySituationsView" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-          <button class="btn-pill" data-action="open-roleplay-cats">← Back</button>
-          <h3 style="font-size:18px;font-weight:800;color:var(--forest);">Choose a Situation</h3>
-        </div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" id="selectedScenarioTypeLabel"></div>
-        <div id="scenarioSituationCards"></div>
-      </div>
-
-      <div id="shadowingSetupView" style="display:none;" class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-          <button class="btn-pill" data-action="reset-speak">← Back</button>
-          <h3 style="font-size:18px;font-weight:800;color:var(--forest);">Shadowing set up</h3>
-        </div>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;" id="shadowingHelperText"></p>
-        <label class="form-label">What topic would you like to practice? It can be any topic.</label>
-        <textarea class="form-control" id="shadowingTopicInput" rows="3" placeholder="Examples: work situations, meeting someone new, sports, ..."></textarea>
-        <button class="btn-pill btn-lime" style="width:100%;margin-top:14px;" data-action="start-shadowing">Start Shadowing</button>
-      </div>
-
-      <div class="chat-panel" id="liveChatPanel">
-        <div class="chat-header">
-          <div>
-            <div style="font-weight:800;font-size:14px;color:var(--forest);" id="chatModeTitle">General Conversation</div>
-            <div style="font-size:11px;color:var(--text-muted);" id="chatSettingsBadge"></div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn-pill" style="padding:6px 10px;font-size:11px;" id="autoVoiceBtn" data-action="toggle-auto-voice">🔊 Auto Voice: ON</button>
-            <button class="btn-pill" style="padding:6px 12px;font-size:12px;" data-action="end-chat">End (+5m)</button>
-          </div>
-        </div>
-        <div class="chat-messages" id="chatMessages"></div>
-        <div class="listening-bar" id="listeningBar">
-          <span id="listeningTimerText">🎙️ Your turn (0s / 120s) — pause freely, tap Done when ready</span>
-          <button class="btn-pill btn-lime" style="padding:5px 12px;font-size:12px;" data-action="finish-speaking">Done Speaking →</button>
-        </div>
-        <div class="chat-input-bar">
-          <button class="icon-circle-btn" id="micBtn" data-action="toggle-mic"><i data-lucide="mic" size="18"></i></button>
-          <input type="text" id="chatInput" placeholder="Tap mic (up to 2 min) or type in English/Arabic..." />
-          <button class="icon-circle-btn" style="background:var(--lime);color:var(--forest-dark);border-color:var(--lime);" data-action="send-chat"><i data-lucide="send" size="18"></i></button>
-        </div>
-      </div>
-    </section>
-
-    <section id="tab-more" class="tab-view">
-      <div class="menu-card">
-        <div class="menu-item" data-action="edit-name">
-          <div><div style="font-size:17px;font-weight:800;color:var(--forest);" id="profileNameDisplay">Hussein ✏️</div><div style="font-size:12px;color:var(--text-muted);">Bloom Full Ownership Edition</div></div>
-          <span style="font-size:12px;font-weight:700;background:var(--bg-green-tint);color:var(--forest);padding:5px 12px;border-radius:999px;">Unlimited</span>
-        </div>
-        <div class="menu-item" data-action="open-language-modal">
-          <div class="menu-item-left"><i data-lucide="globe" size="18"></i> Language (English / العربية)</div>
-          <i data-lucide="chevron-right" size="18"></i>
-        </div>
-      </div>
-
-      <h2 style="font-size:18px;font-weight:800;color:var(--forest);margin:16px 0 10px;">Settings for learning English</h2>
-      <div class="menu-card">
-        <div class="menu-item"><span>AI Transcript</span><select class="filter-select" id="settingTranscript"><option value="always">Always visible</option><option value="click">Click to show</option></select></div>
-        <div class="menu-item"><span>AI Voice Speed</span><select class="filter-select" id="settingSpeed"><option value="0.86">Relaxed (0.86x)</option><option value="0.96" selected>Natural (0.96x)</option><option value="1.06">Lively (1.06x)</option></select></div>
-        <div class="menu-item" data-action="toggle-crosstalk"><div><div>Crosstalk</div><div style="font-size:11px;color:var(--text-muted);font-weight:400;">Tutor speaks English, you reply in Arabic or English.</div></div><div class="switch on" id="crosstalkSwitch"></div></div>
-        <div class="menu-item"><span>Corrections</span><select class="filter-select" id="settingCorrections"><option value="Gentle" selected>Gentle</option><option value="Direct">Direct</option><option value="Off">Off</option></select></div>
-        <div class="menu-item" data-action="edit-goal"><span>Daily goal</span><span style="text-decoration:underline;color:var(--forest);font-weight:700;" id="dailyGoalLabel">60 min / day</span></div>
-      </div>
-
-      <h2 style="font-size:22px;font-weight:800;color:var(--forest);text-align:center;margin:22px 0 12px;">My Progress</h2>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="progress-hero"><div style="font-size:32px;font-weight:800;color:var(--flame);">🔥 <span id="progressStreakNum">1</span></div><div style="font-size:14px;font-weight:700;margin-top:4px;">days immersed</div></div>
-        <div class="progress-grid-2">
-          <div class="progress-green-box"><div style="font-size:16px;font-weight:800;color:var(--forest);" id="currentCefrTitle">Upper Intermediate</div><div style="font-size:12px;color:var(--text-muted);" id="currentCefrSub">Level B2</div><div style="font-size:11px;font-weight:700;color:var(--forest);margin-top:10px;" id="nextLevelHint"></div></div>
-          <div class="progress-green-box" style="text-align:center;"><i data-lucide="clock" size="22" style="color:var(--forest);"></i><div style="font-size:24px;font-weight:800;color:var(--forest);margin-top:4px;" id="totalHoursNum">0.0h</div><div style="font-size:12px;color:var(--text-muted);">Total Immersion Time</div></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <div style="font-weight:800;color:var(--forest);">Activity Calendar</div>
-        <div style="text-align:center;font-size:18px;font-weight:800;color:var(--forest);margin:10px 0 4px;" id="monthHoursLabel">0.0 hours this month</div>
-        <div style="text-align:center;font-size:13px;color:var(--text-muted);" id="calendarMonthTitle"></div>
-        <div class="calendar-grid" id="activityCalendarGrid"></div>
-      </div>
-
-      <div class="card" style="text-align:center;margin-bottom:16px;">
-        <div style="font-weight:800;color:var(--forest);display:flex;align-items:center;justify-content:center;gap:6px;"><i data-lucide="radio" size="18"></i> Time Outside Bloom</div>
-        <div style="font-size:22px;font-weight:800;color:var(--forest);margin:10px 0 14px;" id="outsideHoursLabel">0.0 hours outside Bloom</div>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          <button class="btn-pill" data-action="open-outside-history">View Time Outside Bloom</button>
-          <button class="btn-pill btn-lime" data-action="open-outside-modal">+ Add Time Outside Bloom</button>
+          <div class="cal-grid" id="homeCalendar"></div>
         </div>
       </div>
 
       <div class="card">
-        <div style="font-weight:800;color:var(--forest);margin-bottom:6px;">Your Path to Fluency</div>
-        <p class="subtitle" style="margin-bottom:14px;">Hours of immersion drive natural acquisition from A0 to C2. Tap any stage to see how to learn there.</p>
-        <div id="fluencyPathList"></div>
+        <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;" data-i18n="cefrTitle">CEFR Levels, Hours & 20-Min Unlock Quiz</div>
+        <p class="muted" style="margin-bottom:12px;" data-i18n="cefrDesc">Complete required study hours to advance, or pass a 20-minute quiz (4 skills + grammar) to unlock the next level immediately.</p>
+        <div id="cefrLevelsList"></div>
+      </div>
+    </section>
+
+    <!-- WATCH -->
+    <section id="view-watch" class="view">
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h2 class="section-title" data-i18n="watchTitle">Watch & Learn from YouTube</h2>
+            <p class="muted" data-i18n="watchSub">Paste a YouTube link, watch the video, finish it to unlock useful vocabulary and video discussion.</p>
+          </div>
+          <button class="btn btn-primary" data-action="open-yt-modal">
+            <i data-lucide="youtube" size="16"></i>
+            <span data-i18n="uploadYt">Upload YouTube Video</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div class="video-box">
+          <iframe id="ytPlayerFrame" src="about:blank" allowfullscreen></iframe>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:12px;">
+          <div>
+            <div style="font-size:17px;font-weight:800;" id="activeVideoTitle">No video loaded yet</div>
+            <div class="muted" id="activeVideoMeta">Click "Upload YouTube Video" and paste a link to begin.</div>
+          </div>
+          <button class="btn btn-soft" id="finishVideoBtn" data-action="finish-video">
+            <i data-lucide="check-circle" size="15"></i>
+            <span data-i18n="finishVideo">Finish Video</span>
+          </button>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <button class="btn" id="videoVocabBtn" data-action="open-video-vocab" disabled>
+            <i data-lucide="book-open" size="15"></i>
+            <span data-i18n="vocabBtn">Vocabulary</span>
+          </button>
+          <button class="btn" id="videoDiscussBtn" data-action="open-video-discuss" disabled>
+            <i data-lucide="message-circle" size="15"></i>
+            <span data-i18n="discussBtn">Discuss the Video</span>
+          </button>
+        </div>
+
+        <div id="videoVocabPanel" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);"></div>
+        <div id="videoDiscussPanel" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800;color:var(--primary-deep);margin-bottom:10px;" data-i18n="savedVideos">Your Videos</div>
+        <div id="videoShelfList" class="grid-2"></div>
+      </div>
+    </section>
+        <!-- LEARN (5 features) -->
+    <section id="view-learn" class="view">
+      <div class="card" style="margin-bottom:14px;">
+        <h2 class="section-title" data-i18n="learnTitle">Learn</h2>
+        <p class="muted" data-i18n="learnSub">Five focused practice tools tuned to your level and language.</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:14px;">
+        <div class="card" style="cursor:pointer;" data-learn-tool="flashcards">
+          <div style="font-weight:800;color:var(--primary-deep);">1. <span data-i18n="toolFlashcards">Flashcards</span></div>
+          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolFlashcardsDesc">Practice words from videos you watched.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="photo">
+          <div style="font-weight:800;color:var(--primary-deep);">2. <span data-i18n="toolPhoto">Photo Chit Chat</span></div>
+          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolPhotoDesc">Record 1 min describing a photo for correction & ideas.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="topic">
+          <div style="font-weight:800;color:var(--primary-deep);">3. <span data-i18n="toolTopic">Topic Talk</span></div>
+          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolTopicDesc">Record 1 min on a topic and get written correction.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="wordlink">
+          <div style="font-weight:800;color:var(--primary-deep);">4. <span data-i18n="toolWordLink">Word Link</span></div>
+          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolWordLinkDesc">Link as many words as you can in 1 minute by voice.</p>
+        </div>
+        <div class="card" style="cursor:pointer;" data-learn-tool="videolab">
+          <div style="font-weight:800;color:var(--primary-deep);">5. <span data-i18n="toolVideoLab">Video Word & Talk Lab</span></div>
+          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolVideoLabDesc">Review useful video words & discuss your watched video.</p>
+        </div>
+      </div>
+
+      <div class="card" id="learnWorkspace">
+        <div id="learnToolContent" class="muted">Select any of the 5 tools above to begin.</div>
+      </div>
+    </section>
+        <!-- SPEAK -->
+    <section id="view-speak" class="view">
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h2 class="section-title" data-i18n="speakTitle">Speak</h2>
+            <p class="muted" data-i18n="speakSub">Practice speaking freely, role-play situations, or shadow native sentences.</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-soft" data-speak-mode="practice" data-i18n="modePractice">Practice Speaking</button>
+            <button class="btn btn-soft" data-speak-mode="roleplay" data-i18n="modeRolePlay">Role Play</button>
+            <button class="btn btn-soft" data-speak-mode="shadowing" data-i18n="modeShadowing">Shadowing</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <div>
+            <strong style="color:var(--primary-deep);" id="speakActiveLabel">Practice Speaking</strong>
+            <div class="muted" style="font-size:12px;" id="speakActiveTutorLine"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-soft" id="rec2MinBtn" data-action="rec-2min">
+              <i data-lucide="mic" size="15"></i>
+              <span id="rec2MinLabel">Record & Send (2m)</span>
+            </button>
+            <button class="btn btn-primary" id="realCallBtn" data-action="toggle-real-call">
+              <i data-lucide="phone-call" size="15"></i>
+              <span id="realCallLabel">Real Call</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="speakSubPicker" style="margin-bottom:10px;"></div>
+
+        <div class="chat-log" id="speakChatLog"></div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input type="text" class="field" id="speakTextInput" placeholder="Type a message or record for up to 2 minutes..." />
+          <button class="btn btn-primary" data-action="send-speak-text">Send</button>
+        </div>
       </div>
     </section>
   </main>
-    <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" data-tab="home"><div class="nav-icon-pill"><i data-lucide="home" size="20"></i></div><span>Home</span></button>
-    <button class="nav-btn" id="nav-watch" data-tab="watch"><div class="nav-icon-pill"><i data-lucide="play" size="20"></i></div><span>Watch</span></button>
-    <button class="nav-btn" id="nav-learn" data-tab="learn"><div class="nav-icon-pill"><i data-lucide="book-open" size="20"></i></div><span>Learn</span></button>
-    <button class="nav-btn" id="nav-speak" data-tab="speak"><div class="nav-icon-pill"><i data-lucide="message-square" size="20"></i></div><span>Speak</span></button>
-    <button class="nav-btn" id="nav-more" data-tab="more"><div class="nav-icon-pill"><i data-lucide="more-horizontal" size="20"></i></div><span>More</span></button>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-nav="home"><div class="nav-pill"><i data-lucide="home" size="19"></i></div><span data-i18n="navHome">Home</span></button>
+    <button class="nav-item" data-nav="watch"><div class="nav-pill"><i data-lucide="play" size="19"></i></div><span data-i18n="navWatch">Watch</span></button>
+    <button class="nav-item" data-nav="learn"><div class="nav-pill"><i data-lucide="book-open" size="19"></i></div><span data-i18n="navLearn">Learn</span></button>
+    <button class="nav-item" data-nav="speak"><div class="nav-pill"><i data-lucide="message-square" size="19"></i></div><span data-i18n="navSpeak">Speak</span></button>
   </nav>
-
-  <div class="deep-study-overlay" id="videoVocabOverlay">
-    <div class="deep-inner">
-      <div class="deep-topbar">
-        <button class="deep-icon-btn" data-action="close-vocab-overlay"><i data-lucide="arrow-left" size="18"></i></button>
-        <div style="font-weight:800;font-size:15px;" id="vocabOverlayTitle">Lesson Vocabulary</div>
-        <button class="deep-icon-btn" data-action="open-lesson-settings"><i data-lucide="settings" size="18"></i></button>
+    <!-- YouTube Upload Modal: ONLY one space (the link space) + Add -->
+  <div class="modal-bg" id="ytModal">
+    <div class="modal-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-weight:800;color:var(--primary-deep);" data-i18n="ytModalTitle">Upload YouTube Video</h3>
+        <button class="btn" data-close="ytModal">✕</button>
       </div>
-      <div id="videoVocabCardsContainer"></div>
-      <div style="display:grid;gap:10px;margin-top:16px;">
-        <button class="btn-pill btn-lime" style="width:100%;padding:13px;" data-action="save-vocab-garden">Add selected to Vocab Garden</button>
-        <button class="btn-pill" style="width:100%;padding:12px;" data-action="finish-vocab-to-speak">Finish ✓</button>
+      <input type="text" class="field" id="ytLinkOnlyInput" placeholder="https://www.youtube.com/watch?v=..." style="margin-bottom:14px;" />
+      <button class="btn btn-primary" style="width:100%;" data-action="add-yt-link" data-i18n="addBtn">Add</button>
+    </div>
+  </div>
+
+  <!-- Sign In / Sign Up Modal -->
+  <div class="modal-bg" id="authModal">
+    <div class="modal-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-weight:800;color:var(--primary-deep);" id="authModalTitle">Sign In / Sign Up</h3>
+        <button class="btn" data-close="authModal">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn btn-soft" style="flex:1;" id="authModeSignIn" data-auth-mode="signin">Sign In</button>
+        <button class="btn" style="flex:1;" id="authModeSignUp" data-auth-mode="signup">Sign Up</button>
+      </div>
+      <div style="display:grid;gap:10px;">
+        <input type="text" class="field" id="authNameInput" placeholder="Full Name" />
+        <input type="email" class="field" id="authEmailInput" placeholder="Email address" />
+        <input type="password" class="field" id="authPassInput" placeholder="Password" />
+        <button class="btn btn-primary" style="width:100%;margin-top:4px;" data-action="submit-auth" id="authSubmitBtn">Continue</button>
       </div>
     </div>
   </div>
 
-  <!-- Photo Chit Chat: Speak stays right here for a 60-second Duolingo-style turn -->
-  <div class="deep-study-overlay" id="photoChitChatOverlay">
-    <div class="deep-inner">
-      <div class="deep-topbar">
-        <button class="deep-icon-btn" data-action="close-chit-chat"><i data-lucide="x" size="18"></i></button>
-        <div style="font-weight:800;font-size:16px;">Photo Chit Chat</div>
-        <button class="deep-icon-btn" data-action="open-lesson-settings"><i data-lucide="settings" size="18"></i></button>
-      </div>
-
-      <div class="photo-stage">
-        <img id="chitChatPhotoImg" src="" alt="Scene for conversation" />
-        <button class="photo-pill-btn" style="top:12px;left:12px;" data-action="chit-random">Random ↻</button>
-        <button class="photo-pill-btn" style="bottom:12px;left:12px;" data-action="chit-labels">🏷️ See labels</button>
-      </div>
-      <div id="photoLabelsBox" style="display:none;margin-top:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.1);font-size:13px;"></div>
-
-      <button class="btn-pill" style="width:100%;margin-top:12px;background:rgba(255,255,255,0.08);color:#FFF;border-color:rgba(255,255,255,0.2);" data-action="chit-upload-trigger">📷 Add your own image</button>
-      <input type="file" id="customPhotoFile" accept="image/*" style="display:none;" />
-
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;cursor:pointer;" data-action="chit-vocab">
-        <span>› Useful vocab</span>
-        <span id="usefulVocabCount">6 words</span>
-      </div>
-      <div id="usefulVocabBox" style="display:none;margin-top:8px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.08);font-size:13px;"></div>
-
-      <div class="chit-cards-row">
-        <div class="chit-mode-card listen" data-action="chit-listen">
-          <div style="font-weight:800;font-size:16px;">Listen</div>
-          <div style="font-size:12px;opacity:0.85;margin-top:2px;" id="chitListenSub">Clara describes it</div>
+  <!-- 20-Minute CEFR Unlock Quiz Modal (4 Skills + Grammar) -->
+  <div class="modal-bg" id="quizModal">
+    <div class="modal-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <h3 style="font-weight:800;color:var(--primary-deep);" id="quizTitle">Level Unlock Quiz (20 min)</h3>
+          <div class="muted" style="font-size:12px;" id="quizClock">20:00 remaining • Listening, Reading, Writing, Speaking & Grammar</div>
         </div>
-        <div class="chit-mode-card speak" data-action="chit-speak-inline">
-          <div style="font-weight:800;font-size:16px;">Speak</div>
-          <div style="font-size:12px;opacity:0.9;margin-top:2px;">Describe it yourself (60s)</div>
-        </div>
+        <button class="btn" data-close="quizModal">✕</button>
       </div>
-
-      <div id="chitChatDescriptionBox" style="display:none;margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.1);font-size:13px;line-height:1.5;"></div>
-
-      <div class="chit-speak-inline-box" id="chitSpeakInlineBox">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;">
-          <strong style="color:var(--forest);font-size:14px;" id="chitTimerLabel">🎙️ Describe the photo (0s / 60s)</strong>
-          <div style="display:flex;gap:8px;">
-            <button class="btn-pill" style="padding:6px 12px;font-size:12px;" data-action="chit-toggle-mic" id="chitMicBtn">🎙️ Record</button>
-            <button class="btn-pill btn-lime" style="padding:6px 12px;font-size:12px;" data-action="chit-submit-speech">Check & Reply →</button>
-          </div>
-        </div>
-        <textarea class="form-control" id="chitSpeakInput" rows="3" placeholder="Speak for up to 60 seconds or type your description of the photo..."></textarea>
-        <div id="chitTutorReplyBox" style="display:none;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--bg-soft);font-size:13px;line-height:1.5;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="deep-study-overlay" id="flashcardOverlay">
-    <div class="deep-inner">
-      <div class="deep-topbar">
-        <button class="deep-icon-btn" data-action="close-flashcards"><i data-lucide="x" size="18"></i></button>
-        <div style="background:rgba(255,255,255,0.14);padding:5px 14px;border-radius:999px;font-weight:800;font-size:13px;" id="fcCounterBadge">1 / 6</div>
-        <button class="deep-icon-btn" data-action="open-lesson-settings"><i data-lucide="settings" size="18"></i></button>
-      </div>
-      <div id="flashcardModeChooser" class="card" style="color:var(--text-main);margin-bottom:16px;">
-        <h3 style="font-size:17px;font-weight:800;color:var(--forest);margin-bottom:4px;">Flashcards</h3>
-        <p class="subtitle" style="margin-bottom:12px;">Choose a review mode for your Vocab Garden words:</p>
-        <div class="menu-item" data-fc-mode="recall"><div><strong>Recall</strong><div style="font-size:12px;color:var(--text-muted);font-weight:400;">See the word in English, recall its meaning in your language.</div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="menu-item" data-fc-mode="listen"><div><strong>Listen</strong><div style="font-size:12px;color:var(--text-muted);font-weight:400;">Hear the word in English, recall its meaning in your language.</div></div><i data-lucide="chevron-right" size="18"></i></div>
-        <div class="menu-item" data-fc-mode="produce"><div><strong>Produce</strong><div style="font-size:12px;color:var(--text-muted);font-weight:400;">See the word in your language, produce it in English.</div></div><i data-lucide="chevron-right" size="18"></i></div>
-      </div>
-      <div id="flashcardActiveStage" style="display:none;"></div>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="addVideoModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Add a YouTube Video</h3><button style="background:none;border:none;cursor:pointer;" data-close-modal="addVideoModal"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">Paste YouTube Link</label><input type="text" class="form-control" id="newVideoUrl" placeholder="https://www.youtube.com/watch?v=... or youtu.be/..." /></div>
-      <div class="form-group"><label class="form-label">Video Title</label><input type="text" class="form-control" id="newVideoTitle" placeholder="E.g. Real-Life English Conversation" /></div>
-      <div class="form-group"><label class="form-label">Level</label><select class="form-control" id="newVideoLevel"><option value="A2">A2 Upper Beginner</option><option value="B1">B1 Intermediate</option><option value="B2" selected>B2 Upper Intermediate</option><option value="C1">C1 Advanced</option></select></div>
-      <div class="form-group"><label class="form-label">Country / Accent</label><select class="form-control" id="newVideoCountry"><option value="United Kingdom" selected>United Kingdom</option><option value="United States">United States</option><option value="Australia">Australia</option><option value="Canada">Canada</option><option value="Ireland">Ireland</option></select></div>
-      <div class="form-group"><label class="form-label">Topic / Notes</label><textarea class="form-control" id="newVideoNotes" rows="2" placeholder="Optional notes..."></textarea></div>
-      <button class="btn-pill btn-lime" style="width:100%;" data-action="import-video">Load Video</button>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="lessonSettingsModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Settings</h3><button style="background:none;border:none;cursor:pointer;" data-close-modal="lessonSettingsModal"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">AI Tutor</label><select class="form-control" id="modalTutorSelect"><option value="Clara 🇬🇧|C|en-GB|British English">Clara 🇬🇧 (British • Female)</option><option value="Liam 🇺🇸|L|en-US|American English">Liam 🇺🇸 (American • Male)</option><option value="Callum 🇦🇺|K|en-AU|Australian English">Callum 🇦🇺 (Australian • Male)</option></select></div>
-      <div class="form-group"><label class="form-label">Translation Language</label><select class="form-control" id="modalNativeLang"><option value="Arabic">العربية - Arabic</option><option value="German">Deutsch - German</option><option value="French">Français - French</option></select></div>
-      <button class="btn-pill btn-lime" style="width:100%;" data-close-modal="lessonSettingsModal">Done</button>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="outsideModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Add Time Outside Bloom</h3><button style="background:none;border:none;cursor:pointer;" data-close-modal="outsideModal"><i data-lucide="x"></i></button></div>
-      <div class="activity-type-grid">
-        <button class="activity-type-btn selected" data-outside-type="Watching"><i data-lucide="video" size="20"></i> Watching</button>
-        <button class="activity-type-btn" data-outside-type="Listening"><i data-lucide="headphones" size="20"></i> Listening</button>
-        <button class="activity-type-btn" data-outside-type="Talking"><i data-lucide="message-square" size="20"></i> Talking</button>
-      </div>
-      <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="outsideDate" /></div>
-      <div class="form-group"><label class="form-label">Time Amount</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><input type="number" class="form-control" id="outsideHours" placeholder="Hours" min="0" /><input type="number" class="form-control" id="outsideMins" placeholder="Minutes" min="0" /></div></div>
-      <div class="form-group"><label class="form-label">Description (optional)</label><input type="text" class="form-control" id="outsideDesc" placeholder="E.g. podcast, YouTube, book..." /></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;"><button class="btn-pill" data-close-modal="outsideModal">Cancel</button><button class="btn-pill btn-lime" data-action="save-outside">Save</button></div>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="outsideHistoryModal"><div class="modal-card"><div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Outside Bloom Log</h3><button style="background:none;border:none;cursor:pointer;" data-close-modal="outsideHistoryModal"><i data-lucide="x"></i></button></div><div id="outsideLogList"></div></div></div>
-
-  <div class="modal-backdrop" id="addWordModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Plant Word in Vocab Garden</h3><button style="background:none;border:none;cursor:pointer;" data-close-modal="addWordModal"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">English Word or Phrase</label><input type="text" class="form-control" id="newWordText" placeholder="e.g. fair enough, stroll" /></div>
-      <div class="form-group"><label class="form-label">Meaning / Translation</label><input type="text" class="form-control" id="newWordMeaning" placeholder="e.g. معقول / نزهة" /></div>
-      <button class="btn-pill btn-lime" style="width:100%;" data-action="save-word">Save Word</button>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="languageModal">
-    <div class="modal-card">
-      <div class="modal-header"><h3 style="font-size:18px;font-weight:800;color:var(--forest);">Language</h3><button style="background:none;border:none;cursor:pointer;" data-close-modal="languageModal"><i data-lucide="x"></i></button></div>
-      <div class="form-group"><label class="form-label">I AM LEARNING...</label><input type="text" class="form-control" value="🇬🇧 🇺🇸 🇦🇺 English" disabled /></div>
-      <div class="form-group"><label class="form-label">MY NATIVE LANGUAGE IS...</label><select class="form-control" id="nativeLangSelect"><option value="Arabic" selected>العربية Arabic</option><option value="German">Deutsch German</option><option value="French">Français French</option></select></div>
-      <div class="form-group"><label class="form-label">DISPLAY THE APP IN...</label><select class="form-control" id="displayLangSelect"><option value="en" selected>🇺🇸 🇬🇧 English</option><option value="ar">🇸🇦 العربية</option></select></div>
-      <button class="btn-pill btn-lime" style="width:100%;margin-top:8px;" data-close-modal="languageModal">Done</button>
+      <div id="quizBody"></div>
     </div>
   </div>
     <script>
-    const DEFAULT_VIDEOS = [
-      { id: 'aqz-KE-bpKQ', title: 'BBC Earth — Big Buck Bunny Nature Clip', level: 'B2', duration: '10:34', creator: 'Clara', country: 'United Kingdom', sortOrder: 'Featured', difficulty: 'Hard', watched: false, notes: 'A vivid nature story following wildlife, movement, and unexpected moments.' },
-      { id: 'UF8uR6Z6KLc', title: 'Steve Jobs Stanford Commencement Speech', level: 'C1', duration: '15:04', creator: 'Liam', country: 'United States', sortOrder: 'Featured', difficulty: 'Hard', watched: false, notes: 'Connecting the dots, following curiosity, and staying hungry.' },
-      { id: 'H14bBuluwB8', title: 'Grit: The Power of Passion and Perseverance', level: 'B2', duration: '06:12', creator: 'Callum', country: 'Australia', sortOrder: 'New', difficulty: 'Easy', watched: false, notes: 'Why long-term commitment and daily practice shape real progress.' },
-      { id: 'arj7oStGLkU', title: 'Inside the Mind of a Master Procrastinator', level: 'B1', duration: '14:03', creator: 'Liam', country: 'United States', sortOrder: 'New', difficulty: 'Easy', watched: false, notes: 'Everyday habits, decision-making, and beating procrastination.' }
-    ];
-
-    const DEFAULT_WORDS = [
-      { text: 'alley', meaning: 'زقاق / ممر ضيق', example: 'They walked down a quiet alley behind the market.', conjugation: 'alley / alleys', status: 'learning' },
-      { text: 'stroll', meaning: 'نزهة / يتمشى ببطء', example: 'We took a slow stroll along the coast after dinner.', conjugation: 'stroll / strolled / strolling', status: 'learning' },
-      { text: 'peckish', meaning: 'جائع قليلاً / يشتهي خفيفاً', example: 'I am feeling a bit peckish before lunch.', conjugation: 'adjective (informal)', status: 'learning' },
-      { text: 'run out of', meaning: 'ينفد منه', example: 'We ran out of coffee before guests arrived.', conjugation: 'run out of / ran out of / running out of', status: 'learning' },
-      { text: 'startle', meaning: 'يفاجئ / يذهل فجأة', example: 'The sudden noise startled the birds on the roof.', conjugation: 'startle / startled / startling', status: 'learning' },
-      { text: 'fair enough', meaning: 'معقول / مقنع', example: 'Fair enough, that makes a lot of sense.', conjugation: 'idiomatic phrase', status: 'learned' }
-    ];
-
-    const PHOTO_CHIT_CHAT_SCENES = [
-      { url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80', labels: 'Celebration hall, tiered cake, guests seated at tables, waiters carrying dessert', vocab: 'celebration, balance, carefully, gather around, laughter, centerpiece', description: 'Two servers are carrying a tall white tiered cake across a crowded celebration room while guests watch closely from round tables.' },
-      { url: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1000&q=80', labels: 'Suspension bridge, waterfront bay, clear sky, city skyline', vocab: 'landmark, overlook, breezy, scenery, commute, horizon', description: 'A wide suspension bridge stretches across calm water on a bright day with a breezy coastal view.' },
-      { url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1000&q=80', labels: 'Team collaboration, laptops, open notebook, friendly discussion', vocab: 'brainstorm, point out, wrap up, perspective, align, takeaway', description: 'People sit around a table sharing ideas and working together on a project with laptops and notes.' }
-    ];
-
-    const ROLE_PLAY_SCENARIOS = {
-      'Travel': ['Ordering at a café','Ordering at a restaurant','Checking into a hotel','Checking in at the airport','Buying a train ticket','Buying ticket to a tourist attraction','Booking a tour','Renting a car','Asking for directions','Asking for local recommendations','Negotiating prices at a street market','Complaining about a problem at your hotel','Dealing with a flight delay','Talking to the police'],
-      'Living in a New Country': ['Buying a metro pass','Getting your mobile phone working','Mailing a package','Asking a supermarket employee for help','Joining a gym','Opening a bank account','Meeting your neighbor','Calling a plumber','Explaining a problem with your car','Going to the doctor','Registering as a resident','Setting up internet and utilities','Calling a real estate agent','Enrolling your children in school','Asking your landlord to fix a problem','Talking with friends about living abroad'],
-      'Work & Business': ['Interviewing for a new job','Small talk with coworkers','Requesting time off with your boss','Discussing work with a colleague','Introducing yourself on your first day','Meeting with HR to request remote work','Discussing work-life balance','Receiving a performance review','Giving feedback to your employee','Getting help from a career advisor','Attending a networking event','Dealing with an unhappy client','Pitching a business idea'],
-      'Social & Family Life': ['Making weekend plans with a friend','Getting a haircut','Grocery shopping with your partner','Making a reservation at a restaurant','Catching up with an old friend','Going on a first date','Hosting friends for dinner','Returning an item for a refund','Calling to reschedule an appointment','Telling your child to do their homework','Discussing your child with their teacher'],
-      'Custom': ['Custom real-life situation']
-    };
-
-    const FLUENCY_LEVELS = [
-      { code: 'A0', name: 'Complete Beginner', hours: 0, words: 0, tip: 'Focus on visual context in videos, Photo Chit Chat descriptions, and Crosstalk.' },
-      { code: 'A1', name: 'Beginner', hours: 100, words: 800, tip: 'Follow simple learner videos and start mixing familiar phrases into Crosstalk.' },
-      { code: 'A2', name: 'Upper Beginner', hours: 225, words: 2000, tip: 'Watch longer stories/vlogs, practice vocab examples, and speak in simple sentences.' },
-      { code: 'B1', name: 'Intermediate', hours: 400, words: 3700, tip: 'Enjoy everyday conversations, describe photos/topics freely, and practice speaking regularly.' },
-      { code: 'B2', name: 'Upper Intermediate', hours: 800, words: 6500, tip: 'Discuss varied topics, do role plays, and use gentle feedback to refine phrasing.' },
-      { code: 'C1', name: 'Advanced', hours: 1200, words: 8000, tip: 'Explore complex topics, import custom videos, and polish natural rhythm and nuance.' },
-      { code: 'C2', name: 'Native-Like', hours: 2000, words: 12000, tip: 'Use English effortlessly across work, social life, and nuanced discussions.' }
-    ];
-
-    let state = JSON.parse(localStorage.getItem('bloom_app_state')) || {
-      userName: 'Hussein', dailyGoal: 60, todayMinutes: 0, totalMinutes: 48000, streak: 1,
-      activeDays: [new Date().getDate()], bannerDismissed: false,
-      tutor: { name: 'Clara 🇬🇧', initial: 'C', voice: 'en-GB', accent: 'British English' },
-      settings: { transcript: 'always', speed: '0.96', crosstalk: true, corrections: 'Gentle', nativeLang: 'Arabic', displayLang: 'en', autoVoice: true },
-      videos: DEFAULT_VIDEOS, currentVideo: DEFAULT_VIDEOS[0], words: DEFAULT_WORDS, outsideLogs: [], sessionHistory: []
-    };
-
-    if (state.tutor?.name?.includes('Jay')) {
-      state.tutor = { name: 'Clara 🇬🇧', initial: 'C', voice: 'en-GB', accent: 'British English' };
-    }
-    if (typeof state.settings?.autoVoice !== 'boolean') state.settings.autoVoice = true;
-
-    let hideWatched = false, sortMode = 'Featured', levelFilterMode = 'Include', selectedLevels = [];
-    let countryFilterMode = 'Include', selectedCountries = [], selectedOutsideType = 'Watching', vocabFilterStatus = 'all';
-    let currentChatMode = 'general', currentScenarioCategory = '', currentScenarioSituation = '', currentShadowingTopic = '';
-    let chitChatIndex = 0, cardSubTabMap = {}, selectedVocabIndices = new Set([0, 1, 2]);
-    let flashcardMode = 'recall', flashcardDeck = [], flashcardIdx = 0, flashcardRevealed = false;
-
-    // Speech session guard prevents any speech from starting during or right after section transitions
-    let speechSessionToken = 0;
-    let isTransitioningSection = false;
-    let transitionTimer = null;
-
-    let activeRecognition = null, isListeningSession = false, listenSeconds = 0, listenTicker = null, collectedTranscript = '';
-    let activeMicTarget = 'chat'; // 'chat' (120s) or 'chit' (60s)
-
-    function stopAllMediaAndSpeech(markTransition = true) {
-      speechSessionToken += 1;
-      if (markTransition) {
-        isTransitioningSection = true;
-        clearTimeout(transitionTimer);
-        transitionTimer = setTimeout(() => { isTransitioningSection = false; }, 160);
+    const I18N = {
+      en: {
+        watchTimer: 'Watch', speakTimer: 'Speak', homeTitle: 'Welcome to Bloom', levelBtn: 'Level', watchBtn: 'Watch',
+        chooseTutor: 'Choose Your AI Tutor', femaleVoiceLabel: 'Woman • Feminine Voice', maleVoiceLabel: 'Man • Masculine Voice',
+        streakCal: 'Streak & Calendar', cefrTitle: 'CEFR Levels, Hours & 20-Min Unlock Quiz',
+        cefrDesc: 'Complete required study hours to advance, or pass a 20-minute quiz (4 skills + grammar) to unlock the next level immediately.',
+        watchTitle: 'Watch & Learn from YouTube', watchSub: 'Paste a YouTube link, watch the video, finish it to unlock useful vocabulary and video discussion.',
+        uploadYt: 'Upload YouTube Video', finishVideo: 'Finish Video', vocabBtn: 'Vocabulary', discussBtn: 'Discuss the Video',
+        savedVideos: 'Your Videos', learnTitle: 'Learn', learnSub: 'Five focused practice tools tuned to your level and language.',
+        toolFlashcards: 'Flashcards', toolFlashcardsDesc: 'Practice words from videos you watched.',
+        toolPhoto: 'Photo Chit Chat', toolPhotoDesc: 'Record 1 min describing a photo for correction & ideas.',
+        toolTopic: 'Topic Talk', toolTopicDesc: 'Record 1 min on a topic and get written correction.',
+        toolWordLink: 'Word Link', toolWordLinkDesc: 'Link as many words as you can in 1 minute by voice.',
+        toolVideoLab: 'Video Word & Talk Lab', toolVideoLabDesc: 'Review useful video words & discuss your watched video.',
+        speakTitle: 'Speak', speakSub: 'Practice speaking freely, role-play situations, or shadow native sentences.',
+        modePractice: 'Practice Speaking', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing',
+        navHome: 'Home', navWatch: 'Watch', navLearn: 'Learn', navSpeak: 'Speak',
+        ytModalTitle: 'Upload YouTube Video', addBtn: 'Add'
+      },
+      de: {
+        watchTimer: 'Sehen', speakTimer: 'Sprechen', homeTitle: 'Willkommen bei Bloom', levelBtn: 'Niveau', watchBtn: 'Sehen',
+        chooseTutor: 'Wähle deine KI-Lehrkraft', femaleVoiceLabel: 'Frau • Weibliche Stimme', maleVoiceLabel: 'Mann • Männliche Stimme',
+        streakCal: 'Serie & Kalender', cefrTitle: 'GER-Stufen, Stunden & 20-Min-Freischaltquiz',
+        cefrDesc: 'Erfülle die Lernstunden oder bestehe ein 20-Minuten-Quiz (4 Fertigkeiten + Grammatik), um die nächste Stufe sofort freizuschalten.',
+        watchTitle: 'YouTube-Videos ansehen & lernen', watchSub: 'Füge einen YouTube-Link ein, schaue das Video zu Ende und schalte Vokabeln sowie Videogespräch frei.',
+        uploadYt: 'YouTube-Video hochladen', finishVideo: 'Video beenden', vocabBtn: 'Vokabeln', discussBtn: 'Video besprechen',
+        savedVideos: 'Deine Videos', learnTitle: 'Lernen', learnSub: 'Fünf Übungswerkzeuge abgestimmt auf dein Niveau und deine Sprache.',
+        toolFlashcards: 'Karteikarten', toolFlashcardsDesc: 'Übe Wörter aus gesehenen Videos.',
+        toolPhoto: 'Foto-Gespräch', toolPhotoDesc: 'Beschreibe ein Foto 1 Min. per Sprache für Korrektur & Ideen.',
+        toolTopic: 'Themenrede', toolTopicDesc: 'Sprich 1 Min. zu einem Thema und erhalte eine schriftliche Korrektur.',
+        toolWordLink: 'Wortkette', toolWordLinkDesc: 'Verbinde in 1 Minute per Sprache so viele Wörter wie möglich.',
+        toolVideoLab: 'Video-Wörter & Gespräch', toolVideoLabDesc: 'Wiederhole nützliche Videowörter & besprich dein Video.',
+        speakTitle: 'Sprechen', speakSub: 'Übe freies Sprechen, Rollenspiele oder Shadowing mit Muttersprachlern.',
+        modePractice: 'Freies Sprechen', modeRolePlay: 'Rollenspiel', modeShadowing: 'Shadowing',
+        navHome: 'Start', navWatch: 'Sehen', navLearn: 'Lernen', navSpeak: 'Sprechen',
+        ytModalTitle: 'YouTube-Video hochladen', addBtn: 'Hinzufügen'
+      },
+      fr: {
+        watchTimer: 'Regarder', speakTimer: 'Parler', homeTitle: 'Bienvenue sur Bloom', levelBtn: 'Niveau', watchBtn: 'Regarder',
+        chooseTutor: 'Choisissez votre coach IA', femaleVoiceLabel: 'Femme • Voix féminine', maleVoiceLabel: 'Homme • Voix masculine',
+        streakCal: 'Série & Calendrier', cefrTitle: 'Niveaux CECR, Heures & Quiz de 20 Min',
+        cefrDesc: 'Complétez les heures requises ou réussissez un quiz de 20 minutes (4 compétences + grammaire) pour débloquer le niveau suivant.',
+        watchTitle: 'Regarder & Apprendre sur YouTube', watchSub: 'Collez un lien YouTube, terminez la vidéo pour débloquer le vocabulaire utile et la discussion.',
+        uploadYt: 'Ajouter une vidéo YouTube', finishVideo: 'Terminer la vidéo', vocabBtn: 'Vocabulaire', discussBtn: 'Discuter de la vidéo',
+        savedVideos: 'Vos vidéos', learnTitle: 'Apprendre', learnSub: 'Cinq outils adaptés à votre niveau et à votre langue.',
+        toolFlashcards: 'Cartes mémoire', toolFlashcardsDesc: 'Révisez les mots des vidéos regardées.',
+        toolPhoto: 'Discussion photo', toolPhotoDesc: 'Décrivez une photo pendant 1 min pour correction et idées.',
+        toolTopic: 'Sujet libre', toolTopicDesc: 'Parlez 1 min sur un sujet et recevez une correction écrite.',
+        toolWordLink: 'Chaîne de mots', toolWordLinkDesc: 'Reliez un maximum de mots en 1 minute à l’oral.',
+        toolVideoLab: 'Mots & Débat Vidéo', toolVideoLabDesc: 'Revoyez le vocabulaire utile et discutez de votre vidéo.',
+        speakTitle: 'Parler', speakSub: 'Pratiquez la conversation, des jeux de rôle ou le shadowing.',
+        modePractice: 'Pratiquer l’oral', modeRolePlay: 'Jeu de rôle', modeShadowing: 'Shadowing',
+        navHome: 'Accueil', navWatch: 'Regarder', navLearn: 'Apprendre', navSpeak: 'Parler',
+        ytModalTitle: 'Ajouter une vidéo YouTube', addBtn: 'Ajouter'
+      },
+      es: {
+        watchTimer: 'Ver', speakTimer: 'Hablar', homeTitle: 'Bienvenido a Bloom', levelBtn: 'Nivel', watchBtn: 'Ver',
+        chooseTutor: 'Elige tu tutor de IA', femaleVoiceLabel: 'Mujer • Voz femenina', maleVoiceLabel: 'Hombre • Voz masculina',
+        streakCal: 'Racha y Calendario', cefrTitle: 'Niveles MCER, Horas y Quiz de 20 Min',
+        cefrDesc: 'Completa las horas requeridas o aprueba un quiz de 20 minutos (4 destrezas + gramática) para desbloquear el siguiente nivel.',
+        watchTitle: 'Ver y Aprender en YouTube', watchSub: 'Pega un enlace de YouTube, termina el video para desbloquear vocabulario útil y conversación.',
+        uploadYt: 'Subir video de YouTube', finishVideo: 'Terminar video', vocabBtn: 'Vocabulario', discussBtn: 'Comentar el video',
+        savedVideos: 'Tus videos', learnTitle: 'Aprender', learnSub: 'Cinco herramientas adaptadas a tu nivel y tu idioma.',
+        toolFlashcards: 'Tarjetas', toolFlashcardsDesc: 'Practica palabras de los videos que viste.',
+        toolPhoto: 'Charla de foto', toolPhotoDesc: 'Describe una foto durante 1 min para corrección e ideas.',
+        toolTopic: 'Hablar del tema', toolTopicDesc: 'Habla 1 min sobre un tema y recibe corrección escrita.',
+        toolWordLink: 'Cadena de palabras', toolWordLinkDesc: 'Enlaza tantas palabras como puedas en 1 minuto por voz.',
+        toolVideoLab: 'Palabras y Charla de Video', toolVideoLabDesc: 'Repasa palabras útiles y comenta tu video.',
+        speakTitle: 'Hablar', speakSub: 'Practica conversación libre, role play o shadowing.',
+        modePractice: 'Practicar habla', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing',
+        navHome: 'Inicio', navWatch: 'Ver', navLearn: 'Aprender', navSpeak: 'Hablar',
+        ytModalTitle: 'Subir video de YouTube', addBtn: 'Añadir'
       }
+    };
+
+    const TUTORS_BY_LANG = {
+      en: { female: 'Claire', male: 'Julian', bcp47: 'en-US' },
+      de: { female: 'Hannah', male: 'Lukas', bcp47: 'de-DE' },
+      fr: { female: 'Camille', male: 'Julien', bcp47: 'fr-FR' },
+      es: { female: 'Sofia', male: 'Mateo', bcp47: 'es-ES' }
+    };
+
+    const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const CEFR_HOURS = { A1: 100, A2: 225, B1: 400, B2: 800, C1: 1200, C2: 2000 };
+
+    let app = JSON.parse(localStorage.getItem('bloom_v2_state')) || {
+      lang: 'en',
+      level: 'B2',
+      unlockedLevels: ['A1', 'A2', 'B1', 'B2'],
+      tutorGender: 'female',
+      watchMinutesToday: 0,
+      speakMinutesToday: 0,
+      hoursByLevel: { A1: 100, A2: 225, B1: 400, B2: 45, C1: 0, C2: 0 },
+      streakDays: 1,
+      activeDays: [new Date().getDate()],
+      user: null,
+      videos: [],
+      activeVideoId: null,
+      learnedFlashcards: []
+    };
+
+    // Strict session lock so AI voice & video playback never leak or play randomly
+    let audioSessionId = 0;
+    let blockAudioFlag = false;
+    let activeRec = null, recTimer = null, recSecs = 0, recCallback = null;
+    let realCallActive = false;
+    let speakHistory = [];
+    let videoDiscussHistory = [];
+
+    function saveBloom() {
+      localStorage.setItem('bloom_v2_state', JSON.stringify(app));
+      renderAll();
+    }
+
+    function stopAllAudioAndVideo() {
+      audioSessionId += 1;
+      blockAudioFlag = true;
+      setTimeout(() => { blockAudioFlag = false; }, 180);
       if ('speechSynthesis' in window) {
         try { window.speechSynthesis.cancel(); } catch (_) {}
       }
-      stopListeningSession(true);
-      const homeFrame = document.getElementById('currentVideoFrame');
-      const watchFrame = document.getElementById('watchLessonFrame');
-      if (homeFrame && homeFrame.src !== 'about:blank') homeFrame.src = 'about:blank';
-      if (watchFrame && watchFrame.src !== 'about:blank') watchFrame.src = 'about:blank';
+      if (recTimer) { clearInterval(recTimer); recTimer = null; }
+      if (activeRec) {
+        try { activeRec.onend = null; activeRec.stop(); } catch (_) {}
+        activeRec = null;
+      }
+      const frame = document.getElementById('ytPlayerFrame');
+      if (frame && frame.src !== 'about:blank') frame.src = 'about:blank';
     }
 
-    function activateHomeVideoIfNeeded() {
-      const homeFrame = document.getElementById('currentVideoFrame');
-      if (homeFrame && state.currentVideo?.id) {
-        homeFrame.src = `https://www.youtube.com/embed/${state.currentVideo.id}?rel=0`;
+    function pickGenderVoice(bcp47, gender) {
+      if (!('speechSynthesis' in window)) return null;
+      const list = window.speechSynthesis.getVoices() || [];
+      if (!list.length) return null;
+      const prefix = (bcp47 || 'en').slice(0, 2).toLowerCase();
+      const matching = list.filter(v => (v.lang || '').toLowerCase().startsWith(prefix));
+      const pool = matching.length ? matching : list;
+      const femWords = ['female','woman','claire','hannah','camille','sofia','samantha','victoria','serena','ava','paulina','helena','anna','amelie'];
+      const mascWords = ['male','man','julian','lukas','julien','mateo','daniel','arthur','george','jorge','diego','thomas'];
+      const targetWords = gender === 'male' ? mascWords : femWords;
+
+      return pool.map(v => {
+        const hay = `${v.name} ${v.voiceURI}`.toLowerCase();
+        let score = 0;
+        if (targetWords.some(w => hay.includes(w))) score += 10;
+        if (hay.includes('natural') || hay.includes('neural') || hay.includes('google')) score += 4;
+        return { v, score };
+      }).sort((a, b) => b.score - a.score)[0]?.v || null;
+    }
+
+    function speakCoachLine(text, onDone = null) {
+      if (blockAudioFlag || !('speechSynthesis' in window)) {
+        if (onDone) onDone();
+        return;
+      }
+      const token = ++audioSessionId;
+      try { window.speechSynthesis.cancel(); } catch (_) {}
+      const clean = String(text || '').trim();
+      if (!clean) { if (onDone) onDone(); return; }
+
+      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = tm.bcp47;
+      const voice = pickGenderVoice(tm.bcp47, app.tutorGender);
+      if (voice) utter.voice = voice;
+      utter.pitch = app.tutorGender === 'female' ? 1.06 : 0.92;
+      utter.rate = app.level === 'A1' || app.level === 'A2' ? 0.88 : 0.98;
+      utter.onstart = () => {
+        if (token !== audioSessionId || blockAudioFlag) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+      };
+      utter.onend = () => { if (token === audioSessionId && onDone) onDone(); };
+      utter.onerror = () => { if (token === audioSessionId && onDone) onDone(); };
+      window.speechSynthesis.speak(utter);
+    }
+
+    function addWatchMin(m) {
+      app.watchMinutesToday = Math.min(60, app.watchMinutesToday + m);
+      app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60);
+      markTodayActive();
+      saveBloom();
+    }
+
+    function addSpeakMin(m) {
+      app.speakMinutesToday = Math.min(60, app.speakMinutesToday + m);
+      app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60);
+      markTodayActive();
+      saveBloom();
+    }
+
+    function markTodayActive() {
+      const d = new Date().getDate();
+      if (!app.activeDays.includes(d)) {
+        app.activeDays.push(d);
+        app.streakDays += 1;
       }
     }
 
-    function pickSmoothVoice(langPref, genderHint) {
-      if (!('speechSynthesis' in window)) return null;
-      const voices = window.speechSynthesis.getVoices() || [];
-      if (!voices.length) return null;
-      const langCode = (langPref || 'en-GB').slice(0, 2).toLowerCase();
-      const pool = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langCode));
-      const candidates = pool.length ? pool : voices;
-      const maleHints = ['liam','callum','daniel','oliver','arthur','george','ryan','aaron','james','google uk english male','google us english'];
-      const femaleHints = ['clara','serena','samantha','victoria','ava','kate','moira','google uk english female'];
-
-      return candidates.map(v => {
-        const label = `${v.name} ${v.voiceURI}`.toLowerCase();
-        let score = 0;
-        if (label.includes('natural') || label.includes('neural') || label.includes('premium') || label.includes('enhanced')) score += 7;
-        if (label.includes('google')) score += 4;
-        if (genderHint === 'male' && maleHints.some(m => label.includes(m))) score += 5;
-        if (genderHint === 'female' && femaleHints.some(f => label.includes(f))) score += 5;
-        if (v.lang && v.lang.toLowerCase() === (langPref || '').toLowerCase()) score += 2;
-        return { voice: v, score };
-      }).sort((a, b) => b.score - a.score)[0]?.voice || null;
-    }
-
-    // Speaks clause-by-clause with natural prosody and aborts immediately if section changes
-    function speakText(text, force = true, customRate = null) {
-      if (isTransitioningSection || !('speechSynthesis' in window)) return;
-      if (!force && !state.settings.autoVoice) return;
-
-      const token = ++speechSessionToken;
-      window.speechSynthesis.cancel();
-
-      const cleaned = String(text || '').replace(/💡 Tip:.*/s, '').trim();
-      if (!cleaned) return;
-
-      const chunks = cleaned.match(/[^.!?]+[.!?]*\s*/g) || [cleaned];
-      const genderHint = state.tutor.initial === 'C' ? 'female' : 'male';
-      const chosen = pickSmoothVoice(state.tutor.voice, genderHint);
-      const baseRate = customRate || parseFloat(state.settings.speed || '0.96');
-
-      chunks.forEach((part, idx) => {
-        const phrase = part.trim();
-        if (!phrase) return;
-        const utter = new SpeechSynthesisUtterance(phrase);
-        if (chosen) utter.voice = chosen;
-        utter.lang = state.tutor.voice || 'en-GB';
-        utter.rate = Math.max(0.7, Math.min(1.2, baseRate * (idx % 2 === 0 ? 1.0 : 0.98)));
-        utter.pitch = genderHint === 'female' ? 1.04 : 0.96;
-        utter.onstart = () => {
-          if (token !== speechSessionToken || isTransitioningSection) {
-            try { window.speechSynthesis.cancel(); } catch (_) {}
-          }
-        };
-        window.speechSynthesis.speak(utter);
+    async function callBloomAI(payload) {
+      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
+      const res = await fetch('/api/bloom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lang: app.lang,
+          level: app.level,
+          tutorGender: app.tutorGender,
+          tutorName: tm[app.tutorGender],
+          userName: app.user?.name || 'Learner',
+          ...payload
+        })
       });
+      const data = await res.json();
+      if (!res.ok || !data.reply) throw new Error(data.error || 'AI error');
+      return data.reply;
     }
     </script>
       <script>
-    function saveState() {
-      localStorage.setItem('bloom_app_state', JSON.stringify(state));
-      updateAllUI();
+    function parseYouTubeId(input) {
+      const m = String(input || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : null;
     }
 
-    function switchTab(tabName) {
-      stopAllMediaAndSpeech(true);
-      closeAllPopovers();
-      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab-' + tabName)?.classList.add('active');
-      document.getElementById('nav-' + tabName)?.classList.add('active');
-      if (tabName === 'home') activateHomeVideoIfNeeded();
-      if (tabName === 'speak') resetSpeakView(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function getActiveVideo() {
+      return app.videos.find(v => v.id === app.activeVideoId) || null;
     }
 
-    function openModal(id) {
-      if (id === 'outsideModal') document.getElementById('outsideDate').valueAsDate = new Date();
-      if (id === 'outsideHistoryModal') renderOutsideLogs();
-      if (id === 'lessonSettingsModal') {
-        document.getElementById('modalTutorSelect').value = `${state.tutor.name}|${state.tutor.initial}|${state.tutor.voice}|${state.tutor.accent}`;
-        document.getElementById('modalNativeLang').value = state.settings.nativeLang;
-      }
-      document.getElementById(id)?.classList.add('open');
-    }
-
-    function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
-
-    function setLessonStep(step) {
-      stopAllMediaAndSpeech(true);
-      [1, 2, 3].forEach(n => {
-        const node = document.getElementById('stepNode' + n);
-        node.classList.remove('active', 'completed');
-        if (n < step) node.classList.add('completed');
-        if (n === step) node.classList.add('active');
-      });
-      document.getElementById('stepLine1').classList.toggle('done', step > 1);
-      document.getElementById('stepLine2').classList.toggle('done', step > 2);
-      if (step === 1) activateHomeVideoIfNeeded();
-      if (step === 2) openVideoVocabOverlay();
-      if (step === 3) { switchTab('speak'); launchSpeakMode('discuss_video'); }
-    }
-
-    function extractYouTubeId(url) {
-      const m = String(url || '').match(/^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-      return (m && m[2].length === 11) ? m[2] : null;
-    }
-
-    function importCustomVideo() {
-      const rawUrl = document.getElementById('newVideoUrl').value.trim();
-      const ytId = extractYouTubeId(rawUrl);
+    async function handleAddYouTubeLink() {
+      const raw = document.getElementById('ytLinkOnlyInput').value.trim();
+      const ytId = parseYouTubeId(raw);
       if (!ytId) return alert('Please paste a valid YouTube link.');
-      const vid = {
+      const existing = app.videos.find(v => v.id === ytId);
+      const vid = existing || {
         id: ytId,
-        title: document.getElementById('newVideoTitle').value.trim() || 'Custom YouTube Video',
-        level: document.getElementById('newVideoLevel').value,
-        country: document.getElementById('newVideoCountry').value,
-        duration: 'Video',
-        creator: state.tutor.name.split(' ')[0],
-        sortOrder: 'New',
-        difficulty: 'Easy',
-        watched: false,
-        notes: document.getElementById('newVideoNotes').value.trim() || 'Custom video lesson'
+        title: `YouTube Lesson (${ytId})`,
+        completed: false,
+        vocab: []
       };
-      state.videos.unshift(vid);
-      state.currentVideo = vid;
-      document.getElementById('newVideoUrl').value = '';
-      document.getElementById('newVideoTitle').value = '';
-      document.getElementById('newVideoNotes').value = '';
-      closeModal('addVideoModal');
-      saveState();
-      switchTab('home');
+      if (!existing) app.videos.unshift(vid);
+      app.activeVideoId = ytId;
+      document.getElementById('ytLinkOnlyInput').value = '';
+      document.getElementById('ytModal').classList.remove('open');
+      saveBloom();
+      switchView('watch');
+      document.getElementById('ytPlayerFrame').src = `https://www.youtube.com/embed/${ytId}?rel=0`;
     }
 
-    function closeAllPopovers(exceptId = null) {
-      ['sortPopover', 'levelPopover', 'countryPopover'].forEach(id => {
-        if (id !== exceptId) document.getElementById(id)?.classList.remove('open');
-      });
-    }
-
-    function renderPopover(id) {
-      const el = document.getElementById(id);
-      if (id === 'sortPopover') {
-        el.innerHTML = ['Featured','New','Easy','Hard','Random'].map(o => `<div class="popover-item ${sortMode===o?'selected':''}" data-sort="${o}"><span>${o}</span><span>${sortMode===o?'✓':''}</span></div>`).join('');
-      } else if (id === 'levelPopover') {
-        const lvls = [['A0','A0 Complete Beginner'],['A1','A1 Beginner'],['A2','A2 Upper Beginner'],['B1','B1 Intermediate'],['B2','B2 Upper Intermediate'],['C1','C1 Advanced']];
-        el.innerHTML = `<div class="mode-pill-switch"><button class="${levelFilterMode==='Include'?'active':''}" data-lvl-mode="Include">Include</button><button class="${levelFilterMode==='Exclude'?'active':''}" data-lvl-mode="Exclude">Exclude</button></div>` +
-          lvls.map(([c,l]) => `<div class="popover-item ${selectedLevels.includes(c)?'selected':''}" data-lvl="${c}"><span>${l}</span><span>${selectedLevels.includes(c)?'●':'○'}</span></div>`).join('');
-      } else if (id === 'countryPopover') {
-        const cs = ['Australia','Canada','Ireland','United Kingdom','United States'];
-        el.innerHTML = `<div class="mode-pill-switch"><button class="${countryFilterMode==='Include'?'active':''}" data-c-mode="Include">Include</button><button class="${countryFilterMode==='Exclude'?'active':''}" data-c-mode="Exclude">Exclude</button></div>` +
-          cs.map(c => `<div class="popover-item ${selectedCountries.includes(c)?'selected':''}" data-country="${c}"><span>${c}</span><span>${selectedCountries.includes(c)?'●':'○'}</span></div>`).join('');
-      }
-    }
-
-    function renderVideos(onlyWatched = false) {
-      const grid = document.getElementById('videoGrid');
-      if (!grid) return;
-      const creator = document.getElementById('tutorCreatorFilter').value;
-      const q = document.getElementById('videoSearchInput').value.toLowerCase().trim();
-      let list = state.videos.filter(v => {
-        if (onlyWatched && !v.watched) return false;
-        if (!onlyWatched && hideWatched && v.watched) return false;
-        if (creator !== 'ALL' && v.creator !== creator) return false;
-        if (selectedLevels.length) {
-          const has = selectedLevels.includes(v.level);
-          if ((levelFilterMode === 'Include' && !has) || (levelFilterMode === 'Exclude' && has)) return false;
+    async function finishCurrentVideo() {
+      const vid = getActiveVideo();
+      if (!vid) return;
+      stopAllAudioAndVideo();
+      vid.completed = true;
+      addWatchMin(10);
+      if (!vid.vocab || !vid.vocab.length) {
+        try {
+          const rawReply = await callBloomAI({
+            action: 'video_vocab',
+            videoTitle: vid.title,
+            videoContext: `YouTube video ID ${vid.id}`
+          });
+          const cleaned = rawReply.replace(/```json|```/g, '').trim();
+          const parsed = JSON.parse(cleaned);
+          if (Array.isArray(parsed.words)) vid.vocab = parsed.words;
+        } catch (_) {
+          vid.vocab = [
+            { term: 'key takeaway', meaningInLang: 'Main point / core idea', example: 'The key takeaway from the video is consistency.' },
+            { term: 'in practice', meaningInLang: 'In real use', example: 'This works well in practice.' }
+          ];
         }
-        if (selectedCountries.length) {
-          const has = selectedCountries.includes(v.country);
-          if ((countryFilterMode === 'Include' && !has) || (countryFilterMode === 'Exclude' && has)) return false;
-        }
-        if (q && !v.title.toLowerCase().includes(q) && !(v.notes||'').toLowerCase().includes(q)) return false;
-        return true;
-      });
-      if (sortMode === 'New') list = list.filter(v => v.sortOrder === 'New').concat(list.filter(v => v.sortOrder !== 'New'));
-      if (sortMode === 'Easy') list = list.filter(v => v.difficulty === 'Easy').concat(list.filter(v => v.difficulty !== 'Easy'));
-      if (sortMode === 'Hard') list = list.filter(v => v.difficulty === 'Hard').concat(list.filter(v => v.difficulty !== 'Hard'));
-      if (sortMode === 'Random') list = [...list].sort(() => Math.random() - 0.5);
-
-      grid.innerHTML = list.map(v => `
-        <div class="video-card" data-open-video="${v.id}">
-          <div class="thumb-box"><img src="https://img.youtube.com/vi/${v.id}/hqdefault.jpg" alt="" /><span class="level-badge ${v.level.toLowerCase()}">${v.level}</span><span class="duration-badge">${v.duration}</span></div>
-          <div class="video-card-body"><div class="video-card-title">${escapeHtml(v.title)}</div><div class="video-card-meta"><span>Creator: ${escapeHtml(v.creator)}</span><span>${v.watched ? '✓ Watched' : escapeHtml(v.country || '')}</span></div></div>
-        </div>
-      `).join('') || '<p class="subtitle">No videos match your filters.</p>';
-    }
-
-    function openVideoVocabOverlay() {
-      stopAllMediaAndSpeech(true);
-      document.getElementById('vocabOverlayTitle').textContent = `Vocabulary • ${state.currentVideo.title}`;
-      document.getElementById('videoVocabCardsContainer').innerHTML = state.words.map((w, i) => {
-        const sub = cardSubTabMap[i] || 'definition';
-        const detail = sub === 'definition' ? `<strong>Meaning:</strong> ${escapeHtml(w.meaning)}`
-          : sub === 'conjugation' ? `<strong>Forms:</strong> ${escapeHtml(w.conjugation || w.text)}`
-          : sub === 'example' ? `<strong>Example:</strong> ${escapeHtml(w.example || w.text)}`
-          : `<strong>Use it:</strong> Practice saying "${escapeHtml(w.text)}" in a full sentence.`;
-        return `<div class="study-word-card"><div class="study-word-top"><span>• • •</span><label style="cursor:pointer;color:var(--forest);"><input type="checkbox" data-vocab-idx="${i}" ${selectedVocabIndices.has(i)?'checked':''} /> Save</label></div><div style="text-align:center;padding:12px 0 16px;font-size:24px;font-weight:800;color:var(--forest);display:flex;align-items:center;justify-content:center;gap:10px;"><span>${escapeHtml(w.text)}</span><button class="icon-circle-btn" style="width:32px;height:32px;" data-speak-word="${escapeJs(w.text)}"><i data-lucide="volume-2" size="15"></i></button></div><div class="study-subtabs"><button class="study-subtab ${sub==='definition'?'active':''}" data-card-sub="${i}|definition">Definition</button><button class="study-subtab ${sub==='conjugation'?'active':''}" data-card-sub="${i}|conjugation">Conjugation</button><button class="study-subtab ${sub==='example'?'active':''}" data-card-sub="${i}|example">Example</button><button class="study-subtab ${sub==='use'?'active':''}" data-card-sub="${i}|use">Use it</button></div><div class="study-detail-box">${detail}</div></div>`;
-      }).join('');
-      document.getElementById('videoVocabOverlay').classList.add('open');
-      lucide.createIcons();
-    }
-
-    function openPhotoChitChat() {
-      stopAllMediaAndSpeech(true);
-      chitChatIndex = 0;
-      renderPhotoChitChatScene();
-      document.getElementById('photoChitChatOverlay').classList.add('open');
-      lucide.createIcons();
-    }
-
-    function renderPhotoChitChatScene() {
-      const sc = PHOTO_CHIT_CHAT_SCENES[chitChatIndex % PHOTO_CHIT_CHAT_SCENES.length];
-      document.getElementById('chitChatPhotoImg').src = sc.url;
-      document.getElementById('photoLabelsBox').style.display = 'none';
-      document.getElementById('photoLabelsBox').textContent = `Labels: ${sc.labels}`;
-      const words = sc.vocab.split(',').map(s => s.trim());
-      document.getElementById('usefulVocabCount').textContent = `${words.length} words`;
-      document.getElementById('usefulVocabBox').textContent = sc.vocab;
-      document.getElementById('chitListenSub').textContent = `${state.tutor.name.split(' ')[0]} describes it`;
-      document.getElementById('chitChatDescriptionBox').style.display = 'none';
-      document.getElementById('chitSpeakInlineBox').classList.remove('open');
-      document.getElementById('chitTutorReplyBox').style.display = 'none';
-      document.getElementById('chitSpeakInput').value = '';
-    }
-
-    // Stays in Photo Chit Chat for a 60s speaking turn (like Duolingo)
-    function openChitChatSpeakInline() {
-      stopListeningSession(true);
-      document.getElementById('chitSpeakInlineBox').classList.add('open');
-      document.getElementById('chitTutorReplyBox').style.display = 'none';
-      startTimedMic('chit', 60);
-    }
-
-    async function submitChitChatSpeech() {
-      const desc = document.getElementById('chitSpeakInput').value.trim();
-      stopListeningSession(true);
-      if (!desc) return;
-      const sc = PHOTO_CHIT_CHAT_SCENES[chitChatIndex % PHOTO_CHIT_CHAT_SCENES.length];
-      const box = document.getElementById('chitTutorReplyBox');
-      box.style.display = 'block';
-      box.textContent = `${state.tutor.name.split(' ')[0]} is replying...`;
-      try {
-        const res = await fetch('/api/speak', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: 'photo_chit_chat',
-            tutorName: state.tutor.name,
-            tutorAccent: state.tutor.accent,
-            topic: `${sc.description} (${sc.labels})`,
-            message: desc,
-            crosstalk: state.settings.crosstalk,
-            corrections: state.settings.corrections,
-            nativeLang: state.settings.nativeLang,
-            userName: state.userName
-          })
-        });
-        const data = await res.json();
-        const reply = data.reply || 'Nice description!';
-        box.textContent = `${state.tutor.name.split(' ')[0]}: ${reply}`;
-        speakText(reply, false);
-      } catch (_) {
-        box.textContent = 'Check /api/speak connection.';
       }
-    }
-      </script>
-        <script>
-    function openFlashcardMenu() {
-      stopAllMediaAndSpeech(true);
-      flashcardDeck = state.words.filter(w => w.status === 'learning');
-      if (!flashcardDeck.length) flashcardDeck = [...state.words];
-      document.getElementById('flashcardModeChooser').style.display = 'block';
-      document.getElementById('flashcardActiveStage').style.display = 'none';
-      document.getElementById('flashcardOverlay').classList.add('open');
-      lucide.createIcons();
+      saveBloom();
     }
 
-    function startFlashcardMode(mode) {
-      flashcardMode = mode; flashcardIdx = 0; flashcardRevealed = false;
-      document.getElementById('flashcardModeChooser').style.display = 'none';
-      document.getElementById('flashcardActiveStage').style.display = 'block';
-      renderFlashcardStage();
-    }
-
-    function renderFlashcardStage() {
-      const card = flashcardDeck[flashcardIdx % flashcardDeck.length];
-      document.getElementById('fcCounterBadge').textContent = `${(flashcardIdx % flashcardDeck.length) + 1} / ${flashcardDeck.length}`;
-      const prompt = flashcardMode === 'produce' ? card.meaning : (flashcardMode === 'listen' ? '🎧 Listen carefully...' : card.text);
-      const answer = flashcardMode === 'produce' ? card.text : card.meaning;
-      if (flashcardMode === 'listen') speakText(card.text, true);
-      document.getElementById('flashcardActiveStage').innerHTML = `
-        <div class="study-word-card" style="text-align:center;">
-          <div class="study-word-top"><span>${flashcardMode.toUpperCase()}</span><span style="cursor:pointer;" data-fc-action="reveal">文ₐ Reveal</span></div>
-          <div style="font-size:24px;font-weight:800;color:var(--forest);padding:18px 0;">${escapeHtml(prompt)}</div>
-          <div style="display:flex;justify-content:center;gap:10px;margin-bottom:14px;">
-            <button class="btn-pill" data-speak-word="${escapeJs(card.text)}">🔊 Normal</button>
-            <button class="btn-pill" data-speak-word="${escapeJs(card.text)}" data-rate="0.72">🐢 Slow</button>
+    function renderVideoVocabPanel() {
+      const vid = getActiveVideo();
+      const panel = document.getElementById('videoVocabPanel');
+      if (!vid || !vid.completed) return;
+      panel.style.display = 'block';
+      panel.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Useful Vocabulary from Video</div>` +
+        (vid.vocab || []).map(w => `
+          <div style="padding:10px 12px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;background:#F8FBFF;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong>${esc(w.term)}</strong>
+              <button class="btn btn-soft" style="padding:4px 10px;font-size:12px;" data-speak-line="${escAttr(w.term)}">🔊</button>
+            </div>
+            <div class="muted" style="font-size:12px;">${esc(w.meaningInLang)}</div>
+            <div style="font-size:12px;margin-top:4px;"><em>${esc(w.example)}</em></div>
           </div>
-          ${flashcardRevealed ? `<div class="study-detail-box" style="font-size:15px;font-weight:700;">${escapeHtml(answer)}</div>` : ''}
+        `).join('');
+    }
+
+    function renderVideoDiscussPanel() {
+      const vid = getActiveVideo();
+      const panel = document.getElementById('videoDiscussPanel');
+      if (!vid || !vid.completed) return;
+      panel.style.display = 'block';
+      panel.innerHTML = `
+        <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Discuss: ${esc(vid.title)}</div>
+        <div class="chat-log" id="vidDiscussLog" style="height:200px;"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input type="text" class="field" id="vidDiscussInput" placeholder="Ask or share thoughts about the video..." />
+          <button class="btn btn-primary" data-action="send-video-discuss">Send</button>
         </div>
-        <div style="display:flex;gap:10px;justify-content:center;">
-          <button class="btn-pill" data-fc-action="back">← Modes</button>
-          <button class="btn-pill btn-lime" data-fc-action="next">Next Card →</button>
-        </div>
+      `;
+      if (!videoDiscussHistory.length) {
+        sendVideoDiscussMessage(`Let's discuss the video "${vid.title}". Ask me a thought-provoking question about it.`, true);
+      } else {
+        redrawLog('vidDiscussLog', videoDiscussHistory);
+      }
+    }
+
+    async function sendVideoDiscussMessage(presetText = null, silentUser = false) {
+      const vid = getActiveVideo();
+      if (!vid) return;
+      const input = document.getElementById('vidDiscussInput');
+      const text = presetText || input?.value.trim();
+      if (!text) return;
+      if (!silentUser && input) input.value = '';
+      if (!silentUser) videoDiscussHistory.push({ role: 'user', content: text });
+      redrawLog('vidDiscussLog', videoDiscussHistory, '...');
+      try {
+        const reply = await callBloomAI({
+          action: 'discuss_video',
+          videoTitle: vid.title,
+          videoContext: `Completed YouTube video (${vid.id})`,
+          message: text,
+          history: videoDiscussHistory
+        });
+        videoDiscussHistory.push({ role: 'assistant', content: reply });
+        redrawLog('vidDiscussLog', videoDiscussHistory);
+        if (!silentUser) speakCoachLine(reply);
+      } catch (e) {
+        videoDiscussHistory.push({ role: 'assistant', content: e.message });
+        redrawLog('vidDiscussLog', videoDiscussHistory);
+      }
+    }
+
+    function openLearnTool(tool) {
+      stopAllAudioAndVideo();
+      const box = document.getElementById('learnToolContent');
+      if (tool === 'flashcards') {
+        const pool = app.videos.filter(v => v.completed).flatMap(v => v.vocab || []);
+        if (!pool.length) {
+          box.innerHTML = `<p class="muted">Finish a YouTube video first to unlock flashcards from its vocabulary.</p>`;
+          return;
+        }
+        const card = pool[app.learnedFlashcards.length % pool.length];
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Flashcards (Watched Video Words)</div>
+          <div style="padding:18px;border:1px solid var(--border);border-radius:16px;text-align:center;background:#F8FBFF;">
+            <div style="font-size:22px;font-weight:800;color:var(--primary-deep);">${esc(card.term)}</div>
+            <div style="margin-top:8px;font-size:14px;">${esc(card.meaningInLang)}</div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
+              <button class="btn btn-soft" data-speak-line="${escAttr(card.term)}">🔊 Listen</button>
+              <button class="btn btn-primary" data-action="next-flashcard">Practiced →</button>
+            </div>
+          </div>
+        `;
+      } else if (tool === 'photo') {
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Photo Chit Chat (1 Min Recording)</div>
+          <img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=900&q=80" alt="Photo scene" style="width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:10px;" />
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button class="btn btn-primary" data-rec-sec="60" data-rec-target="photoText">🎙️ Record 1 Min</button>
+            <button class="btn btn-soft" data-learn-eval="photo">Get Correction & Ideas</button>
+          </div>
+          <textarea class="field" id="photoText" rows="3" placeholder="Speak for up to 1 minute or type your photo description..."></textarea>
+          <div id="photoFeedback" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>
+        `;
+      } else if (tool === 'topic') {
+        const topics = ['Technology & Daily Life', 'Travel & Culture', 'Work & Growth', 'Habits & Focus'];
+        const chosenTopic = topics[Math.floor(Math.random() * topics.length)];
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Topic Talk (1 Min) — <span style="color:var(--primary);">${esc(chosenTopic)}</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button class="btn btn-primary" data-rec-sec="60" data-rec-target="topicText">🎙️ Record 1 Min</button>
+            <button class="btn btn-soft" data-learn-eval="topic" data-topic-name="${escAttr(chosenTopic)}">Get Written Correction</button>
+          </div>
+          <textarea class="field" id="topicText" rows="3" placeholder="Speak for up to 1 minute on this topic..."></textarea>
+          <div id="topicFeedback" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>
+        `;
+      } else if (tool === 'wordlink') {
+        const starters = ['ocean', 'journey', 'light', 'bridge', 'focus'];
+        const startWord = starters[Math.floor(Math.random() * starters.length)];
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Word Link (1 Min) — Start Word: <span style="color:var(--primary);">${esc(startWord)}</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button class="btn btn-primary" data-rec-sec="60" data-rec-target="wordlinkText">🎙️ Record 1 Min</button>
+            <button class="btn btn-soft" data-learn-eval="wordlink" data-start-word="${escAttr(startWord)}">Check & Suggest Chain</button>
+          </div>
+          <textarea class="field" id="wordlinkText" rows="2" placeholder="Say linked words in 1 minute..."></textarea>
+          <div id="wordlinkFeedback" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>
+        `;
+      } else if (tool === 'videolab') {
+        const vid = getActiveVideo();
+        box.innerHTML = vid && vid.completed
+          ? `<div style="font-weight:800;color:var(--primary-deep);">Video Word & Talk Lab: ${esc(vid.title)}</div><p class="muted" style="margin-top:6px;">Switch to Watch tab to inspect vocabulary cards or continue your video discussion.</p>`
+          : `<p class="muted">Complete a video in the Watch tab to unlock its vocabulary and discussion lab here.</p>`;
+      }
+    }
+
+    let speakMode = 'practice';
+    function setSpeakMode(mode) {
+      stopAllAudioAndVideo();
+      realCallActive = false;
+      speakMode = mode;
+      const picker = document.getElementById('speakSubPicker');
+      document.getElementById('speakActiveLabel').textContent =
+        mode === 'practice' ? 'Practice Speaking' : (mode === 'roleplay' ? 'Role Play' : 'Shadowing');
+
+      if (mode === 'roleplay') {
+        picker.innerHTML = `<select class="field" id="rpScenarioSelect"><option>Café & Ordering</option><option>Job Interview</option><option>Hotel Check-In</option><option>Meeting a Friend</option></select>`;
+      } else if (mode === 'shadowing') {
+        picker.innerHTML = `<button class="btn btn-soft" data-action="next-shadow-sentence">Hear Target Sentence</button>`;
+        requestShadowSentence();
+      } else {
+        picker.innerHTML = '';
+      }
+      renderAll();
+    }
+
+    async function requestShadowSentence() {
+      speakHistory.push({ role: 'assistant', content: '...' });
+      redrawLog('speakChatLog', speakHistory);
+      try {
+        const sent = await callBloomAI({ action: 'shadowing', message: '__NEXT_SENTENCE__' });
+        speakHistory[speakHistory.length - 1] = { role: 'assistant', content: sent };
+        redrawLog('speakChatLog', speakHistory);
+        speakCoachLine(sent);
+      } catch (e) {
+        speakHistory[speakHistory.length - 1] = { role: 'assistant', content: e.message };
+        redrawLog('speakChatLog', speakHistory);
+      }
+    }
+
+    async function sendSpeakMessage(overrideText = null) {
+      const input = document.getElementById('speakTextInput');
+      const text = overrideText || input.value.trim();
+      if (!text) return;
+      if (!overrideText) input.value = '';
+      speakHistory.push({ role: 'user', content: text });
+      redrawLog('speakChatLog', speakHistory, '...');
+
+      const rpTopic = document.getElementById('rpScenarioSelect')?.value || '';
+      const lastCoach = [...speakHistory].reverse().find(m => m.role === 'assistant')?.content || '';
+      const action = speakMode === 'roleplay' ? 'role_play' : (speakMode === 'shadowing' ? 'shadowing' : 'chat');
+
+      try {
+        const reply = await callBloomAI({
+          action,
+          topic: speakMode === 'roleplay' ? rpTopic : lastCoach,
+          message: text,
+          history: speakHistory
+        });
+        speakHistory.push({ role: 'assistant', content: reply });
+        redrawLog('speakChatLog', speakHistory);
+        addSpeakMin(1);
+        speakCoachLine(reply, () => {
+          if (realCallActive) startTimedVoiceCapture(120, 'speakTextInput', (spoken) => sendSpeakMessage(spoken));
+        });
+      } catch (e) {
+        speakHistory.push({ role: 'assistant', content: e.message });
+        redrawLog('speakChatLog', speakHistory);
+      }
+    }
+
+    function startTimedVoiceCapture(maxSec, targetInputId, onComplete) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return alert('Voice capture is not available in this browser; please type.');
+      stopAllAudioAndVideo();
+      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
+      const rec = new SR();
+      activeRec = rec;
+      rec.lang = tm.bcp47;
+      rec.interimResults = true;
+      rec.continuous = true;
+      recSecs = 0;
+
+      rec.onresult = (ev) => {
+        let out = '';
+        for (let i = 0; i < ev.results.length; i++) out += ev.results[i][0].transcript + ' ';
+        const el = document.getElementById(targetInputId);
+        if (el) el.value = out.trim();
+      };
+
+      const finish = () => {
+        clearInterval(recTimer); recTimer = null;
+        try { rec.onend = null; rec.stop(); } catch (_) {}
+        activeRec = null;
+        const val = document.getElementById(targetInputId)?.value.trim() || '';
+        if (onComplete) onComplete(val);
+      };
+
+      rec.onend = () => { if (recSecs < maxSec && activeRec) { try { rec.start(); } catch (_) { finish(); } } else { finish(); } };
+      recTimer = setInterval(() => { recSecs += 1; if (recSecs >= maxSec) finish(); }, 1000);
+      recCallback = finish;
+      try { rec.start(); } catch (_) { finish(); }
+    }
+
+    function openUnlockQuiz(targetLevel) {
+      const modal = document.getElementById('quizModal');
+      modal.classList.add('open');
+      let secLeft = 20 * 60;
+      const clock = document.getElementById('quizClock');
+      const tick = setInterval(() => {
+        secLeft = Math.max(0, secLeft - 1);
+        const mm = String(Math.floor(secLeft / 60)).padStart(2, '0');
+        const ss = String(secLeft % 60).padStart(2, '0');
+        clock.textContent = `${mm}:${ss} remaining • 4 Skills + Grammar`;
+        if (secLeft === 0) clearInterval(tick);
+      }, 1000);
+
+      document.getElementById('quizBody').innerHTML = `
+        <p class="muted" style="margin-bottom:10px;">Complete this 4-skills + grammar check to unlock <strong>${esc(targetLevel)}</strong> immediately.</p>
+        <div style="margin-bottom:10px;"><strong>1. Grammar:</strong> She ___ to the studio every morning.<br/><input class="field" id="q1" placeholder="Answer..." style="margin-top:4px;" /></div>
+        <div style="margin-bottom:10px;"><strong>2. Reading & Listening:</strong> Summarize one main idea from a daily conversation.<br/><input class="field" id="q2" placeholder="Your answer..." style="margin-top:4px;" /></div>
+        <div style="margin-bottom:12px;"><strong>3. Writing & Speaking:</strong> Write 2 clear sentences about your goals.<br/><textarea class="field" id="q3" rows="2" placeholder="Your response..."></textarea></div>
+        <button class="btn btn-success" style="width:100%;" id="submitQuizBtn" data-unlock-target="${escAttr(targetLevel)}">Submit Quiz & Unlock ${esc(targetLevel)}</button>
       `;
     }
 
-    function resetSpeakView(stopAudio = true) {
-      if (stopAudio) stopAllMediaAndSpeech(true);
-      document.getElementById('liveChatPanel').classList.remove('active');
-      document.getElementById('rolePlayCategoriesView').style.display = 'none';
-      document.getElementById('rolePlaySituationsView').style.display = 'none';
-      document.getElementById('shadowingSetupView').style.display = 'none';
-      document.getElementById('speakModesList').style.display = 'block';
-    }
-
-    const MODE_TITLES = { general:'General Conversation', role_play:'Role Play', discuss_video:'Discuss a Video', shadowing:'Shadowing', exercises:'Exercises' };
-    function launchSpeakMode(mode, sitOrTopic = '', starterPrompt = null) {
-      stopAllMediaAndSpeech(true);
-      currentChatMode = mode;
-      if (mode === 'role_play') currentScenarioSituation = sitOrTopic || currentScenarioSituation;
-      if (mode === 'shadowing') currentShadowingTopic = sitOrTopic || currentShadowingTopic;
-      document.getElementById('speakModesList').style.display = 'none';
-      document.getElementById('rolePlayCategoriesView').style.display = 'none';
-      document.getElementById('rolePlaySituationsView').style.display = 'none';
-      document.getElementById('shadowingSetupView').style.display = 'none';
-      document.getElementById('liveChatPanel').classList.add('active');
-      document.getElementById('chatModeTitle').textContent = `${MODE_TITLES[mode]}${sitOrTopic?` (${sitOrTopic})`:''} • ${state.tutor.name}`;
-      document.getElementById('chatSettingsBadge').textContent = `${state.tutor.accent} • Crosstalk: ${state.settings.crosstalk?'ON':'OFF'} • Corrections: ${state.settings.corrections}`;
-      document.getElementById('chatMessages').innerHTML = '';
-      sendChatMessage(starterPrompt || (mode === 'role_play' ? `Let's act out "${sitOrTopic}". Start whenever you're ready!` : `Hi ${state.tutor.name.split(' ')[0]}, let's start ${MODE_TITLES[mode]}!`), true);
-    }
-
-    async function sendChatMessage(overrideText = null, isAutoStarter = false) {
-      stopListeningSession(true);
-      const input = document.getElementById('chatInput');
-      const text = overrideText || input.value.trim();
-      if (!text) return;
-      const box = document.getElementById('chatMessages');
-      if (!isAutoStarter) { box.innerHTML += `<div class="msg-bubble user">${escapeHtml(text)}</div>`; input.value = ''; }
-      const lid = 'msg-' + Date.now();
-      box.innerHTML += `<div class="msg-bubble ai" id="${lid}">${escapeHtml(state.tutor.name.split(' ')[0])} is thinking...</div>`;
-      box.scrollTop = box.scrollHeight;
-      try {
-        const res = await fetch('/api/speak', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: currentChatMode, tutorName: state.tutor.name, tutorAccent: state.tutor.accent,
-            scenarioType: currentScenarioCategory, situation: currentScenarioSituation, topic: currentShadowingTopic,
-            message: text, videoTranscript: state.currentVideo.notes || state.currentVideo.title,
-            savedWords: state.words.slice(0, 10).map(w => w.text), crosstalk: state.settings.crosstalk,
-            corrections: state.settings.corrections, nativeLang: state.settings.nativeLang, userName: state.userName
-          })
-        });
-        const data = await res.json();
-        const reply = data.reply || data.error || 'Let us continue!';
-        const blurred = state.settings.transcript === 'click';
-        document.getElementById(lid).innerHTML = `<div style="${blurred?'filter:blur(5px);cursor:pointer;':''}" data-unblur>${escapeHtml(reply)}</div><div class="msg-actions"><span data-say-reply="${encodeURIComponent(reply)}">🔊 Listen</span><span data-say-reply="${encodeURIComponent(reply)}" data-rate="0.78">🐢 Slow</span></div>`;
-        if (state.settings.autoVoice) speakText(reply, false);
-      } catch (_) {
-        document.getElementById(lid).textContent = 'Check /api/speak in your Cloudflare Worker.';
+    function switchView(name) {
+      stopAllAudioAndVideo();
+      realCallActive = false;
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('view-' + name)?.classList.add('active');
+      document.querySelector(`.nav-item[data-nav="${name}"]`)?.classList.add('active');
+      if (name === 'watch' && app.activeVideoId) {
+        document.getElementById('ytPlayerFrame').src = `https://www.youtube.com/embed/${app.activeVideoId}?rel=0`;
       }
-      box.scrollTop = box.scrollHeight;
+      renderAll();
     }
 
-    function startTimedMic(target, maxSecs) {
-      if (isListeningSession) { finishTimedMic(); return; }
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return alert('Speech recognition is unavailable here—you can type directly.');
-      stopAllMediaAndSpeech(false);
-      activeMicTarget = target; isListeningSession = true; listenSeconds = 0; collectedTranscript = '';
-      if (target === 'chat') { document.getElementById('micBtn').classList.add('recording'); document.getElementById('listeningBar').classList.add('active'); }
-      else { document.getElementById('chitMicBtn').textContent = '⏹ Stop'; }
-      updateMicLabels(maxSecs);
-      listenTicker = setInterval(() => { listenSeconds += 1; updateMicLabels(maxSecs); if (listenSeconds >= maxSecs) finishTimedMic(); }, 1000);
-      runSpeechRec(SR, target, maxSecs);
+    function redrawLog(elId, list, pendingText = '') {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      el.innerHTML = list.map(m => `<div class="bubble ${m.role === 'assistant' ? 'ai' : 'user'}">${esc(m.content)}</div>`).join('') +
+        (pendingText ? `<div class="bubble ai">${esc(pendingText)}</div>` : '');
+      el.scrollTop = el.scrollHeight;
     }
 
-    function runSpeechRec(SR, target, maxSecs) {
-      if (!isListeningSession) return;
-      const rec = new SR(); activeRecognition = rec;
-      rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = true;
-      let seg = '';
-      rec.onresult = (e) => {
-        let interim = ''; seg = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const p = e.results[i][0].transcript;
-          if (e.results[i].isFinal) seg += p + ' '; else interim += p;
-        }
-        const field = document.getElementById(target === 'chit' ? 'chitSpeakInput' : 'chatInput');
-        if (field) field.value = `${collectedTranscript} ${seg} ${interim}`.trim();
-      };
-      rec.onend = () => {
-        const field = document.getElementById(target === 'chit' ? 'chitSpeakInput' : 'chatInput');
-        if (seg.trim()) collectedTranscript = `${collectedTranscript} ${seg}`.trim();
-        else if (field?.value.trim()) collectedTranscript = field.value.trim();
-        if (isListeningSession && listenSeconds < maxSecs) { try { runSpeechRec(SR, target, maxSecs); } catch (_) { finishTimedMic(); } }
-      };
-      try { rec.start(); } catch (_) {}
-    }
+    function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+    function escAttr(s) { return esc(s).replace(/`/g, ''); }
 
-    function updateMicLabels(maxSecs) {
-      if (activeMicTarget === 'chit') {
-        document.getElementById('chitTimerLabel').textContent = `🎙️ Describe the photo (${listenSeconds}s / ${maxSecs}s)`;
-      } else {
-        document.getElementById('listeningTimerText').textContent = `🎙️ Your turn (${listenSeconds}s / ${maxSecs}s) — pause freely, tap Done when ready`;
+    function renderAll() {
+      const dict = I18N[app.lang] || I18N.en;
+      document.documentElement.lang = app.lang;
+      document.getElementById('langSwitcher').value = app.lang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.dataset.i18n;
+        if (dict[k]) el.textContent = dict[k];
+      });
+
+      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
+      document.getElementById('femaleTutorName').textContent = tm.female;
+      document.getElementById('maleTutorName').textContent = tm.male;
+      document.getElementById('tutorFemaleCard').classList.toggle('selected', app.tutorGender === 'female');
+      document.getElementById('tutorMaleCard').classList.toggle('selected', app.tutorGender === 'male');
+
+      document.getElementById('watchTimerText').textContent = `${app.watchMinutesToday}/60m`;
+      document.getElementById('speakTimerText').textContent = `${app.speakMinutesToday}/60m`;
+      document.getElementById('watchTimerBar').style.width = `${Math.round((app.watchMinutesToday / 60) * 100)}%`;
+      document.getElementById('speakTimerBar').style.width = `${Math.round((app.speakMinutesToday / 60) * 100)}%`;
+
+      document.getElementById('homeLevelBadge').textContent = app.level;
+      document.getElementById('homeLevelSummary').textContent = `${app.lang.toUpperCase()} • ${app.level} • ${app.user ? app.user.name : 'Guest'}`;
+      document.getElementById('streakLabel').textContent = `${app.streakDays}d`;
+      document.getElementById('authBtn').textContent = app.user ? app.user.name : 'Sign In';
+
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      let calHtml = '';
+      for (let d = 1; d <= daysInMonth; d++) {
+        calHtml += `<div class="cal-day ${app.activeDays.includes(d) ? 'done' : ''} ${d === now.getDate() ? 'today' : ''}">${d}</div>`;
       }
-    }
+      document.getElementById('homeCalendar').innerHTML = calHtml;
 
-    function stopListeningSession(clearTicker = true) {
-      isListeningSession = false;
-      if (clearTicker && listenTicker) { clearInterval(listenTicker); listenTicker = null; }
-      if (activeRecognition) { try { activeRecognition.onend = null; activeRecognition.stop(); } catch (_) {} activeRecognition = null; }
-      document.getElementById('micBtn')?.classList.remove('recording');
-      document.getElementById('listeningBar')?.classList.remove('active');
-      if (document.getElementById('chitMicBtn')) document.getElementById('chitMicBtn').textContent = '🎙️ Record';
-    }
+      document.getElementById('cefrLevelsList').innerHTML = CEFR_ORDER.map(lvl => {
+        const reqH = CEFR_HOURS[lvl];
+        const doneH = Number((app.hoursByLevel[lvl] || 0).toFixed(1));
+        const unlocked = app.unlockedLevels.includes(lvl) || doneH >= reqH;
+        return `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong>${lvl}</strong> — <span class="muted">${doneH} / ${reqH} hrs</span>
+              <span style="margin-left:8px;font-size:11px;font-weight:700;color:${unlocked ? 'var(--success)' : 'var(--primary)'};">${unlocked ? 'Unlocked' : 'Locked'}</span>
+            </div>
+            ${!unlocked ? `<button class="btn btn-soft" data-quiz-unlock="${lvl}">20-Min Unlock Quiz</button>` : `<button class="btn" data-select-level="${lvl}">Use ${lvl}</button>`}
+          </div>
+        `;
+      }).join('');
 
-    function finishTimedMic() {
-      const target = activeMicTarget;
-      const val = document.getElementById(target === 'chit' ? 'chitSpeakInput' : 'chatInput')?.value.trim();
-      stopListeningSession(true);
-      if (val && target === 'chat') sendChatMessage(val);
-      if (val && target === 'chit') submitChitChatSpeech();
-    }
+      const vid = getActiveVideo();
+      document.getElementById('activeVideoTitle').textContent = vid ? vid.title : 'No video loaded yet';
+      document.getElementById('activeVideoMeta').textContent = vid ? (vid.completed ? 'Completed — Vocabulary & Discuss unlocked!' : 'Watch and click Finish Video to unlock Vocabulary & Discuss.') : 'Click "Upload YouTube Video" and paste a link.';
+      const vocabBtn = document.getElementById('videoVocabBtn');
+      const discussBtn = document.getElementById('videoDiscussBtn');
+      vocabBtn.disabled = !(vid && vid.completed);
+      discussBtn.disabled = !(vid && vid.completed);
+      vocabBtn.className = vid && vid.completed ? 'btn btn-success' : 'btn';
+      discussBtn.className = vid && vid.completed ? 'btn btn-success' : 'btn';
 
-    function addImmersionMinutes(mins) {
-      state.todayMinutes += mins; state.totalMinutes += mins;
-      const d = new Date().getDate(); if (!state.activeDays.includes(d)) state.activeDays.push(d);
-      saveState();
-    }
+      document.getElementById('videoShelfList').innerHTML = app.videos.map(v => `
+        <div class="card" style="cursor:pointer;" data-pick-video="${v.id}">
+          <div style="font-weight:800;">${esc(v.title)}</div>
+          <div class="muted" style="font-size:12px;">${v.completed ? '✓ Completed' : 'In progress'}</div>
+        </div>
+      `).join('');
 
-    function renderOutsideLogs() {
-      document.getElementById('outsideLogList').innerHTML = state.outsideLogs.map(l => `<div class="word-row"><div><strong>${escapeHtml(l.type)}</strong> • <span style="font-size:12px;color:var(--text-muted);">${escapeHtml(l.date)}</span><div style="font-size:12px;color:var(--text-muted);">${escapeHtml(l.desc)}</div></div><strong>${l.minutes} min</strong></div>`).join('') || '<p class="subtitle">No external time logged yet.</p>';
-    }
-
-    function renderCalendar() {
-      const now = new Date(), y = now.getFullYear(), m = now.getMonth();
-      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      document.getElementById('calendarMonthTitle').textContent = `${months[m]} ${y}`;
-      const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
-      let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="cal-day-name">${d}</div>`).join('');
-      for (let i = 0; i < first; i++) html += `<div></div>`;
-      for (let d = 1; d <= days; d++) html += `<div class="cal-cell ${d===now.getDate()?'today':''} ${state.activeDays.includes(d)?'active-day':''}">${d}</div>`;
-      document.getElementById('activityCalendarGrid').innerHTML = html;
-    }
-
-    function renderFluencyPath(totalHours) {
-      let curIdx = 0; FLUENCY_LEVELS.forEach((l, i) => { if (totalHours >= l.hours) curIdx = i; });
-      const cur = FLUENCY_LEVELS[curIdx], next = FLUENCY_LEVELS[curIdx + 1];
-      document.getElementById('currentCefrTitle').textContent = cur.name;
-      document.getElementById('currentCefrSub').textContent = `Level ${cur.code}`;
-      document.getElementById('nextLevelHint').textContent = next ? `${Math.max(0, next.hours - totalHours).toFixed(1)}h to ${next.code} ${next.name}` : 'C2 Native-Like!';
-      document.getElementById('fluencyPathList').innerHTML = FLUENCY_LEVELS.map((l, i) => `<div class="fluency-node ${i===curIdx?'current':''}" data-fluency-toggle><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:11px;font-weight:800;opacity:0.8;">LEVEL ${l.code}</div><div style="font-size:17px;font-weight:800;">${l.name}</div></div><div style="text-align:right;font-size:12px;font-weight:700;"><div>⏱ ${l.hours.toLocaleString()}h</div><div>📖 ${l.words.toLocaleString()} words</div></div></div><div class="fluency-tip">${escapeHtml(l.tip)}</div></div>`).join('');
-    }
-
-    function renderVocab() {
-      const q = document.getElementById('vocabSearchInput').value.toLowerCase();
-      document.getElementById('learningCount').textContent = state.words.filter(w => w.status === 'learning').length;
-      document.getElementById('learnedCount').textContent = state.words.filter(w => w.status === 'learned').length;
-      document.getElementById('totalWordsLabel').textContent = `${state.words.length} words`;
-      document.getElementById('vocabList').innerHTML = state.words.map((w, idx) => ({ ...w, idx }))
-        .filter(w => vocabFilterStatus === 'all' || w.status === vocabFilterStatus)
-        .filter(w => w.text.toLowerCase().includes(q) || w.meaning.toLowerCase().includes(q))
-        .map(w => `<div class="word-row" data-toggle-word="${w.idx}"><div><span class="word-dot ${w.status==='learned'?'learned':''}"></span><strong>${escapeHtml(w.text)}</strong><span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${escapeHtml(w.meaning)}</span></div><span style="font-size:11px;font-weight:700;color:var(--forest);">${w.status==='learned'?'Learned ✓':'Learning'}</span></div>`).join('');
-    }
-
-    function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-    function escapeJs(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
-
-    function updateAllUI() {
-      document.getElementById('topLiveBanner').classList.toggle('hidden', !!state.bannerDismissed);
-      document.body.classList.toggle('banner-dismissed', !!state.bannerDismissed);
-      document.getElementById('bannerTutorName').textContent = state.tutor.name.split(' ')[0];
-      document.getElementById('goalDisplayText').textContent = `${state.todayMinutes}/${state.dailyGoal} min`;
-      document.getElementById('goalFillBar').style.width = Math.min(100, Math.round((state.todayMinutes / state.dailyGoal) * 100)) + '%';
-      document.getElementById('streakCount').textContent = state.streak;
-
-      const homeFrame = document.getElementById('currentVideoFrame');
-      if (document.getElementById('tab-home').classList.contains('active') && state.currentVideo?.id) {
-        const exp = `https://www.youtube.com/embed/${state.currentVideo.id}?rel=0`;
-        if (homeFrame.src !== exp) homeFrame.src = exp;
-      }
-      document.getElementById('currentVideoTitle').textContent = state.currentVideo.title;
-      document.getElementById('currentVideoLevel').textContent = `${state.currentVideo.level} Level`;
-      document.getElementById('currentVideoDesc').textContent = state.currentVideo.notes || '';
-
-      document.getElementById('activeTutorName').textContent = state.tutor.name;
-      document.getElementById('activeTutorAvatar').textContent = state.tutor.initial;
-      document.getElementById('autoVoiceBtn').textContent = `🔊 Auto Voice: ${state.settings.autoVoice ? 'ON' : 'OFF'}`;
-      document.getElementById('profileNameDisplay').textContent = `${state.userName} ✏️`;
-      document.getElementById('dailyGoalLabel').textContent = `${state.dailyGoal} min / day`;
-      document.getElementById('crosstalkSwitch').classList.toggle('on', state.settings.crosstalk);
-      document.getElementById('settingTranscript').value = state.settings.transcript;
-      document.getElementById('settingSpeed').value = state.settings.speed;
-      document.getElementById('settingCorrections').value = state.settings.corrections;
-      document.getElementById('nativeLangSelect').value = state.settings.nativeLang;
-      document.getElementById('displayLangSelect').value = state.settings.displayLang || 'en';
-
-      const totalHours = state.totalMinutes / 60;
-      const outsideHours = state.outsideLogs.reduce((a, b) => a + b.minutes, 0) / 60;
-      document.getElementById('progressStreakNum').textContent = state.streak;
-      document.getElementById('totalHoursNum').textContent = `${totalHours.toFixed(1)}h`;
-      document.getElementById('monthHoursLabel').textContent = `${(state.todayMinutes / 60).toFixed(1)} hours this month`;
-      document.getElementById('outsideHoursLabel').textContent = `${outsideHours.toFixed(1)} hours outside Bloom`;
-
-      document.getElementById('sessionHistoryList').innerHTML = state.sessionHistory.map(s => `<div class="word-row"><div><strong>${escapeHtml(s.mode)}</strong> • <span style="font-size:12px;color:var(--text-muted);">${escapeHtml(s.tutor)}</span><div style="font-size:11px;color:var(--text-muted);">${escapeHtml(s.stats||'')}</div></div><span style="font-size:12px;color:var(--text-muted);">${escapeHtml(s.date)}</span></div>`).join('') || '<p class="subtitle">No completed sessions yet.</p>';
-
-      renderVideos(); renderVocab(); renderCalendar(); renderFluencyPath(totalHours);
+      document.getElementById('speakActiveTutorLine').textContent = `${tm[app.tutorGender]} (${app.tutorGender === 'female' ? 'Woman' : 'Man'}) • ${app.level}`;
+      document.getElementById('realCallLabel').textContent = realCallActive ? 'End Call' : 'Real Call';
+      redrawLog('speakChatLog', speakHistory);
       lucide.createIcons();
     }
 
-    // Unified delegated click & change listeners so every single button works reliably
-    document.addEventListener('click', (e) => {
-      const target = e.target.closest('[data-tab],[data-action],[data-close-modal],[data-step],[data-watch-sub],[data-learn-sub],[data-popover],[data-sort],[data-lvl-mode],[data-lvl],[data-c-mode],[data-country],[data-open-video],[data-vocab-idx],[data-speak-word],[data-card-sub],[data-fc-mode],[data-fc-action],[data-vocab-filter],[data-open-word],[data-toggle-word],[data-tutor],[data-speak-mode],[data-say-reply],[data-outside-type],[data-fluency-toggle],[data-unblur]');
+    document.addEventListener('click', async (e) => {
+      const el = e.target.closest('[data-nav],[data-action],[data-close],[data-gender],[data-learn-tool],[data-speak-mode],[data-rec-sec],[data-learn-eval],[data-speak-line],[data-quiz-unlock],[data-select-level],[data-pick-video],[data-auth-mode]');
+      if (!el) return;
 
-      if (!e.target.closest('.filter-bar') && !e.target.closest('.popover-menu')) closeAllPopovers();
-      if (!e.target.closest('.tutor-selector-wrap')) document.getElementById('tutorDropdown')?.classList.remove('open');
-      if (!target) return;
-
-      if (target.dataset.tab) return switchTab(target.dataset.tab);
-      if (target.dataset.closeModal) return closeModal(target.dataset.closeModal);
-      if (target.dataset.step) return setLessonStep(Number(target.dataset.step));
-      if (target.dataset.unblur) { target.style.filter = 'none'; return; }
-      if (target.dataset.fluencyToggle) { target.classList.toggle('open'); return; }
-
-      const act = target.dataset.action;
-      if (act === 'dismiss-banner') { state.bannerDismissed = true; saveState(); }
-      else if (act === 'quick-speak') { switchTab('speak'); launchSpeakMode('general'); }
-      else if (act === 'go-more') switchTab('more');
-      else if (act === 'go-history') { switchTab('learn'); document.querySelector('[data-learn-sub="history"]')?.click(); }
-      else if (act === 'open-add-video') openModal('addVideoModal');
-      else if (act === 'open-lesson-settings') openModal('lessonSettingsModal');
-      else if (act === 'open-outside-modal') openModal('outsideModal');
-      else if (act === 'open-outside-history') openModal('outsideHistoryModal');
-      else if (act === 'open-add-word') openModal('addWordModal');
-      else if (act === 'open-language-modal') openModal('languageModal');
-      else if (act === 'mark-watched') { stopAllMediaAndSpeech(true); addImmersionMinutes(10); const v = state.videos.find(x => x.id === state.currentVideo.id); if (v) v.watched = true; saveState(); setLessonStep(2); }
-      else if (act === 'open-vocab-overlay') openVideoVocabOverlay();
-      else if (act === 'close-vocab-overlay') { stopAllMediaAndSpeech(true); document.getElementById('videoVocabOverlay').classList.remove('open'); }
-      else if (act === 'save-vocab-garden') { addImmersionMinutes(5); alert(`Saved ${selectedVocabIndices.size} words to Vocab Garden!`); }
-      else if (act === 'finish-vocab-to-speak') { stopAllMediaAndSpeech(true); document.getElementById('videoVocabOverlay').classList.remove('open'); switchTab('speak'); launchSpeakMode('discuss_video'); }
-      else if (act === 'discuss-video') { switchTab('speak'); launchSpeakMode('discuss_video'); }
-      else if (act === 'toggle-hide-watched') { hideWatched = !hideWatched; document.getElementById('hideWatchedSwitch').classList.toggle('on', hideWatched); renderVideos(); }
-      else if (act === 'close-watch-lesson') { stopAllMediaAndSpeech(true); document.getElementById('activeVideoLessonPanel').style.display = 'none'; }
-      else if (act === 'next-video') { const i = state.videos.findIndex(v => v.id === state.currentVideo.id); const nxt = state.videos[(i + 1) % state.videos.length]; if (nxt) { stopAllMediaAndSpeech(true); state.currentVideo = nxt; document.getElementById('watchLessonTitle').textContent = nxt.title; document.getElementById('watchLessonFrame').src = `https://www.youtube.com/embed/${nxt.id}?rel=0`; } }
-      else if (act === 'open-flashcards') openFlashcardMenu();
-      else if (act === 'close-flashcards') { stopAllMediaAndSpeech(true); document.getElementById('flashcardOverlay').classList.remove('open'); }
-      else if (act === 'open-photo-chit-chat') openPhotoChitChat();
-      else if (act === 'close-chit-chat') { stopAllMediaAndSpeech(true); document.getElementById('photoChitChatOverlay').classList.remove('open'); }
-      else if (act === 'chit-random') { chitChatIndex += 1; renderPhotoChitChatScene(); }
-      else if (act === 'chit-labels') { const b = document.getElementById('photoLabelsBox'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
-      else if (act === 'chit-vocab') { const b = document.getElementById('usefulVocabBox'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
-      else if (act === 'chit-upload-trigger') document.getElementById('customPhotoFile').click();
-      else if (act === 'chit-listen') { const sc = PHOTO_CHIT_CHAT_SCENES[chitChatIndex % PHOTO_CHIT_CHAT_SCENES.length]; const b = document.getElementById('chitChatDescriptionBox'); b.style.display = 'block'; b.textContent = `${state.tutor.name.split(' ')[0]}: ${sc.description}`; speakText(sc.description, true); }
-      else if (act === 'chit-speak-inline') openChitChatSpeakInline();
-      else if (act === 'chit-toggle-mic') startTimedMic('chit', 60);
-      else if (act === 'chit-submit-speech') submitChitChatSpeech();
-      else if (act === 'topic-talk') { switchTab('speak'); launchSpeakMode('general', '', 'Give me an engaging Topic Talk prompt so I can speak and share my thoughts.'); }
-      else if (act === 'word-link') { switchTab('speak'); launchSpeakMode('exercises'); }
-      else if (act === 'conversation-practice') { switchTab('speak'); launchSpeakMode('general'); }
-      else if (act === 'import-video') importCustomVideo();
-      else if (act === 'save-word') { const t = document.getElementById('newWordText').value.trim(), m = document.getElementById('newWordMeaning').value.trim(); if (t) { state.words.unshift({ text: t, meaning: m || 'Saved word', status: 'learning' }); document.getElementById('newWordText').value = ''; document.getElementById('newWordMeaning').value = ''; closeModal('addWordModal'); saveState(); } }
-      else if (act === 'save-outside') { const tot = (parseInt(document.getElementById('outsideHours').value || '0', 10) * 60) + parseInt(document.getElementById('outsideMins').value || '0', 10); if (tot > 0) { state.outsideLogs.unshift({ type: selectedOutsideType, date: document.getElementById('outsideDate').value || new Date().toISOString().slice(0, 10), minutes: tot, desc: document.getElementById('outsideDesc').value.trim() || selectedOutsideType }); addImmersionMinutes(tot); document.getElementById('outsideHours').value = ''; document.getElementById('outsideMins').value = ''; document.getElementById('outsideDesc').value = ''; closeModal('outsideModal'); } }
-      else if (act === 'reset-speak') resetSpeakView(true);
-      else if (act === 'toggle-tutor-menu') document.getElementById('tutorDropdown').classList.toggle('open');
-      else if (act === 'open-roleplay-cats') {
-        stopAllMediaAndSpeech(true);
-        document.getElementById('speakModesList').style.display = 'none';
-        document.getElementById('rolePlaySituationsView').style.display = 'none';
-        document.getElementById('rolePlayCategoriesView').style.display = 'block';
-        document.getElementById('scenarioCategoryCards').innerHTML = Object.keys(ROLE_PLAY_SCENARIOS).map(cat => `<div class="speak-mode-card" data-rp-cat="${escapeHtml(cat)}"><div><div style="font-weight:700;font-size:15px;">${escapeHtml(cat)}</div>${cat==='Custom'?'<div style="font-size:12px;color:var(--text-muted);">Tell me the situation you would like to act out.</div>':''}</div><i data-lucide="chevron-right" size="18"></i></div>`).join('');
-        lucide.createIcons();
-      } else if (act === 'open-shadowing') {
-        stopAllMediaAndSpeech(true);
-        document.getElementById('speakModesList').style.display = 'none';
-        document.getElementById('shadowingSetupView').style.display = 'block';
-        document.getElementById('shadowingHelperText').textContent = `${state.tutor.name.split(' ')[0]} will say a sentence, and then you will repeat that sentence. Mimic their speech as closely as possible.`;
-      } else if (act === 'start-shadowing') { currentShadowingTopic = document.getElementById('shadowingTopicInput').value.trim() || 'everyday conversation'; launchSpeakMode('shadowing', currentShadowingTopic, `Give me my first sentence on "${currentShadowingTopic}" to repeat.`); }
-      else if (act === 'toggle-auto-voice') { state.settings.autoVoice = !state.settings.autoVoice; if (!state.settings.autoVoice && 'speechSynthesis' in window) window.speechSynthesis.cancel(); saveState(); }
-      else if (act === 'end-chat') { stopAllMediaAndSpeech(true); addImmersionMinutes(5); state.sessionHistory.unshift({ mode: MODE_TITLES[currentChatMode], date: new Date().toLocaleDateString(), tutor: state.tutor.name, stats: 'Completed speaking session' }); saveState(); resetSpeakView(true); }
-      else if (act === 'toggle-mic') startTimedMic('chat', 120);
-      else if (act === 'finish-speaking') finishTimedMic();
-      else if (act === 'send-chat') sendChatMessage();
-      else if (act === 'edit-name') { const n = prompt('Your name:', state.userName); if (n && n.trim()) { state.userName = n.trim(); saveState(); } }
-      else if (act === 'edit-goal') { const m = parseInt(prompt('Daily goal (minutes):', state.dailyGoal), 10); if (m > 0) { state.dailyGoal = m; saveState(); } }
-      else if (act === 'toggle-crosstalk') { state.settings.crosstalk = !state.settings.crosstalk; saveState(); }
-
-      if (target.dataset.watchSub) { document.getElementById('watchSubBrowse').classList.toggle('active', target.dataset.watchSub === 'browse'); document.getElementById('watchSubHistory').classList.toggle('active', target.dataset.watchSub === 'history'); renderVideos(target.dataset.watchSub === 'history'); }
-      if (target.dataset.learnSub) { const isH = target.dataset.learnSub === 'history'; document.getElementById('learnSubPractice').classList.toggle('active', !isH); document.getElementById('learnSubHistory').classList.toggle('active', isH); document.getElementById('learnPracticeView').style.display = isH ? 'none' : 'block'; document.getElementById('learnHistoryView').style.display = isH ? 'block' : 'none'; }
-      if (target.dataset.popover) { const id = target.dataset.popover; closeAllPopovers(id); renderPopover(id); document.getElementById(id).classList.toggle('open'); }
-      if (target.dataset.sort) { sortMode = target.dataset.sort; document.getElementById('sortFilterBtn').textContent = `${sortMode} ⇅`; closeAllPopovers(); renderVideos(); }
-      if (target.dataset.lvlMode) { levelFilterMode = target.dataset.lvlMode; renderPopover('levelPopover'); renderVideos(); }
-      if (target.dataset.lvl) { const c = target.dataset.lvl; selectedLevels = selectedLevels.includes(c) ? selectedLevels.filter(x => x !== c) : [...selectedLevels, c]; document.getElementById('levelFilterBtn').textContent = selectedLevels.length ? `${levelFilterMode}: ${selectedLevels.join(', ')}` : 'All Levels ▾'; renderPopover('levelPopover'); renderVideos(); }
-      if (target.dataset.cMode) { countryFilterMode = target.dataset.cMode; renderPopover('countryPopover'); renderVideos(); }
-      if (target.dataset.country) { const c = target.dataset.country; selectedCountries = selectedCountries.includes(c) ? selectedCountries.filter(x => x !== c) : [...selectedCountries, c]; document.getElementById('countryFilterBtn').textContent = selectedCountries.length ? `${countryFilterMode}: ${selectedCountries.length} selected` : 'All Countries ▾'; renderPopover('countryPopover'); renderVideos(); }
-      if (target.dataset.openVideo) { const v = state.videos.find(x => x.id === target.dataset.openVideo); if (v) { stopAllMediaAndSpeech(true); state.currentVideo = v; document.getElementById('activeVideoLessonPanel').style.display = 'block'; document.getElementById('watchLessonTitle').textContent = v.title; document.getElementById('watchLessonFrame').src = `https://www.youtube.com/embed/${v.id}?rel=0`; } }
-      if (target.dataset.vocabIdx !== undefined) { const idx = Number(target.dataset.vocabIdx); if (target.checked) selectedVocabIndices.add(idx); else selectedVocabIndices.delete(idx); }
-      if (target.dataset.speakWord) speakText(target.dataset.speakWord, true, target.dataset.rate ? Number(target.dataset.rate) : null);
-      if (target.dataset.cardSub) { const [i, tab] = target.dataset.cardSub.split('|'); cardSubTabMap[Number(i)] = tab; openVideoVocabOverlay(); }
-      if (target.dataset.fcMode) startFlashcardMode(target.dataset.fcMode);
-      if (target.dataset.fcAction === 'reveal') { flashcardRevealed = !flashcardRevealed; renderFlashcardStage(); }
-      if (target.dataset.fcAction === 'next') { flashcardIdx += 1; flashcardRevealed = false; renderFlashcardStage(); }
-      if (target.dataset.fcAction === 'back') openFlashcardMenu();
-      if (target.dataset.vocabFilter) { vocabFilterStatus = vocabFilterStatus === target.dataset.vocabFilter ? 'all' : target.dataset.vocabFilter; renderVocab(); }
-      if (target.dataset.toggleWord !== undefined) { const idx = Number(target.dataset.toggleWord); state.words[idx].status = state.words[idx].status === 'learning' ? 'learned' : 'learning'; saveState(); }
-      if (target.dataset.tutor) { const [name, initial, voice, accent] = target.dataset.tutor.split('|'); stopAllMediaAndSpeech(true); state.tutor = { name, initial, voice, accent }; document.getElementById('tutorDropdown').classList.remove('open'); saveState(); }
-      if (target.dataset.speakMode) launchSpeakMode(target.dataset.speakMode);
-      if (target.dataset.rpCat) {
-        const cat = target.dataset.rpCat; currentScenarioCategory = cat;
-        if (cat === 'Custom') { const s = prompt('Describe the situation:'); if (s && s.trim()) launchSpeakMode('role_play', s.trim()); return; }
-        document.getElementById('rolePlayCategoriesView').style.display = 'none';
-        document.getElementById('rolePlaySituationsView').style.display = 'block';
-        document.getElementById('selectedScenarioTypeLabel').textContent = cat;
-        document.getElementById('scenarioSituationCards').innerHTML = ROLE_PLAY_SCENARIOS[cat].map(sit => `<div class="speak-mode-card" data-rp-sit="${escapeHtml(sit)}"><div style="font-weight:700;font-size:15px;">${escapeHtml(sit)}</div><i data-lucide="chevron-right" size="18"></i></div>`).join('');
-        lucide.createIcons();
+      if (el.dataset.nav) return switchView(el.dataset.nav);
+      if (el.dataset.close) return document.getElementById(el.dataset.close)?.classList.remove('open');
+      if (el.dataset.gender) { stopAllAudioAndVideo(); app.tutorGender = el.dataset.gender; return saveBloom(); }
+      if (el.dataset.learnTool) return openLearnTool(el.dataset.learnTool);
+      if (el.dataset.speakMode) return setSpeakMode(el.dataset.speakMode);
+      if (el.dataset.speakLine) return speakCoachLine(el.dataset.speakLine);
+      if (el.dataset.quizUnlock) return openUnlockQuiz(el.dataset.quizUnlock);
+      if (el.dataset.selectLevel) { app.level = el.dataset.selectLevel; return saveBloom(); }
+      if (el.dataset.pickVideo) {
+        stopAllAudioAndVideo();
+        app.activeVideoId = el.dataset.pickVideo;
+        document.getElementById('ytPlayerFrame').src = `https://www.youtube.com/embed/${app.activeVideoId}?rel=0`;
+        return renderAll();
       }
-      if (target.dataset.rpSit) launchSpeakMode('role_play', target.dataset.rpSit);
-      if (target.dataset.sayReply) speakText(decodeURIComponent(target.dataset.sayReply), true, target.dataset.rate ? Number(target.dataset.rate) : null);
-      if (target.dataset.outsideType) { selectedOutsideType = target.dataset.outsideType; document.querySelectorAll('.activity-type-btn').forEach(b => b.classList.remove('selected')); target.classList.add('selected'); }
-    });
+      if (el.dataset.authMode) {
+        document.getElementById('authModeSignIn').className = el.dataset.authMode === 'signin' ? 'btn btn-soft' : 'btn';
+        document.getElementById('authModeSignUp').className = el.dataset.authMode === 'signup' ? 'btn btn-soft' : 'btn';
+        return;
+      }
+      if (el.dataset.recSec) {
+        const sec = Number(el.dataset.recSec);
+        const target = el.dataset.recTarget;
+        return startTimedVoiceCapture(sec, target, () => addSpeakMin(1));
+      }
+      if (el.dataset.learnEval) {
+        const kind = el.dataset.learnEval;
+        if (kind === 'photo') {
+          const txt = document.getElementById('photoText').value.trim();
+          const out = document.getElementById('photoFeedback');
+          out.textContent = '...';
+          out.textContent = await callBloomAI({ action: 'photo_chit_chat', message: txt || 'Describe a photo scene' });
+          addSpeakMin(1);
+        } else if (kind === 'topic') {
+          const txt = document.getElementById('topicText').value.trim();
+          const out = document.getElementById('topicFeedback');
+          out.textContent = '...';
+          out.textContent = await callBloomAI({ action: 'topic_talk', topic: el.dataset.topicName, message: txt || 'Topic response' });
+          addSpeakMin(1);
+        } else if (kind === 'wordlink') {
+          const txt = document.getElementById('wordlinkText').value.trim();
+          const out = document.getElementById('wordlinkFeedback');
+          out.textContent = '...';
+          out.textContent = await callBloomAI({ action: 'word_link', word: el.dataset.startWord, message: txt || el.dataset.startWord });
+          addSpeakMin(1);
+        }
+        return;
+      }
 
-    document.addEventListener('change', (e) => {
-      if (e.target.id === 'tutorCreatorFilter') renderVideos();
-      if (e.target.id === 'modalTutorSelect') { const [name, initial, voice, accent] = e.target.value.split('|'); stopAllMediaAndSpeech(true); state.tutor = { name, initial, voice, accent }; saveState(); }
-      if (e.target.id === 'modalNativeLang' || e.target.id === 'nativeLangSelect') { state.settings.nativeLang = e.target.value; saveState(); }
-      if (e.target.id === 'displayLangSelect') { state.settings.displayLang = e.target.value; saveState(); }
-      if (e.target.id === 'settingTranscript') { state.settings.transcript = e.target.value; saveState(); }
-      if (e.target.id === 'settingSpeed') { state.settings.speed = e.target.value; saveState(); }
-      if (e.target.id === 'settingCorrections') { state.settings.corrections = e.target.value; saveState(); }
-      if (e.target.id === 'customPhotoFile') {
-        const f = e.target.files?.[0]; if (!f) return;
-        const r = new FileReader(); r.onload = () => { document.getElementById('chitChatPhotoImg').src = r.result; }; r.readAsDataURL(f);
+      const act = el.dataset.action;
+      if (act === 'cycle-level') {
+        const idx = CEFR_ORDER.indexOf(app.level);
+        app.level = CEFR_ORDER[(idx + 1) % CEFR_ORDER.length];
+        saveBloom();
+      } else if (act === 'open-yt-modal') {
+        stopAllAudioAndVideo();
+        document.getElementById('ytModal').classList.add('open');
+      } else if (act === 'add-yt-link') {
+        handleAddYouTubeLink();
+      } else if (act === 'finish-video') {
+        finishCurrentVideo();
+      } else if (act === 'open-video-vocab') {
+        renderVideoVocabPanel();
+      } else if (act === 'open-video-discuss') {
+        renderVideoDiscussPanel();
+      } else if (act === 'send-video-discuss') {
+        sendVideoDiscussMessage();
+      } else if (act === 'next-flashcard') {
+        app.learnedFlashcards.push(Date.now());
+        saveBloom();
+        openLearnTool('flashcards');
+      } else if (act === 'rec-2min') {
+        startTimedVoiceCapture(120, 'speakTextInput', (val) => { if (val) sendSpeakMessage(val); });
+      } else if (act === 'toggle-real-call') {
+        realCallActive = !realCallActive;
+        renderAll();
+        if (realCallActive) {
+          startTimedVoiceCapture(120, 'speakTextInput', (val) => { if (val) sendSpeakMessage(val); });
+        } else {
+          stopAllAudioAndVideo();
+        }
+      } else if (act === 'send-speak-text') {
+        sendSpeakMessage();
+      } else if (act === 'next-shadow-sentence') {
+        requestShadowSentence();
+      } else if (act === 'open-auth') {
+        document.getElementById('authModal').classList.add('open');
+      } else if (act === 'submit-auth') {
+        const name = document.getElementById('authNameInput').value.trim() || 'Hussein';
+        const email = document.getElementById('authEmailInput').value.trim();
+        app.user = { name, email };
+        document.getElementById('authModal').classList.remove('open');
+        saveBloom();
+      }
+
+      if (el.id === 'submitQuizBtn') {
+        const target = el.dataset.unlockTarget;
+        if (!app.unlockedLevels.includes(target)) app.unlockedLevels.push(target);
+        app.level = target;
+        document.getElementById('quizModal').classList.remove('open');
+        saveBloom();
       }
     });
 
-    document.addEventListener('input', (e) => {
-      if (e.target.id === 'videoSearchInput') renderVideos();
-      if (e.target.id === 'vocabSearchInput') renderVocab();
+    document.getElementById('langSwitcher').addEventListener('change', (e) => {
+      stopAllAudioAndVideo();
+      app.lang = e.target.value;
+      saveBloom();
     });
 
-    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendChatMessage(); });
+    document.getElementById('speakTextInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendSpeakMessage();
+    });
 
-    updateAllUI();
+    renderAll();
   </script>
 </body>
 </html>

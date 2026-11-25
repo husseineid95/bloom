@@ -33,31 +33,31 @@ export default {
 
         let taskPrompt = "";
         if (action === "video_vocab") {
-          taskPrompt = `Extract 6 practical, high-utility words or phrases fit for CEFR ${level} from the video "${videoTitle}" (${videoContext || ""}). Return STRICT JSON only: {"words":[{"term":"...","meaningInLang":"...","example":"..."}]}. No markdown.`;
+          taskPrompt = `Extract 6 practical, high-utility words or short phrases fit for CEFR ${level} from the video "${videoTitle}" (${videoContext || ""}). Return STRICT JSON only with no markdown: {"words":[{"term":"...","meaningInLang":"...","example":"..."}]}.`;
         } else if (action === "discuss_video") {
-          taskPrompt = `Discuss the video "${videoTitle}" (${videoContext || ""}) with ${userName} in ${lm.name} at CEFR ${level}. Ask focused follow-up questions and keep turns natural and concise.`;
+          taskPrompt = `Discuss the video "${videoTitle}" (${videoContext || ""}) with ${userName} in ${lm.name} at CEFR ${level}. Ask natural follow-up questions and keep replies clear and helpful.`;
         } else if (action === "photo_chit_chat") {
-          taskPrompt = `Evaluate ${userName}'s 1-minute photo description for scene "${topic}" at CEFR ${level} in ${lm.name}. Give: 1) Accuracy & clarity check, 2) Specific corrections for errors, 3) 2-3 stronger level-matched phrasing ideas.`;
+          taskPrompt = `Evaluate ${userName}'s 1-minute photo description for scene "${topic}" at CEFR ${level} in ${lm.name}. Give: 1) Brief praise/clarity check, 2) Clear written corrections, 3) 2-3 stronger phrasing ideas.`;
         } else if (action === "topic_talk") {
-          taskPrompt = `Evaluate ${userName}'s 1-minute speech on topic "${topic}" at CEFR ${level} in ${lm.name}. Give concise grammar/word-choice corrections and 1 follow-up prompt.`;
+          taskPrompt = `Evaluate ${userName}'s 1-minute speech on topic "${topic}" at CEFR ${level} in ${lm.name}. Give concise written grammar/phrasing corrections and 1 follow-up question.`;
         } else if (action === "word_link") {
-          taskPrompt = `Evaluate ${userName}'s 1-minute Word Link starting from "${word}" at CEFR ${level} in ${lm.name}. Check word validity and connections, note mistakes, and give a 5-word chain starting from "${word}".`;
+          taskPrompt = `Evaluate ${userName}'s 1-minute Word Link starting from "${word}" at CEFR ${level} in ${lm.name}. Note any mistakes and give a clean chain of 5 connected words starting from "${word}".`;
         } else if (action === "shadowing") {
           if (!message || message === "__NEXT_SENTENCE__") {
-            taskPrompt = `Output ONE natural ${lm.name} sentence (9-15 words) calibrated to CEFR ${level}. Output ONLY the sentence.`;
+            taskPrompt = `Output ONE natural ${lm.name} sentence (9-15 words) suited to CEFR ${level}. Output ONLY the sentence.`;
           } else {
-            taskPrompt = `Compare learner attempt "${message}" against target "${topic}" at CEFR ${level} in ${lm.name}. Note any word/grammar/pronunciation error clearly, then give the next ${lm.name} sentence.`;
+            taskPrompt = `Compare learner attempt "${message}" against target "${topic}" at CEFR ${level} in ${lm.name}. Point out any error clearly, then give the next ${lm.name} sentence.`;
           }
         } else if (action === "role_play") {
-          taskPrompt = `Role-play "${topic || "everyday situation"}" in ${lm.name} at CEFR ${level}. Stay in character and keep responses natural.`;
+          taskPrompt = `Role-play "${topic || "everyday situation"}" in ${lm.name} at CEFR ${level}. Stay in character and respond naturally.`;
         } else if (action === "grade_quiz") {
-          taskPrompt = `Grade these CEFR ${level} 4-skills + grammar answers in ${lm.name}: ${JSON.stringify(quizAnswers || {})}. Return STRICT JSON only: {"scorePercent":0,"passed":false,"feedback":"...","skillBreakdown":{"grammar":0,"reading":0,"listening":0,"writing":0,"speaking":0}}. Pass threshold is 70.`;
+          taskPrompt = `Grade these CEFR ${level} 4-skills + grammar answers in ${lm.name}: ${JSON.stringify(quizAnswers || {})}. Return STRICT JSON only with no markdown: {"scorePercent":0,"passed":false,"feedback":"..."}. Pass mark is 70.`;
         } else {
           taskPrompt = `Converse naturally with ${userName} in ${lm.name} calibrated to CEFR ${level}.`;
         }
 
         const systemInstruction = `You are ${activeTutor}, a ${tutorGender === "male" ? "male" : "female"} language coach on Bloom.
-Target language: ${lm.name} (${lang}). CEFR level: ${level}. Be accurate, clear, and helpful.
+Target language: ${lm.name} (${lang}). Learner level: ${level}. Be accurate, clear, and helpful.
 ${taskPrompt}`;
 
         const safeHistory = Array.isArray(history)
@@ -70,7 +70,7 @@ ${taskPrompt}`;
         const messages = [
           { role: "system", content: systemInstruction },
           ...safeHistory,
-          { role: "user", content: message || "Start" }
+          { role: "user", content: message || "Hello" }
         ];
 
         const models = [
@@ -94,7 +94,10 @@ ${taskPrompt}`;
           }
         }
 
-        if (!reply) return Response.json({ error: lastErr || "AI unavailable" }, { status: 500 });
+        if (!reply) {
+          return Response.json({ error: lastErr || "AI model unavailable" }, { status: 500 });
+        }
+
         return Response.json({ reply, tutor: activeTutor, gender: tutorGender, lang, level });
       } catch (err) {
         return Response.json({ error: err?.message || "Invalid request" }, { status: 400 });

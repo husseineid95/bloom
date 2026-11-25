@@ -191,7 +191,7 @@ async function callGemini(apiKey, systemPrompt, userPrompt, history = [], expect
   const text = parts.map((p) => p.text || '').join('').trim();
   if (!text) throw new Error('Empty response from Gemini.');
   return text;
-}
+
 
 async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 'en') {
   const voiceName = tutorGender === 'female' ? 'Aoede' : 'Charon';

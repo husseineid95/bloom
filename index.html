@@ -630,4 +630,249 @@
         ).join('');
       } catch (_) { box.innerHTML = '<span class="muted">Could not load hints right now.</span>'; }
     }
-    
+        function openModal(id, mode) {
+      if (id === 'authModal' && mode) switchAuthTab(mode);
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      document.getElementById('tabSignIn').className = mode === 'signin' ? 'btn btn-primary' : 'btn btn-soft';
+      document.getElementById('tabSignUp').className = mode === 'signup' ? 'btn btn-primary' : 'btn btn-soft';
+      document.getElementById('authNameWrap').style.display = mode === 'signup' ? 'block' : 'none';
+      document.getElementById('authModalTitle').textContent = mode === 'signup' ? 'Create Your Bloom Account' : 'Sign In to Bloom';
+    }
+
+    async function submitEmailAuth() {
+      const email = document.getElementById('authEmailInput').value.trim();
+      const password = document.getElementById('authPassInput').value;
+      const name = document.getElementById('authNameInput').value.trim();
+      const errEl = document.getElementById('authErrorMsg');
+      errEl.style.display = 'none';
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: authMode, email, password, name, progress: state })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'Auth failed');
+        state.user = data.user;
+        if (data.progress) Object.assign(state, data.progress, { user: data.user });
+        saveState();
+        closeModal('authModal');
+      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    }
+
+    async function continueWithGmailQuick() {
+      const email = document.getElementById('authEmailInput').value.trim() || prompt('Enter your Gmail address (e.g. name@gmail.com):');
+      if (!email) return;
+      const res = await fetch('/api/auth', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'google', email, progress: state })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        state.user = data.user;
+        if (data.progress) Object.assign(state, data.progress, { user: data.user });
+        saveState();
+        closeModal('authModal');
+      }
+    }
+
+    function signOutUser() { state.user = null; saveState(); }
+
+    function extractYtId(url) {
+      const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+      return m ? m : null;
+    }
+
+    async function loadYouTubeVideo() {
+      const id = extractYtId(document.getElementById('ytUrlInput').value.trim());
+      if (!id) return alert('Please paste a valid YouTube video URL.');
+      closeModal('ytModal');
+      document.getElementById('videoStatusText').textContent = 'Fetching real video title & transcript...';
+      const meta = await fetch('/api/youtube', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ videoId: id })
+      }).then(r => r.json()).catch(() => ({ videoId: id, title: 'YouTube Video', transcript: '' }));
+
+      let vid = state.videos.find(v => v.id === id);
+      if (!vid) {
+        vid = { id, title: meta.title, transcript: meta.transcript || '', finished: false, words: [] };
+        state.videos.unshift(vid);
+      }
+      state.activeVideoId = id;
+      saveState();
+      mountYouTubePlayer(vid);
+    }
+
+    function mountYouTubePlayer(vid) {
+      document.getElementById('videoStatusText').textContent = 'Watching: ' + vid.title;
+      document.getElementById('ytPlayerHost').innerHTML = '<div id="ytFrameTarget"></div>';
+      if (ytTimer) clearInterval(ytTimer);
+
+      const createPlayer = () => {
+        ytPlayer = new YT.Player('ytFrameTarget', {
+          videoId: vid.id,
+          playerVars: { rel: 0, modestbranding: 1 },
+          events: {
+            onStateChange: (ev) => {
+              if (ev.data === YT.PlayerState.PLAYING) {
+                ytTimer = setInterval(() => {
+                  state.watchSec += 1;
+                  const dur = ytPlayer.getDuration?.() || 0;
+                  const cur = ytPlayer.getCurrentTime?.() || 0;
+                  const pct = dur > 0 ? Math.min(100, Math.round((cur / dur) * 100)) : 0;
+                  document.getElementById('videoProgressLabel').textContent = vid.finished ? 'Completed! Vocabulary & Discussion Unlocked' : `Watching (${pct}%) — Watch to the end to unlock`;
+                  if (pct >= 92 && !vid.finished) unlockCurrentVideo(vid);
+                  saveState();
+                }, 1000);
+              } else {
+                clearInterval(ytTimer);
+                if (ev.data === YT.PlayerState.ENDED) unlockCurrentVideo(vid);
+              }
+            }
+          }
+        });
+      };
+      if (window.YT && YT.Player) createPlayer();
+      else setTimeout(createPlayer, 1000);
+    }
+
+    async function unlockCurrentVideo(vid) {
+      vid.finished = true;
+      document.getElementById('btnVideoVocab').disabled = false;
+      document.getElementById('btnDiscussVideo').disabled = false;
+      document.getElementById('videoProgressLabel').textContent = 'Completed! Extracting vocabulary...';
+      if (!vid.words.length) {
+        try {
+          const raw = await callBloomAI({ action: 'video_vocab', videoTitle: vid.title, videoContext: vid.transcript });
+          vid.words = JSON.parse(raw).words || [];
+          state.vocabBank.push(...vid.words);
+        } catch (_) {}
+      }
+      saveState();
+      showVideoVocab();
+    }
+
+    function showVideoVocab() {
+      const vid = state.videos.find(v => v.id === state.activeVideoId);
+      const panel = document.getElementById('videoVocabPanel');
+      panel.style.display = 'block';
+      panel.innerHTML = '<h3>Video Vocabulary</h3>' + (vid?.words || []).map(w =>
+        `<div class="card" style="margin-top:8px; padding:12px;"><strong>${w.term}</strong> (${w.partOfSpeech || ''}) — ${w.meaningInLang}<br><span class="muted">"${w.example}"</span></div>`
+      ).join('');
+    }
+
+    function startVideoDiscussion() {
+      const vid = state.videos.find(v => v.id === state.activeVideoId);
+      speakMode = 'video';
+      speakTopic = vid?.title || 'Video';
+      switchTab('speak');
+      handleUserSpokenText('I just finished watching ' + speakTopic + '. Let us discuss it!');
+    }
+
+    function openLearnTool(tool) {
+      const box = document.getElementById('learnWorkspace');
+      if (tool === 'flashcards') {
+        const card = state.vocabBank || { term: 'resilient', meaningInLang: 'able to recover quickly from difficulties', example: 'She is remarkably resilient.' };
+        box.innerHTML = `<h3>Voice Flashcard</h3><p style="font-size:18px; font-weight:800; margin:8px 0;">${card.term}</p><p class="muted">${card.example}</p><input id="fcAns" class="input-field" style="margin-top:8px;" placeholder="Speak or type the meaning..." /><button class="btn btn-primary" onclick="checkFlashcard('${card.term.replace(/'/g,"\\'")}','${card.meaningInLang.replace(/'/g,"\\'")}')">Check Recall</button><p id="fcResult" style="margin-top:8px; font-weight:700;"></p>`;
+      } else if (tool === 'photo') {
+        box.innerHTML = `<h3>Photo Chit Chat (1 Min)</h3><p class="muted">Upload any photo and describe it for 1 minute—Claire/Julian will analyze both the image and your speech!</p><input type="file" accept="image/*" id="photoInput" style="margin:8px 0;" /><textarea id="photoSpeech" class="input-field" rows="3" placeholder="Describe what you see in detail..."></textarea><button class="btn btn-primary" onclick="submitPhotoChat()">Get AI Coaching</button><div id="learnFeedback" class="muted" style="margin-top:8px;"></div>`;
+      } else if (tool === 'topic') {
+        const topics = ['Should cities ban private cars in downtown areas?', 'How social media shapes modern friendships', 'A difficult decision that changed your perspective'];
+        const t = topics[Math.floor(Math.random() * topics.length)];
+        box.innerHTML = `<h3>Topic Talk (1 Min)</h3><p style="font-weight:700; margin:6px 0;">${t}</p><textarea id="topicSpeech" class="input-field" rows="3" placeholder="Speak or type your 1-minute response..."></textarea><button class="btn btn-primary" onclick="submitLearnDrill('topic_talk','${t.replace(/'/g,"\\'")}',document.getElementById('topicSpeech').value)">Evaluate Speech</button><div id="learnFeedback" class="muted" style="margin-top:8px;"></div>`;
+      } else if (tool === 'wordlink') {
+        box.innerHTML = `<h3>Word Link (1 Min)</h3><p class="muted">Starting word: <strong>Journey</strong>. Say/type a chain of related words in ${state.lang.toUpperCase()}!</p><input id="wlInput" class="input-field" placeholder="e.g. journey, travel, passport, border..." /><button class="btn btn-primary" onclick="submitLearnDrill('word_link','Journey',document.getElementById('wlInput').value)">Check Word Chain</button><div id="learnFeedback" class="muted" style="margin-top:8px;"></div>`;
+      } else {
+        box.innerHTML = `<h3>Video Word & Talk Lab</h3><p class="muted">Saved words from your finished videos: <strong>${state.vocabBank.length}</strong> words.</p><button class="btn btn-primary" style="margin-top:8px;" onclick="switchTab('watch')">Go to Watch & Unlock More</button>`;
+      }
+    }
+
+    async function checkFlashcard(term, meaning) {
+      const msg = document.getElementById('fcAns').value;
+      const raw = await callBloomAI({ action: 'eval_flashcard', cardTerm: term, cardMeaning: meaning, message: msg });
+      const res = JSON.parse(raw);
+      document.getElementById('fcResult').textContent = (res.accurate ? '✅ ' : '💡 ') + res.gentleCorrection;
+      speakHumanVoice(res.gentleCorrection);
+    }
+
+        async function submitPhotoChat() {
+      const fileInput = document.getElementById('photoInput');
+      const file = fileInput && fileInput.files ? fileInput.files.item(0) : null;
+      const msg = document.getElementById('photoSpeech').value;
+      let imageBase64 = null;
+      if (file) {
+        imageBase64 = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); });
+      }
+      const reply = await callBloomAI({ action: 'photo_chit_chat', topic: 'Uploaded learner photo', message: msg, imageBase64 });
+      document.getElementById('learnFeedback').textContent = reply;
+      speakHumanVoice(reply);
+    }
+
+    async function submitLearnDrill(action, topic, message) {
+      const reply = await callBloomAI({ action, topic, word: topic, message });
+      document.getElementById('learnFeedback').textContent = reply;
+      speakHumanVoice(reply);
+    }
+
+    let currentQuizData = null;
+    async function openUnlockQuiz() {
+      const nextIdx = Math.min(LEVELS.length - 1, LEVELS.indexOf(state.level) + 1);
+      const targetLevel = LEVELS.at(nextIdx);
+      document.getElementById('quizHeaderTitle').textContent = `CEFR ${targetLevel} Certification Exam (20:00)`;
+      document.getElementById('quizBody').innerHTML = `<p class="muted">Generating a rigorous ${targetLevel} Reading, Listening, Grammar, Writing & Speaking exam...</p>`;
+      openModal('quizModal');
+      try {
+        const raw = await callBloomAI({ action: 'generate_quiz', targetLevel });
+        currentQuizData = JSON.parse(raw);
+        currentQuizData.targetLevel = targetLevel;
+        renderQuizForm(currentQuizData);
+      } catch (e) {
+        document.getElementById('quizBody').innerHTML = `<p style="color:var(--danger);">Failed to generate exam: ${e.message}</p>`;
+      }
+    }
+
+    function renderQuizForm(q) {
+      let html = `<div class="card"><strong>1. Reading Comprehension</strong><p style="margin-top:6px; font-size:14px; line-height:1.6;">${q.readingPassage}</p></div>`;
+      html += `<div class="card"><strong>2. Listening Comprehension</strong><br><button class="btn btn-primary" style="margin-top:6px;" onclick="speakHumanVoice(currentQuizData.listeningScript)">🔊 Play Listening Audio</button></div>`;
+      (q.mcqs || []).forEach((item, i) => {
+        html += `<div class="card"><strong>Q${i + 1} (${item.skill}): ${item.question}</strong>` +
+          item.options.map((opt, oi) => `<label style="display:block; margin-top:6px;"><input type="radio" name="mcq_${i}" value="${oi}"> ${opt}</label>`).join('') + `</div>`;
+      });
+      html += `<div class="card"><strong>Writing Task:</strong><p class="muted">${q.writingPrompt}</p><textarea id="quizWriting" class="input-field" rows="4" placeholder="Write at least 60 words..."></textarea></div>`;
+      html += `<div class="card"><strong>Speaking Task:</strong><p class="muted">${q.speakingPrompt}</p><textarea id="quizSpeaking" class="input-field" rows="3" placeholder="Speak or enter your spoken response..."></textarea></div>`;
+      html += `<button class="btn btn-success" style="width:100%;" onclick="submitUnlockQuiz()">Submit ${q.targetLevel} Exam for Grading</button>`;
+      document.getElementById('quizBody').innerHTML = html;
+    }
+
+    async function submitUnlockQuiz() {
+      const answers = {
+        mcqs: (currentQuizData.mcqs || []).map((m, i) => {
+          const sel = document.querySelector(`input[name="mcq_${i}"]:checked`);
+          return { question: m.question, chosen: sel ? Number(sel.value) : -1, correct: m.answerIndex };
+        }),
+        writingPrompt: currentQuizData.writingPrompt,
+        writingResponse: document.getElementById('quizWriting').value,
+        speakingPrompt: currentQuizData.speakingPrompt,
+        speakingResponse: document.getElementById('quizSpeaking').value
+      };
+      document.getElementById('quizBody').innerHTML = '<p class="muted">Examiner is grading your answers...</p>';
+      const raw = await callBloomAI({ action: 'grade_quiz', targetLevel: currentQuizData.targetLevel, quizAnswers: answers });
+      const result = JSON.parse(raw);
+      if (result.passed) {
+        state.level = currentQuizData.targetLevel;
+        saveState();
+      }
+      document.getElementById('quizBody').innerHTML = `<h3>Score: ${result.scorePercent}% — ${result.passed ? '🎉 Level ' + currentQuizData.targetLevel + ' Unlocked!' : 'Not Passed (75% Required)'}</h3><p style="margin:8px 0; font-weight:700;">${result.breakdown}</p><p class="muted">${result.feedback}</p>`;
+    }
+
+    function closeQuizModal() { closeModal('quizModal'); }
+    renderTopStats();
+  </script>
+</body>
+</html>
+
+                        

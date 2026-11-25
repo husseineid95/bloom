@@ -885,5 +885,60 @@
 </script>
   
   </script>
+  <script>
+(function () {
+  window.addEventListener('error', function (e) {
+    console.warn('Caught script error:', e.message);
+  });
+
+  function emergencyUnfreeze() {
+    document.querySelectorAll('.modal-bg:not(.open)').forEach(function (el) {
+      el.style.pointerEvents = 'none';
+    });
+    document.querySelectorAll('.modal-bg.open').forEach(function (el) {
+      el.style.pointerEvents = 'auto';
+    });
+
+    document.querySelectorAll('[data-nav]').forEach(function (btn) {
+      btn.onclick = function (ev) {
+        ev.preventDefault();
+        var target = btn.getAttribute('data-nav');
+        document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('active'); });
+        document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
+        var viewEl = document.getElementById('view-' + target);
+        if (viewEl) viewEl.classList.add('active');
+        btn.classList.add('active');
+      };
+    });
+
+    var signInBtn = document.getElementById('authBtn');
+    var authModal = document.getElementById('authModal');
+    if (signInBtn && authModal) {
+      signInBtn.onclick = function () {
+        authModal.classList.add('open');
+        authModal.style.pointerEvents = 'auto';
+      };
+    }
+
+    document.querySelectorAll('[data-close]').forEach(function (closeBtn) {
+      closeBtn.onclick = function () {
+        var id = closeBtn.getAttribute('data-close');
+        var m = document.getElementById(id);
+        if (m) {
+          m.classList.remove('open');
+          m.style.pointerEvents = 'none';
+        }
+      };
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', emergencyUnfreeze);
+  } else {
+    emergencyUnfreeze();
+  }
+})();
+  </script>
+  
 </body>
 </html>

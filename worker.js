@@ -81,23 +81,40 @@ async function handleBloomAction(body = {}, env) {
 
   const correctionRule =
     correctionMode === 'repeat'
-      ? 'If the learner makes a noticeable mistake, warmly highlight it and ask them to repeat the corrected phrasing aloud.'
+      ? 'Only if the learner makes a clear grammar error, warmly model the fix and ask them to repeat it once.'
       : correctionMode === 'none'
-      ? 'Keep the conversation flowing naturally without interrupting for grammar corrections.'
-      : 'If the learner makes a grammar or vocabulary mistake, gently recast it in one brief warm sentence before continuing.';
+      ? 'Do not correct grammar at all; focus 100% on natural conversation.'
+      : 'Never nitpick valid or understandable phrasing. Only if there is an obvious grammar mistake, briefly model the natural way in 5-8 words without lecturing, then continue chatting.';
 
   const systemPrompt = [
-    'You are ' + tutorName + ', an experienced, articulate human language coach (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live voice call inside Bloom.',
-    'Target language: ' + langName + '.',
-    'Speak like a real, thoughtful human conversation partner: use natural contractions, insightful reactions, and clear spoken phrasing (2-3 concise sentences max).',
-    'Never use markdown asterisks, bullet symbols, emojis, or stage directions because your words are spoken aloud by a human voice synthesizer.',
+    'You are ' + tutorName + ', a warm, friendly human conversation partner (' + (tutorGender === 'female' ? 'woman' : 'man') + ') on a live phone call in Bloom.',
+    'Language: ' + langName + '.',
+    'CRITICAL RULE: Keep every reply to 1 or 2 short, natural spoken sentences (maximum 30 words total). Never give long speeches or lists.',
+    'Sound like a real human friend talking on the phone: use natural contractions, warmth, and ask ONE short, engaging follow-up question.',
+    'Never use markdown, asterisks, bullet points, or emojis.',
     correctionRule
   ].join(' ');
 
   if (body.action === 'suggest_reply') {
-    const prompt = 'The learner is practicing spoken ' + langName + '. Last tutor line: "' + (body.lastTutorMessage || '') + '". Context: "' + (body.topic || 'General conversation') + '". Give 3 natural spoken reply ideas in ' + langName + ' from simple to expressive. Return ONLY JSON: {"suggestions":[{"text":"","hint":""}]}';
+    const prompt = 'Give 3 short, natural spoken reply ideas in ' + langName + ' to: "' + (body.lastTutorMessage || '') + '". Return ONLY JSON: {"suggestions":[{"text":""}]}';
     return { reply: await runLLM(env, systemPrompt, prompt, [], true) };
   }
+
+  if (body.action === 'discuss_video') {
+    const context = (body.videoContext || '').slice(0, 3000);
+    const prompt = body.message === '__START_VIDEO_TALK__'
+      ? 'We just watched "' + (body.videoTitle || 'Video') + '" (' + context + '). In 1-2 short spoken sentences in ' + langName + ', share one quick reaction to the video and ask what stood out to the learner.'
+      : 'Discussing video "' + (body.videoTitle || 'Video') + '" (' + context + '). Learner said: "' + (body.message || '') + '". Reply in 1-2 short, natural spoken sentences in ' + langName + ' and ask one follow-up question.';
+    return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
+  }
+
+  const prompt = body.message === '__GREET__'
+    ? 'Say a warm, casual 1-sentence hello as ' + tutorName + ' in ' + langName + ' and ask a fun, easy question to start the call.'
+    : 'Learner said: "' + (body.message || '') + '". Reply in 1-2 short, natural spoken sentences in ' + langName + ' (under 30 words) like a real friend on a call.';
+
+  return { reply: await runLLM(env, systemPrompt, prompt, history, false) };
+}
+
 
   if (body.action === 'discuss_video') {
     const context = (body.videoContext || '').slice(0, 3200);
@@ -189,22 +206,20 @@ async function callGemini(apiKey, model, systemPrompt, userPrompt, history = [],
 
 
 
-async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 'en') {
+async function generateHumanSpeech(apiKey, text, tutorGender = 'female', lang = 'en', env = null) {
   const voiceName = tutorGender === 'female' ? 'Aoede' : 'Charon';
   const cleanText = text.replace(/[*#_`~]/g, '').trim();
-  const models = ['gemini-3.8-flash', 'gemini-2.5-flash-preview-tts'];
-
+  const host = ['generativelanguage', 'googleapis', 'com'].join('.');
+  const models = ['gemini-3.8-flash-tts', 'gemini-3.8-flash-lite-tts', 'gemini-2.5-flash-preview-tts'];
 
   for (const model of models) {
     try {
-      const host = ['generativelanguage', 'googleapis', 'com'].join('.');
-const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
-
+      const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: 'Read this ' + lang + ' line aloud naturally like a real human tutor on a voice call. Add no extra words:\n\n' + cleanText }] }],
+          contents: [{ role: 'user', parts: [{ text: cleanText }] }],
           generationConfig: {
             responseModalities: ['AUDIO'],
             speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
@@ -223,6 +238,7 @@ const endpoint = 'https://' + host + '/v1beta/models/' + model + ':generateConte
   }
   return null;
 }
+
 async function fetchYouTubeContext(videoId) {
   let title = '', author = '', transcript = '';
   try {

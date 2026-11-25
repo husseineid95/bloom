@@ -94,6 +94,7 @@
       cursor: pointer; transition: transform 0.12s ease, background 0.15s ease;
     }
     .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-primary {
       background: var(--primary); border-color: var(--primary); color: #FFFFFF;
       box-shadow: var(--shadow-sm);
@@ -142,14 +143,22 @@
     }
     .tutor-card.selected { border-color: var(--primary); background: var(--bg-sky-soft); }
 
-    .chat-log {
-      height: 290px; overflow-y: auto; padding: 14px;
+    .voice-stage {
+      padding: 18px; border-radius: 18px;
       background: #F8FBFF; border: 1px solid var(--border);
-      border-radius: 16px; display: flex; flex-direction: column; gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    .bubble { max-width: 82%; padding: 11px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
-    .bubble.ai { align-self: flex-start; background: var(--bg-surface); border: 1px solid var(--border); }
-    .bubble.user { align-self: flex-end; background: var(--primary); color: #FFF; }
+    .rec-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 999px;
+      background: #E0F2FE; color: var(--primary-deep);
+      font-size: 13px; font-weight: 800;
+    }
+    .feedback-box {
+      padding: 12px 14px; border-radius: 14px;
+      background: #F8FBFF; border: 1px solid var(--border);
+      font-size: 13px; line-height: 1.55; white-space: pre-line;
+    }
 
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-top: 10px; }
     .cal-day { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
@@ -278,14 +287,13 @@
         <div id="cefrLevelsList"></div>
       </div>
     </section>
-
-    <!-- WATCH -->
+        <!-- WATCH -->
     <section id="view-watch" class="view">
       <div class="card" style="margin-bottom:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
           <div>
             <h2 class="section-title" data-i18n="watchTitle">Watch & Learn from YouTube</h2>
-            <p class="muted" data-i18n="watchSub">Paste a YouTube link, watch the video, finish it to unlock useful vocabulary and video discussion.</p>
+            <p class="muted" data-i18n="watchSub">Watch the full video to the end to unlock in-video vocabulary with examples and voice-only discussion.</p>
           </div>
           <button class="btn btn-primary" data-action="open-yt-modal">
             <i data-lucide="youtube" size="16"></i>
@@ -296,17 +304,14 @@
 
       <div class="card" style="margin-bottom:14px;">
         <div class="video-box">
-          <iframe id="ytPlayerFrame" src="about:blank" allowfullscreen></iframe>
+          <iframe id="ytPlayerFrame" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:12px;">
           <div>
             <div style="font-size:17px;font-weight:800;" id="activeVideoTitle">No video loaded yet</div>
-            <div class="muted" id="activeVideoMeta">Click "Upload YouTube Video" and paste a link to begin.</div>
+            <div class="muted" id="activeVideoMeta">Paste a YouTube link and watch through to the end.</div>
           </div>
-          <button class="btn btn-soft" id="finishVideoBtn" data-action="finish-video">
-            <i data-lucide="check-circle" size="15"></i>
-            <span data-i18n="finishVideo">Finish Video</span>
-          </button>
+          <div class="rec-badge" id="watchGateStatus">Locked until finished</div>
         </div>
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
@@ -315,7 +320,7 @@
             <span data-i18n="vocabBtn">Vocabulary</span>
           </button>
           <button class="btn" id="videoDiscussBtn" data-action="open-video-discuss" disabled>
-            <i data-lucide="message-circle" size="15"></i>
+            <i data-lucide="mic" size="15"></i>
             <span data-i18n="discussBtn">Discuss the Video</span>
           </button>
         </div>
@@ -329,7 +334,7 @@
         <div id="videoShelfList" class="grid-2"></div>
       </div>
     </section>
-        <!-- LEARN (5 features) -->
+        <!-- LEARN -->
     <section id="view-learn" class="view">
       <div class="card" style="margin-bottom:14px;">
         <h2 class="section-title" data-i18n="learnTitle">Learn</h2>
@@ -339,28 +344,28 @@
       <div class="grid-3" style="margin-bottom:14px;">
         <div class="card" style="cursor:pointer;" data-learn-tool="flashcards">
           <div style="font-weight:800;color:var(--primary-deep);">1. <span data-i18n="toolFlashcards">Flashcards</span></div>
-          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolFlashcardsDesc">Practice words from videos you watched.</p>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolFlashcardsDesc">Speak meaning or recall target word by voice.</p>
         </div>
         <div class="card" style="cursor:pointer;" data-learn-tool="photo">
           <div style="font-weight:800;color:var(--primary-deep);">2. <span data-i18n="toolPhoto">Photo Chit Chat</span></div>
-          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolPhotoDesc">Record 1 min describing a photo for correction & ideas.</p>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolPhotoDesc">Record 1 min with countdown & automatic feedback.</p>
         </div>
         <div class="card" style="cursor:pointer;" data-learn-tool="topic">
           <div style="font-weight:800;color:var(--primary-deep);">3. <span data-i18n="toolTopic">Topic Talk</span></div>
-          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolTopicDesc">Record 1 min on a topic and get written correction.</p>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolTopicDesc">Record 1 min with countdown & automatic correction.</p>
         </div>
         <div class="card" style="cursor:pointer;" data-learn-tool="wordlink">
           <div style="font-weight:800;color:var(--primary-deep);">4. <span data-i18n="toolWordLink">Word Link</span></div>
-          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolWordLinkDesc">Link as many words as you can in 1 minute by voice.</p>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolWordLinkDesc">Link words in 1 minute by voice with auto-check.</p>
         </div>
         <div class="card" style="cursor:pointer;" data-learn-tool="videolab">
           <div style="font-weight:800;color:var(--primary-deep);">5. <span data-i18n="toolVideoLab">Video Word & Talk Lab</span></div>
-          <p class="muted" style="font-size:12px;margin-top:4px;" data-i18n="toolVideoLabDesc">Review useful video words & discuss your watched video.</p>
+          <p class="muted" style="margin-top:4px;" data-i18n="toolVideoLabDesc">Review finished-video words & voice discussion.</p>
         </div>
       </div>
 
-      <div class="card" id="learnWorkspace">
-        <div id="learnToolContent" class="muted">Select any of the 5 tools above to begin.</div>
+      <div class="card" id="learnToolContent">
+        <p class="muted">Select one of the five tools above to begin.</p>
       </div>
     </section>
         <!-- SPEAK -->
@@ -380,15 +385,16 @@
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
           <div>
             <strong style="color:var(--primary-deep);" id="speakActiveLabel">Practice Speaking</strong>
             <div class="muted" style="font-size:12px;" id="speakActiveTutorLine"></div>
           </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-soft" id="rec2MinBtn" data-action="rec-2min">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <span class="rec-badge" id="speakCountdownBadge" style="display:none;">02:00</span>
+            <button class="btn btn-soft" id="rec2MinBtn" data-action="toggle-rec-2min">
               <i data-lucide="mic" size="15"></i>
-              <span id="rec2MinLabel">Record & Send (2m)</span>
+              <span id="rec2MinLabel">Record (2m)</span>
             </button>
             <button class="btn btn-primary" id="realCallBtn" data-action="toggle-real-call">
               <i data-lucide="phone-call" size="15"></i>
@@ -397,13 +403,14 @@
           </div>
         </div>
 
-        <div id="speakSubPicker" style="margin-bottom:10px;"></div>
+        <div id="speakSubPicker" style="margin-bottom:12px;"></div>
 
-        <div class="chat-log" id="speakChatLog"></div>
-
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <input type="text" class="field" id="speakTextInput" placeholder="Type a message or record for up to 2 minutes..." />
-          <button class="btn btn-primary" data-action="send-speak-text">Send</button>
+        <div class="voice-stage">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span class="rec-badge" id="callStatusPill">Voice Ready</span>
+            <button class="btn btn-soft" style="padding:5px 12px;font-size:12px;" id="replayLastCoachBtn" data-action="replay-coach" disabled>🔊 Replay Coach</button>
+          </div>
+          <div class="feedback-box" id="speakCoachFeedback">Press Record (2m) to speak and send directly when you stop or time ends, or start a Real Call to speak back and forth.</div>
         </div>
       </div>
     </section>
@@ -416,7 +423,7 @@
     <button class="nav-item" data-nav="speak"><div class="nav-pill"><i data-lucide="message-square" size="19"></i></div><span data-i18n="navSpeak">Speak</span></button>
   </nav>
 
-  <!-- YouTube Upload Modal: ONLY one space (the link space) + Add -->
+  <!-- YouTube Upload Modal -->
   <div class="modal-bg" id="ytModal">
     <div class="modal-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
@@ -448,7 +455,7 @@
     </div>
   </div>
 
-  <!-- 20-Minute CEFR Unlock Quiz Modal (4 Skills + Grammar) -->
+  <!-- 20-Minute CEFR Unlock Quiz Modal -->
   <div class="modal-bg" id="quizModal">
     <div class="modal-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -468,14 +475,14 @@
         chooseTutor: 'Choose Your AI Tutor', femaleVoiceLabel: 'Woman • Feminine Voice', maleVoiceLabel: 'Man • Masculine Voice',
         streakCal: 'Streak & Calendar', cefrTitle: 'CEFR Levels, Hours & 20-Min Unlock Quiz',
         cefrDesc: 'Complete required study hours to advance, or pass a 20-minute quiz (4 skills + grammar) to unlock the next level immediately.',
-        watchTitle: 'Watch & Learn from YouTube', watchSub: 'Paste a YouTube link, watch the video, finish it to unlock useful vocabulary and video discussion.',
-        uploadYt: 'Upload YouTube Video', finishVideo: 'Finish Video', vocabBtn: 'Vocabulary', discussBtn: 'Discuss the Video',
-        savedVideos: 'Your Videos', learnTitle: 'Learn', learnSub: 'Five focused practice tools tuned to your level and language.',
-        toolFlashcards: 'Flashcards', toolFlashcardsDesc: 'Practice words from videos you watched.',
-        toolPhoto: 'Photo Chit Chat', toolPhotoDesc: 'Record 1 min describing a photo for correction & ideas.',
-        toolTopic: 'Topic Talk', toolTopicDesc: 'Record 1 min on a topic and get written correction.',
-        toolWordLink: 'Word Link', toolWordLinkDesc: 'Link as many words as you can in 1 minute by voice.',
-        toolVideoLab: 'Video Word & Talk Lab', toolVideoLabDesc: 'Review useful video words & discuss your watched video.',
+        watchTitle: 'Watch & Learn from YouTube', watchSub: 'Watch the full video to the end to unlock in-video vocabulary with examples and voice-only discussion.',
+        uploadYt: 'Upload YouTube Video', vocabBtn: 'Vocabulary', discussBtn: 'Discuss the Video', savedVideos: 'Your Videos',
+        learnTitle: 'Learn', learnSub: 'Five focused practice tools tuned to your level and language.',
+        toolFlashcards: 'Flashcards', toolFlashcardsDesc: 'Speak meaning or recall target word by voice.',
+        toolPhoto: 'Photo Chit Chat', toolPhotoDesc: 'Record 1 min with countdown & automatic feedback.',
+        toolTopic: 'Topic Talk', toolTopicDesc: 'Record 1 min with countdown & automatic correction.',
+        toolWordLink: 'Word Link', toolWordLinkDesc: 'Link words in 1 minute by voice with auto-check.',
+        toolVideoLab: 'Video Word & Talk Lab', toolVideoLabDesc: 'Review finished-video words & voice discussion.',
         speakTitle: 'Speak', speakSub: 'Practice speaking freely, role-play situations, or shadow native sentences.',
         modePractice: 'Practice Speaking', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing',
         navHome: 'Home', navWatch: 'Watch', navLearn: 'Learn', navSpeak: 'Speak',
@@ -486,14 +493,14 @@
         chooseTutor: 'Wähle deine KI-Lehrkraft', femaleVoiceLabel: 'Frau • Weibliche Stimme', maleVoiceLabel: 'Mann • Männliche Stimme',
         streakCal: 'Serie & Kalender', cefrTitle: 'GER-Stufen, Stunden & 20-Min-Freischaltquiz',
         cefrDesc: 'Erfülle die Lernstunden oder bestehe ein 20-Minuten-Quiz (4 Fertigkeiten + Grammatik), um die nächste Stufe sofort freizuschalten.',
-        watchTitle: 'YouTube-Videos ansehen & lernen', watchSub: 'Füge einen YouTube-Link ein, schaue das Video zu Ende und schalte Vokabeln sowie Videogespräch frei.',
-        uploadYt: 'YouTube-Video hochladen', finishVideo: 'Video beenden', vocabBtn: 'Vokabeln', discussBtn: 'Video besprechen',
-        savedVideos: 'Deine Videos', learnTitle: 'Lernen', learnSub: 'Fünf Übungswerkzeuge abgestimmt auf dein Niveau und deine Sprache.',
-        toolFlashcards: 'Karteikarten', toolFlashcardsDesc: 'Übe Wörter aus gesehenen Videos.',
-        toolPhoto: 'Foto-Gespräch', toolPhotoDesc: 'Beschreibe ein Foto 1 Min. per Sprache für Korrektur & Ideen.',
-        toolTopic: 'Themenrede', toolTopicDesc: 'Sprich 1 Min. zu einem Thema und erhalte eine schriftliche Korrektur.',
-        toolWordLink: 'Wortkette', toolWordLinkDesc: 'Verbinde in 1 Minute per Sprache so viele Wörter wie möglich.',
-        toolVideoLab: 'Video-Wörter & Gespräch', toolVideoLabDesc: 'Wiederhole nützliche Videowörter & besprich dein Video.',
+        watchTitle: 'YouTube-Videos ansehen & lernen', watchSub: 'Schaue das Video bis zum Ende, um Vokabeln aus dem Video mit Beispielen und Sprachdiskussion freizuschalten.',
+        uploadYt: 'YouTube-Video hochladen', vocabBtn: 'Vokabeln', discussBtn: 'Video besprechen', savedVideos: 'Deine Videos',
+        learnTitle: 'Lernen', learnSub: 'Fünf Übungswerkzeuge abgestimmt auf dein Niveau und deine Sprache.',
+        toolFlashcards: 'Karteikarten', toolFlashcardsDesc: 'Sprich die Bedeutung oder nenne das Zielwort per Stimme.',
+        toolPhoto: 'Foto-Gespräch', toolPhotoDesc: '1 Min. mit Countdown & automatischem Feedback aufnehmen.',
+        toolTopic: 'Themenrede', toolTopicDesc: '1 Min. mit Countdown & automatischer Korrektur aufnehmen.',
+        toolWordLink: 'Wortkette', toolWordLinkDesc: 'Wörter in 1 Min. per Stimme verketten & automatisch prüfen.',
+        toolVideoLab: 'Video-Wörter & Gespräch', toolVideoLabDesc: 'Wiederhole Videowörter & nutze Sprachdiskussion.',
         speakTitle: 'Sprechen', speakSub: 'Übe freies Sprechen, Rollenspiele oder Shadowing mit Muttersprachlern.',
         modePractice: 'Freies Sprechen', modeRolePlay: 'Rollenspiel', modeShadowing: 'Shadowing',
         navHome: 'Start', navWatch: 'Sehen', navLearn: 'Lernen', navSpeak: 'Sprechen',
@@ -504,14 +511,14 @@
         chooseTutor: 'Choisissez votre coach IA', femaleVoiceLabel: 'Femme • Voix féminine', maleVoiceLabel: 'Homme • Voix masculine',
         streakCal: 'Série & Calendrier', cefrTitle: 'Niveaux CECR, Heures & Quiz de 20 Min',
         cefrDesc: 'Complétez les heures requises ou réussissez un quiz de 20 minutes (4 compétences + grammaire) pour débloquer le niveau suivant.',
-        watchTitle: 'Regarder & Apprendre sur YouTube', watchSub: 'Collez un lien YouTube, terminez la vidéo pour débloquer le vocabulaire utile et la discussion.',
-        uploadYt: 'Ajouter une vidéo YouTube', finishVideo: 'Terminer la vidéo', vocabBtn: 'Vocabulaire', discussBtn: 'Discuter de la vidéo',
-        savedVideos: 'Vos vidéos', learnTitle: 'Apprendre', learnSub: 'Cinq outils adaptés à votre niveau et à votre langue.',
-        toolFlashcards: 'Cartes mémoire', toolFlashcardsDesc: 'Révisez les mots des vidéos regardées.',
-        toolPhoto: 'Discussion photo', toolPhotoDesc: 'Décrivez une photo pendant 1 min pour correction et idées.',
-        toolTopic: 'Sujet libre', toolTopicDesc: 'Parlez 1 min sur un sujet et recevez une correction écrite.',
-        toolWordLink: 'Chaîne de mots', toolWordLinkDesc: 'Reliez un maximum de mots en 1 minute à l’oral.',
-        toolVideoLab: 'Mots & Débat Vidéo', toolVideoLabDesc: 'Revoyez le vocabulaire utile et discutez de votre vidéo.',
+        watchTitle: 'Regarder & Apprendre sur YouTube', watchSub: 'Regardez la vidéo jusqu’à la fin pour débloquer le vocabulaire avec exemples et la discussion vocale.',
+        uploadYt: 'Ajouter une vidéo YouTube', vocabBtn: 'Vocabulaire', discussBtn: 'Discuter de la vidéo', savedVideos: 'Vos vidéos',
+        learnTitle: 'Apprendre', learnSub: 'Cinq outils adaptés à votre niveau et à votre langue.',
+        toolFlashcards: 'Cartes mémoire', toolFlashcardsDesc: 'Dites le sens ou retrouvez le mot cible à l’oral.',
+        toolPhoto: 'Discussion photo', toolPhotoDesc: '1 min avec minuteur et correction automatique.',
+        toolTopic: 'Sujet libre', toolTopicDesc: '1 min avec minuteur et correction automatique.',
+        toolWordLink: 'Chaîne de mots', toolWordLinkDesc: 'Reliez des mots en 1 min à l’oral avec vérification auto.',
+        toolVideoLab: 'Mots & Débat Vidéo', toolVideoLabDesc: 'Revoyez les mots de la vidéo et discutez à l’oral.',
         speakTitle: 'Parler', speakSub: 'Pratiquez la conversation, des jeux de rôle ou le shadowing.',
         modePractice: 'Pratiquer l’oral', modeRolePlay: 'Jeu de rôle', modeShadowing: 'Shadowing',
         navHome: 'Accueil', navWatch: 'Regarder', navLearn: 'Apprendre', navSpeak: 'Parler',
@@ -522,14 +529,14 @@
         chooseTutor: 'Elige tu tutor de IA', femaleVoiceLabel: 'Mujer • Voz femenina', maleVoiceLabel: 'Hombre • Voz masculina',
         streakCal: 'Racha y Calendario', cefrTitle: 'Niveles MCER, Horas y Quiz de 20 Min',
         cefrDesc: 'Completa las horas requeridas o aprueba un quiz de 20 minutos (4 destrezas + gramática) para desbloquear el siguiente nivel.',
-        watchTitle: 'Ver y Aprender en YouTube', watchSub: 'Pega un enlace de YouTube, termina el video para desbloquear vocabulario útil y conversación.',
-        uploadYt: 'Subir video de YouTube', finishVideo: 'Terminar video', vocabBtn: 'Vocabulario', discussBtn: 'Comentar el video',
-        savedVideos: 'Tus videos', learnTitle: 'Aprender', learnSub: 'Cinco herramientas adaptadas a tu nivel y tu idioma.',
-        toolFlashcards: 'Tarjetas', toolFlashcardsDesc: 'Practica palabras de los videos que viste.',
-        toolPhoto: 'Charla de foto', toolPhotoDesc: 'Describe una foto durante 1 min para corrección e ideas.',
-        toolTopic: 'Hablar del tema', toolTopicDesc: 'Habla 1 min sobre un tema y recibe corrección escrita.',
-        toolWordLink: 'Cadena de palabras', toolWordLinkDesc: 'Enlaza tantas palabras como puedas en 1 minuto por voz.',
-        toolVideoLab: 'Palabras y Charla de Video', toolVideoLabDesc: 'Repasa palabras útiles y comenta tu video.',
+        watchTitle: 'Ver y Aprender en YouTube', watchSub: 'Mira el video hasta el final para desbloquear vocabulario con ejemplos y charla solo por voz.',
+        uploadYt: 'Subir video de YouTube', vocabBtn: 'Vocabulario', discussBtn: 'Comentar el video', savedVideos: 'Tus videos',
+        learnTitle: 'Aprender', learnSub: 'Cinco herramientas adaptadas a tu nivel y tu idioma.',
+        toolFlashcards: 'Tarjetas', toolFlashcardsDesc: 'Di el significado o recuerda la palabra meta por voz.',
+        toolPhoto: 'Charla de foto', toolPhotoDesc: '1 min con cuenta atrás y evaluación automática.',
+        toolTopic: 'Hablar del tema', toolTopicDesc: '1 min con cuenta atrás y corrección automática.',
+        toolWordLink: 'Cadena de palabras', toolWordLinkDesc: 'Enlaza palabras en 1 min por voz con revisión auto.',
+        toolVideoLab: 'Palabras y Charla de Video', toolVideoLabDesc: 'Repasa palabras del video y debate por voz.',
         speakTitle: 'Hablar', speakSub: 'Practica conversación libre, role play o shadowing.',
         modePractice: 'Practicar habla', modeRolePlay: 'Role Play', modeShadowing: 'Shadowing',
         navHome: 'Inicio', navWatch: 'Ver', navLearn: 'Aprender', navSpeak: 'Hablar',
@@ -558,27 +565,38 @@
 
     const CALL_STATE = { IDLE: 'IDLE', SPEAKING: 'SPEAKING', THINKING: 'THINKING', LISTENING: 'LISTENING' };
 
-    let app = JSON.parse(localStorage.getItem('bloom_v3_state')) || {
+    let app = JSON.parse(localStorage.getItem('bloom_v4_state')) || {
       lang: 'en', level: 'B2', unlockedLevels: ['A1', 'A2', 'B1', 'B2'], tutorGender: 'female',
       watchMinutesToday: 0, speakMinutesToday: 0, hoursByLevel: { A1: 100, A2: 225, B1: 400, B2: 45, C1: 0, C2: 0 },
       streakDays: 1, activeDays: [new Date().getDate()], user: null, accounts: {}, videos: [], activeVideoId: null, srsCards: {}
     };
 
-    let audioSessionId = 0, blockAudioFlag = false, activeRec = null, recTimer = null, recSecs = 0;
+    let audioSessionId = 0, blockAudioFlag = false, activeRec = null, recTimer = null, recRemaining = 0, recStopFn = null;
+    let watchProgressTimer = null, ytApiReady = false, ytPlayerObj = null;
     let callState = CALL_STATE.IDLE, authMode = 'signin', speakMode = 'practice';
-    let speakHistory = [], videoDiscussHistory = [], flashcardCursor = 0, flashcardRevealed = false;
+    let lastCoachReply = '', currentShadowSentence = '', flashcardCursor = 0, flashcardDirection = 'target_to_meaning', flashcardRevealed = false;
     let quizInterval = null, activeQuizData = null;
 
-    function saveBloom() { localStorage.setItem('bloom_v3_state', JSON.stringify(app)); renderAll(); }
+    function saveBloom() { localStorage.setItem('bloom_v4_state', JSON.stringify(app)); renderAll(); }
+    function fmtClock(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
 
-    function stopAllAudioAndVideo() {
-      audioSessionId += 1; blockAudioFlag = true;
-      setTimeout(() => { blockAudioFlag = false; }, 180);
+    function stopAllAudioAndVideo(keepPlayer = false) {
+      audioSessionId += 1;
+      blockAudioFlag = true;
+      setTimeout(() => { blockAudioFlag = false; }, 160);
       if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
       if (recTimer) { clearInterval(recTimer); recTimer = null; }
       if (activeRec) { try { activeRec.onend = null; activeRec.stop(); } catch (_) {} activeRec = null; }
-      const frame = document.getElementById('ytPlayerFrame');
-      if (frame && frame.src !== 'about:blank') frame.src = 'about:blank';
+      if (watchProgressTimer) { clearInterval(watchProgressTimer); watchProgressTimer = null; }
+      const badge = document.getElementById('speakCountdownBadge');
+      if (badge) badge.style.display = 'none';
+      if (!keepPlayer) {
+        const frame = document.getElementById('ytPlayerFrame');
+        if (frame && frame.src !== 'about:blank') frame.src = 'about:blank';
+      }
     }
 
     function pickGenderVoice(bcp47, gender) {
@@ -599,12 +617,16 @@
       }).sort((a, b) => b.score - a.score)[0]?.v || null;
     }
 
-    function speakCoachLine(text, onDone = null) {
+    function speakCoachLine(text, onDone = null, allowInterrupt = false) {
       if (blockAudioFlag || !('speechSynthesis' in window)) { if (onDone) onDone(); return; }
       const token = ++audioSessionId;
       try { window.speechSynthesis.cancel(); } catch (_) {}
       const clean = String(text || '').trim();
       if (!clean) { if (onDone) onDone(); return; }
+      lastCoachReply = clean;
+      const replayBtn = document.getElementById('replayLastCoachBtn');
+      if (replayBtn) replayBtn.disabled = false;
+
       const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
       const utter = new SpeechSynthesisUtterance(clean);
       utter.lang = tm.bcp47;
@@ -612,12 +634,50 @@
       if (voice) utter.voice = voice;
       utter.pitch = app.tutorGender === 'female' ? 1.06 : 0.92;
       utter.rate = (app.level === 'A1' || app.level === 'A2') ? 0.88 : 0.98;
-      utter.onstart = () => { if (token !== audioSessionId || blockAudioFlag) { try { window.speechSynthesis.cancel(); } catch (_) {} } };
-      utter.onend = () => { if (token === audioSessionId && onDone) onDone(); };
-      utter.onerror = () => { if (token === audioSessionId && onDone) onDone(); };
+
+      let interrupter = null;
+      const cleanup = () => { if (interrupter) { try { interrupter.onend = null; interrupter.stop(); } catch (_) {} interrupter = null; } };
+
+      if (allowInterrupt && callState !== CALL_STATE.IDLE) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SR) {
+          interrupter = new SR();
+          interrupter.lang = tm.bcp47;
+          interrupter.interimResults = false;
+          interrupter.continuous = true;
+          interrupter.onresult = (ev) => {
+            const heard = ev.results?.[ev.results.length - 1]?.[0]?.transcript?.trim() || '';
+            if (heard.length >= 2 && token === audioSessionId && callState !== CALL_STATE.IDLE) {
+              cleanup();
+              try { window.speechSynthesis.cancel(); } catch (_) {}
+              audioSessionId += 1;
+              callState = CALL_STATE.LISTENING;
+              renderAll();
+              startVoiceTurnWithSilence(120, async (fullSpoken) => {
+                if (fullSpoken && callState !== CALL_STATE.IDLE) {
+                  callState = CALL_STATE.THINKING;
+                  renderAll();
+                  await sendSpeakMessage(fullSpoken);
+                } else if (callState !== CALL_STATE.IDLE) {
+                  callState = CALL_STATE.LISTENING;
+                  renderAll();
+                }
+              });
+            }
+          };
+          try { interrupter.start(); } catch (_) {}
+        }
+      }
+
+      utter.onstart = () => {
+        if (token !== audioSessionId || blockAudioFlag) { cleanup(); try { window.speechSynthesis.cancel(); } catch (_) {} }
+      };
+      utter.onend = () => { cleanup(); if (token === audioSessionId && onDone) onDone(); };
+      utter.onerror = () => { cleanup(); if (token === audioSessionId && onDone) onDone(); };
       window.speechSynthesis.speak(utter);
     }
-
+    </script>
+      <script>
     function markTodayActive() { const d = new Date().getDate(); if (!app.activeDays.includes(d)) { app.activeDays.push(d); app.streakDays += 1; } }
     function addWatchMin(m) { app.watchMinutesToday = Math.min(60, app.watchMinutesToday + m); app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60); markTodayActive(); saveBloom(); }
     function addSpeakMin(m) { app.speakMinutesToday = Math.min(60, app.speakMinutesToday + m); app.hoursByLevel[app.level] = (app.hoursByLevel[app.level] || 0) + (m / 60); markTodayActive(); saveBloom(); }
@@ -660,8 +720,7 @@
       document.getElementById('authModal').classList.remove('open');
       saveBloom();
     }
-    </script>
-      <script>
+
     function parseYouTubeId(input) {
       const m = String(input || '').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([A-Za-z0-9_-]{11})/);
       return m ? m[1] : null;
@@ -671,123 +730,289 @@
       return app.videos.find(v => v.id === app.activeVideoId) || null;
     }
 
-    function handleAddYouTubeLink() {
-      const raw = document.getElementById('ytLinkOnlyInput').value.trim();
-      const ytId = parseYouTubeId(raw);
-      if (!ytId) return alert('Please paste a valid YouTube link.');
-      const existing = app.videos.find(v => v.id === ytId);
-      const vid = existing || { id: ytId, title: `YouTube Video (${ytId})`, completed: false, vocab: [] };
-      if (!existing) app.videos.unshift(vid);
-      app.activeVideoId = ytId;
-      videoDiscussHistory = [];
-      document.getElementById('ytLinkOnlyInput').value = '';
-      document.getElementById('ytModal').classList.remove('open');
-      saveBloom();
-      switchView('watch');
-      document.getElementById('ytPlayerFrame').src = `https://www.youtube.com/embed/${ytId}?rel=0`;
+    function loadYouTubePlayer(ytId) {
+      const frame = document.getElementById('ytPlayerFrame');
+      frame.src = `https://www.youtube.com/embed/${ytId}?enablejsapi=1&rel=0`;
+      if (watchProgressTimer) clearInterval(watchProgressTimer);
+
+      const vid = app.videos.find(v => v.id === ytId);
+      if (vid && !vid.completed) {
+        vid.watchedSec = vid.watchedSec || 0;
+        watchProgressTimer = setInterval(() => {
+          const curVid = getActiveVideo();
+          if (!curVid || curVid.id !== ytId || curVid.completed) {
+            clearInterval(watchProgressTimer);
+            return;
+          }
+          if (document.visibilityState === 'visible') {
+            curVid.watchedSec = (curVid.watchedSec || 0) + 1;
+            const dur = curVid.durationSec || 60;
+            if (curVid.watchedSec >= dur) {
+              clearInterval(watchProgressTimer);
+              completeVerifiedVideo(curVid);
+            } else {
+              const gate = document.getElementById('watchGateStatus');
+              if (gate) gate.textContent = `Watching: ${curVid.watchedSec}s / ${dur}s to unlock`;
+            }
+          }
+        }, 1000);
+      }
+
+      if (!window.YT && !document.getElementById('ytIframeApiScript')) {
+        const tag = document.createElement('script');
+        tag.id = 'ytIframeApiScript';
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+      }
+      window.onYouTubeIframeAPIReady = () => {
+        ytApiReady = true;
+        mountYTPlayerObj(ytId);
+      };
+      if (ytApiReady && window.YT?.Player) mountYTPlayerObj(ytId);
     }
 
-    async function finishCurrentVideo() {
-      const vid = getActiveVideo();
-      if (!vid) return;
-      stopAllAudioAndVideo();
+    function mountYTPlayerObj(ytId) {
+      try {
+        if (ytPlayerObj && typeof ytPlayerObj.destroy === 'function') ytPlayerObj.destroy();
+        ytPlayerObj = new window.YT.Player('ytPlayerFrame', {
+          events: {
+            onReady: (ev) => {
+              const dur = Math.floor(ev.target.getDuration?.() || 0);
+              const curVid = app.videos.find(v => v.id === ytId);
+              if (curVid && dur > 0) curVid.durationSec = Math.max(20, Math.min(dur, 900));
+            },
+            onStateChange: (ev) => {
+              const curVid = app.videos.find(v => v.id === ytId);
+              if (!curVid) return;
+              const title = ev.target.getVideoData?.()?.title;
+              if (title) curVid.title = title;
+              if (ev.data === window.YT.PlayerState.ENDED) {
+                completeVerifiedVideo(curVid);
+              }
+            }
+          }
+        });
+      } catch (_) {}
+    }
+
+    async function completeVerifiedVideo(vid) {
+      if (!vid || vid.completed) return;
       vid.completed = true;
       addWatchMin(10);
       if (!vid.vocab || !vid.vocab.length) {
         try {
-          const rawReply = await callBloomAI({ action: 'video_vocab', videoTitle: vid.title, videoContext: `YouTube ID ${vid.id}` });
+          const rawReply = await callBloomAI({
+            action: 'video_vocab',
+            videoTitle: vid.title,
+            videoContext: `YouTube ID ${vid.id} — finished watching full video`
+          });
           const parsed = JSON.parse(rawReply.replace(/```json|```/g, '').trim());
           if (Array.isArray(parsed.words) && parsed.words.length) vid.vocab = parsed.words;
         } catch (_) {
           vid.vocab = [
-            { term: 'key takeaway', meaningInLang: 'Core idea / lesson', example: 'The key takeaway is consistent daily effort.' },
-            { term: 'in practice', meaningInLang: 'In real application', example: 'This works well in practice.' }
+            { term: 'core premise', meaningInLang: 'Main central idea presented in the video', example: 'The core premise of the talk is daily consistency.' },
+            { term: 'practical application', meaningInLang: 'How an idea is used in real life', example: 'We can apply this in practical application right away.' }
           ];
         }
       }
       saveBloom();
     }
 
+    function handleAddYouTubeLink() {
+      const raw = document.getElementById('ytLinkOnlyInput').value.trim();
+      const ytId = parseYouTubeId(raw);
+      if (!ytId) return alert('Please paste a valid YouTube link.');
+      const existing = app.videos.find(v => v.id === ytId);
+      const vid = existing || { id: ytId, title: `YouTube Video (${ytId})`, completed: false, watchedSec: 0, durationSec: 60, vocab: [] };
+      if (!existing) app.videos.unshift(vid);
+      app.activeVideoId = ytId;
+      document.getElementById('ytLinkOnlyInput').value = '';
+      document.getElementById('ytModal').classList.remove('open');
+      saveBloom();
+      switchView('watch');
+      loadYouTubePlayer(ytId);
+    }
+
     function renderVideoVocabPanel() {
       const vid = getActiveVideo();
-      const panel = document.getElementById('videoVocabPanel');
       if (!vid || !vid.completed) return;
+      const panel = document.getElementById('videoVocabPanel');
       panel.style.display = 'block';
-      panel.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Useful Vocabulary</div>` +
+      panel.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">In-Video Vocabulary & Examples</div>` +
         (vid.vocab || []).map(w => `
-          <div style="padding:10px 12px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;background:#F8FBFF;">
+          <div style="padding:12px 14px;border:1px solid var(--border);border-radius:14px;margin-bottom:8px;background:#F8FBFF;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <strong>${esc(w.term)}</strong>
-              <button class="btn btn-soft" style="padding:4px 10px;font-size:12px;" data-speak-line="${escAttr(w.term)}">🔊</button>
+              <strong style="font-size:15px;color:var(--primary-deep);">${esc(w.term)}</strong>
+              <button class="btn btn-soft" style="padding:4px 10px;font-size:12px;" data-speak-line="${escAttr(w.term + '. ' + w.example)}">🔊</button>
             </div>
-            <div class="muted" style="font-size:12px;">${esc(w.meaningInLang)}</div>
-            <div style="font-size:12px;margin-top:4px;"><em>${esc(w.example)}</em></div>
+            <div class="muted" style="font-size:12px;margin-top:3px;">${esc(w.meaningInLang)}</div>
+            <div style="font-size:13px;margin-top:6px;"><em>Example: ${esc(w.example)}</em></div>
           </div>
         `).join('');
     }
 
     function renderVideoDiscussPanel() {
       const vid = getActiveVideo();
-      const panel = document.getElementById('videoDiscussPanel');
       if (!vid || !vid.completed) return;
+      const panel = document.getElementById('videoDiscussPanel');
       panel.style.display = 'block';
       panel.innerHTML = `
-        <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Discuss: ${esc(vid.title)}</div>
-        <div class="chat-log" id="vidDiscussLog" style="height:200px;"></div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <input type="text" class="field" id="vidDiscussInput" placeholder="Discuss what you watched..." />
-          <button class="btn btn-primary" data-action="send-video-discuss">Send</button>
+        <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Voice Discussion: ${esc(vid.title)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+          <span class="rec-badge" id="vidDiscussCountdown" style="display:none;">01:00</span>
+          <button class="btn btn-primary" data-rec-sec="60" data-rec-mode="video_discuss">🎙️ Record & Send</button>
+          <button class="btn btn-soft" data-action="start-video-call">📞 Real Call on Video</button>
         </div>
+        <div class="feedback-box" id="vidDiscussFeedback">Speak using Record & Send or start a Real Call on this video. No text chat is used.</div>
       `;
-      if (!videoDiscussHistory.length) sendVideoDiscussMessage(`Let's discuss "${vid.title}". Ask me one clear question about it.`, true);
-      else redrawLog('vidDiscussLog', videoDiscussHistory);
     }
 
-    async function sendVideoDiscussMessage(presetText = null, silentUser = false) {
-      const vid = getActiveVideo();
-      if (!vid) return;
-      const input = document.getElementById('vidDiscussInput');
-      const text = presetText || input?.value.trim();
-      if (!text) return;
-      if (!silentUser && input) input.value = '';
-      if (!silentUser) videoDiscussHistory.push({ role: 'user', content: text });
-      redrawLog('vidDiscussLog', videoDiscussHistory, '...');
-      try {
-        const reply = await callBloomAI({ action: 'discuss_video', videoTitle: vid.title, videoContext: `Completed video (${vid.id})`, message: text, history: videoDiscussHistory });
-        videoDiscussHistory.push({ role: 'assistant', content: reply });
-        redrawLog('vidDiscussLog', videoDiscussHistory);
-        addSpeakMin(1);
-        if (!silentUser) speakCoachLine(reply);
-      } catch (e) {
-        videoDiscussHistory.push({ role: 'assistant', content: e.message });
-        redrawLog('vidDiscussLog', videoDiscussHistory);
-      }
+    function startTimedRecording(maxSec, badgeId, onFinishedTranscript, silenceAutoSend = false) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return alert('Speech recognition is not supported in this browser.');
+      stopAllAudioAndVideo(true);
+
+      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
+      const rec = new SR();
+      activeRec = rec;
+      rec.lang = tm.bcp47;
+      rec.interimResults = true;
+      rec.continuous = true;
+
+      let transcript = '';
+      let lastSpeechAt = Date.now();
+      let hasSpoken = false;
+      recRemaining = maxSec;
+
+      const badge = badgeId ? document.getElementById(badgeId) : null;
+      if (badge) { badge.style.display = 'inline-flex'; badge.textContent = fmtClock(recRemaining); }
+
+      const finalize = () => {
+        if (recTimer) { clearInterval(recTimer); recTimer = null; }
+        if (badge) badge.style.display = 'none';
+        try { rec.onend = null; rec.stop(); } catch (_) {}
+        activeRec = null;
+        recStopFn = null;
+        if (onFinishedTranscript) onFinishedTranscript(transcript.trim());
+      };
+      recStopFn = finalize;
+
+      rec.onresult = (ev) => {
+        let combined = '';
+        for (let i = 0; i < ev.results.length; i++) combined += ev.results[i][0].transcript + ' ';
+        transcript = combined.trim();
+        if (transcript.length > 0) { hasSpoken = true; lastSpeechAt = Date.now(); }
+      };
+
+      rec.onend = () => {
+        if (recRemaining > 0 && activeRec) {
+          try { rec.start(); } catch (_) { finalize(); }
+        } else {
+          finalize();
+        }
+      };
+
+      recTimer = setInterval(() => {
+        recRemaining -= 1;
+        if (badge) badge.textContent = fmtClock(recRemaining);
+        if (silenceAutoSend && hasSpoken && (Date.now() - lastSpeechAt) >= 1600) {
+          finalize();
+          return;
+        }
+        if (recRemaining <= 0) finalize();
+      }, 1000);
+
+      try { rec.start(); } catch (_) { finalize(); }
+    }
+
+    function startVoiceTurnWithSilence(maxSec, onTurnDone) {
+      startTimedRecording(maxSec, 'speakCountdownBadge', onTurnDone, true);
     }
 
     function openLearnTool(tool) {
-      stopAllAudioAndVideo();
+      stopAllAudioAndVideo(true);
       const bank = LEVEL_BANKS[app.level] || LEVEL_BANKS.B2;
       const box = document.getElementById('learnToolContent');
+
       if (tool === 'flashcards') {
         const pool = app.videos.filter(v => v.completed).flatMap(v => v.vocab || []);
-        if (!pool.length) { box.innerHTML = `<p class="muted">Finish a YouTube video first to practice vocabulary flashcards from watched videos.</p>`; return; }
+        if (!pool.length) {
+          box.innerHTML = `<p class="muted">Finish watching a YouTube video first so flashcards have real words from your video.</p>`;
+          return;
+        }
         const card = pool[flashcardCursor % pool.length];
         const srs = (app.srsCards || {})[card.term] || { intervalDays: 1, reps: 0 };
-        box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong style="color:var(--primary-deep);">Flashcards • ${esc(app.level)}</strong><span class="muted" style="font-size:12px;">Next interval: ${srs.intervalDays}d (${srs.reps} reviews)</span></div><div style="padding:18px;border:1px solid var(--border);border-radius:16px;text-align:center;background:#F8FBFF;"><div style="font-size:22px;font-weight:800;color:var(--primary-deep);">${esc(card.term)}</div><div style="margin-top:8px;font-size:14px;">${flashcardRevealed ? esc(card.meaningInLang) : 'Tap Reveal to check meaning'}</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;"><button class="btn btn-soft" data-speak-line="${escAttr(card.term)}">🔊</button><button class="btn btn-soft" data-action="reveal-flashcard">Reveal</button><button class="btn" data-srs-rate="again" data-srs-term="${escAttr(card.term)}">Again</button><button class="btn" data-srs-rate="hard" data-srs-term="${escAttr(card.term)}">Hard</button><button class="btn btn-primary" data-srs-rate="good" data-srs-term="${escAttr(card.term)}">Good</button><button class="btn btn-success" data-srs-rate="easy" data-srs-term="${escAttr(card.term)}">Easy</button></div></div>`;
+        const promptText = flashcardDirection === 'target_to_meaning' ? card.term : card.meaningInLang;
+        const promptLabel = flashcardDirection === 'target_to_meaning'
+          ? 'Target word shown — speak its meaning by voice'
+          : 'Meaning/native clue shown — recall and speak the target word';
+
+        box.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <strong style="color:var(--primary-deep);">Flashcards • ${esc(app.level)}</strong>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-soft" style="padding:5px 12px;font-size:12px;" data-action="toggle-flashcard-dir">Switch Direction</button>
+              <span class="muted" style="font-size:12px;">Interval: ${srs.intervalDays}d</span>
+            </div>
+          </div>
+          <div style="padding:18px;border:1px solid var(--border);border-radius:16px;text-align:center;background:#F8FBFF;">
+            <div class="muted" style="font-size:12px;margin-bottom:6px;">${esc(promptLabel)}</div>
+            <div style="font-size:22px;font-weight:800;color:var(--primary-deep);">${esc(promptText)}</div>
+            <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:14px;">
+              <span class="rec-badge" id="fcCountdown" style="display:none;">00:20</span>
+              <button class="btn btn-primary" data-rec-sec="20" data-rec-mode="flashcard" data-fc-term="${escAttr(card.term)}" data-fc-meaning="${escAttr(card.meaningInLang)}">🎙️ Speak Answer</button>
+              <button class="btn btn-soft" data-action="reveal-flashcard">Show Answer</button>
+            </div>
+            <div id="fcAnswerBox" class="feedback-box" style="display:${flashcardRevealed ? 'block' : 'none'};margin-top:12px;text-align:left;">
+              <strong>Word:</strong> ${esc(card.term)}<br/>
+              <strong>Meaning:</strong> ${esc(card.meaningInLang)}<br/>
+              <em>Example: ${esc(card.example)}</em>
+            </div>
+            <div id="fcEvalBox" class="feedback-box" style="display:none;margin-top:10px;text-align:left;"></div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px;">
+              <button class="btn" data-srs-rate="again" data-srs-term="${escAttr(card.term)}">Again</button>
+              <button class="btn" data-srs-rate="hard" data-srs-term="${escAttr(card.term)}">Hard</button>
+              <button class="btn btn-primary" data-srs-rate="good" data-srs-term="${escAttr(card.term)}">Good</button>
+              <button class="btn btn-success" data-srs-rate="easy" data-srs-term="${escAttr(card.term)}">Easy</button>
+            </div>
+          </div>
+        `;
       } else if (tool === 'photo') {
         const photo = bank.photos[0];
-        box.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Photo Chit Chat (1 Min) • ${esc(app.level)}</div><img src="${escAttr(photo.url)}" alt="Photo prompt" style="width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:10px;" /><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><button class="btn btn-primary" data-rec-sec="60" data-rec-target="photoText">🎙️ Record 1 Min</button><button class="btn btn-soft" data-learn-eval="photo" data-photo-hint="${escAttr(photo.hint)}">Correction & Ideas</button></div><textarea class="field" id="photoText" rows="3" placeholder="Describe the photo for up to 1 minute..."></textarea><div id="photoFeedback" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>`;
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:8px;">Photo Chit Chat (1 Min) • ${esc(app.level)}</div>
+          <img src="${escAttr(photo.url)}" alt="Photo prompt" style="width:100%;max-height:220px;object-fit:cover;border-radius:14px;margin-bottom:10px;" />
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+            <span class="rec-badge" id="photoCountdown" style="display:none;">01:00</span>
+            <button class="btn btn-primary" data-rec-sec="60" data-rec-mode="photo" data-photo-hint="${escAttr(photo.hint)}">🎙️ Record 1 Min</button>
+          </div>
+          <div class="feedback-box" id="photoFeedback">Press Record 1 Min. When time ends (or you stop), corrections and ideas appear automatically.</div>
+        `;
       } else if (tool === 'topic') {
         const chosenTopic = bank.topics[Math.floor(Math.random() * bank.topics.length)];
-        box.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Topic Talk (1 Min) — <span style="color:var(--primary);">${esc(chosenTopic)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><button class="btn btn-primary" data-rec-sec="60" data-rec-target="topicText">🎙️ Record 1 Min</button><button class="btn btn-soft" data-learn-eval="topic" data-topic-name="${escAttr(chosenTopic)}">Written Correction</button></div><textarea class="field" id="topicText" rows="3" placeholder="Speak for up to 1 minute on this topic..."></textarea><div id="topicFeedback" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>`;
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Topic Talk (1 Min) — <span style="color:var(--primary);">${esc(chosenTopic)}</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+            <span class="rec-badge" id="topicCountdown" style="display:none;">01:00</span>
+            <button class="btn btn-primary" data-rec-sec="60" data-rec-mode="topic" data-topic-name="${escAttr(chosenTopic)}">🎙️ Record 1 Min</button>
+          </div>
+          <div class="feedback-box" id="topicFeedback">Press Record 1 Min. Written correction appears automatically when the timer finishes.</div>
+        `;
       } else if (tool === 'wordlink') {
         const startWord = bank.wordStarters[Math.floor(Math.random() * bank.wordStarters.length)];
-        box.innerHTML = `<div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Word Link (1 Min) — Start: <span style="color:var(--primary);">${esc(startWord)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"><button class="btn btn-primary" data-rec-sec="60" data-rec-target="wordlinkText">🎙️ Record 1 Min</button><button class="btn btn-soft" data-learn-eval="wordlink" data-start-word="${escAttr(startWord)}">Check & Correct</button></div><textarea class="field" id="wordlinkText" rows="2" placeholder="Link as many words as you can in 1 minute..."></textarea><div id="wordlinkFeedback" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>`;
+        box.innerHTML = `
+          <div style="font-weight:800;color:var(--primary-deep);margin-bottom:6px;">Word Link (1 Min) — Start: <span style="color:var(--primary);">${esc(startWord)}</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+            <span class="rec-badge" id="wordlinkCountdown" style="display:none;">01:00</span>
+            <button class="btn btn-primary" data-rec-sec="60" data-rec-mode="wordlink" data-start-word="${escAttr(startWord)}">🎙️ Record 1 Min</button>
+          </div>
+          <div class="feedback-box" id="wordlinkFeedback">Press Record 1 Min and speak linked words. Evaluation runs automatically when time is up.</div>
+        `;
       } else if (tool === 'videolab') {
         const vid = getActiveVideo();
         box.innerHTML = vid && vid.completed
-          ? `<div style="font-weight:800;color:var(--primary-deep);">Video Lab: ${esc(vid.title)}</div><p class="muted" style="margin-top:6px;">Open Watch to review vocabulary cards or continue discussing the video.</p>`
-          : `<p class="muted">Complete a video in Watch to unlock its vocabulary and discussion lab.</p>`;
+          ? `<div style="font-weight:800;color:var(--primary-deep);">Video Lab: ${esc(vid.title)}</div><p class="muted" style="margin-top:6px;">Switch to Watch to review your finished video's vocabulary or run voice discussion.</p>`
+          : `<p class="muted">Finish watching a YouTube video in Watch to unlock its vocabulary and voice discussion.</p>`;
       }
     }
 
@@ -798,12 +1023,16 @@
       else if (rating === 'hard') { cur.intervalDays = Math.max(1, Math.round(cur.intervalDays * 1.2)); cur.reps += 1; }
       else if (rating === 'good') { cur.intervalDays = Math.max(2, Math.round(cur.intervalDays * 2.2)); cur.reps += 1; }
       else if (rating === 'easy') { cur.intervalDays = Math.max(4, Math.round(cur.intervalDays * 3.0)); cur.reps += 1; }
-      app.srsCards[term] = cur; flashcardCursor += 1; flashcardRevealed = false; addSpeakMin(1); openLearnTool('flashcards');
+      app.srsCards[term] = cur;
+      flashcardCursor += 1;
+      flashcardRevealed = false;
+      addSpeakMin(1);
+      openLearnTool('flashcards');
     }
 
     function validateWordChain(startWord, spokenText) {
       const tokens = String(spokenText || '').toLowerCase().replace(/[^a-zäöüßéèêàçñ\s-]/gi, ' ').split(/\s+/).filter(Boolean);
-      if (!tokens.length) return 'No words entered.';
+      if (!tokens.length) return 'No words captured.';
       let lastChar = String(startWord || '').trim().slice(-1).toLowerCase();
       const chained = [];
       for (const t of tokens) { if (!lastChar || t.startsWith(lastChar)) { chained.push(t); lastChar = t.slice(-1); } }
@@ -811,239 +1040,222 @@
     }
       </script>
         <script>
+    let activeRolePlayTopic = '';
+
     function setSpeakMode(mode) {
-      stopAllAudioAndVideo();
+      stopAllAudioAndVideo(true);
       callState = CALL_STATE.IDLE;
       speakMode = mode;
       const bank = LEVEL_BANKS[app.level] || LEVEL_BANKS.B2;
-      const picker = document.getElementById('speakSubPicker');
-      document.getElementById('speakActiveLabel').textContent =
-        mode === 'practice' ? 'Practice Speaking' : (mode === 'roleplay' ? 'Role Play' : 'Shadowing');
+      const labelMap = { practice: 'Practice Speaking', roleplay: 'Role Play', shadowing: 'Shadowing' };
+      document.getElementById('speakActiveLabel').textContent = labelMap[mode] || 'Practice Speaking';
+      document.getElementById('callStatusPill').textContent = 'Voice Ready';
 
+      const sub = document.getElementById('speakSubPicker');
       if (mode === 'roleplay') {
-        picker.innerHTML = `<select class="field" id="rpScenarioSelect">${bank.rolePlays.map(r => `<option>${esc(r)}</option>`).join('')}</select>`;
+        activeRolePlayTopic = bank.rolePlays[0];
+        sub.innerHTML = `<select class="select-pill" id="rolePlaySelect">${bank.rolePlays.map(r => `<option value="${escAttr(r)}">${esc(r)}</option>`).join('')}</select>`;
+        document.getElementById('rolePlaySelect').addEventListener('change', (e) => { activeRolePlayTopic = e.target.value; });
+        document.getElementById('speakCoachFeedback').textContent = `Role Play: ${activeRolePlayTopic}. Start a Real Call or press Record (2m) to speak directly.`;
       } else if (mode === 'shadowing') {
-        picker.innerHTML = `<button class="btn btn-soft" data-action="next-shadow-sentence">New Sentence</button>`;
+        sub.innerHTML = `<button class="btn btn-soft" data-action="next-shadow-sentence">New Shadow Sentence</button>`;
         requestShadowSentence();
       } else {
-        picker.innerHTML = '';
+        sub.innerHTML = '';
+        document.getElementById('speakCoachFeedback').textContent = 'Press Record (2m) to speak and send directly when you stop or time ends, or start a Real Call to speak back and forth.';
       }
       renderAll();
     }
 
     async function requestShadowSentence() {
-      speakHistory.push({ role: 'assistant', content: '...' });
-      redrawLog('speakChatLog', speakHistory);
+      const box = document.getElementById('speakCoachFeedback');
+      box.textContent = 'Preparing sentence...';
       try {
-        const sent = await callBloomAI({ action: 'shadowing', message: '__NEXT_SENTENCE__' });
-        speakHistory[speakHistory.length - 1] = { role: 'assistant', content: sent };
-        redrawLog('speakChatLog', speakHistory);
-        speakCoachLine(sent);
-      } catch (e) {
-        speakHistory[speakHistory.length - 1] = { role: 'assistant', content: e.message };
-        redrawLog('speakChatLog', speakHistory);
+        const reply = await callBloomAI({ action: 'shadowing', message: '__NEXT_SENTENCE__' });
+        currentShadowSentence = String(reply || '').replace(/^["']|["']$/g, '').trim();
+        box.textContent = `Shadow this sentence:\n"${currentShadowSentence}"`;
+        speakCoachLine(currentShadowSentence);
+      } catch (err) {
+        box.textContent = err.message || 'Could not load sentence.';
       }
     }
 
-    async function sendSpeakMessage(overrideText = null) {
-      const input = document.getElementById('speakTextInput');
-      const text = overrideText || input.value.trim();
-      if (!text) return;
-      if (!overrideText) input.value = '';
-      speakHistory.push({ role: 'user', content: text });
-      redrawLog('speakChatLog', speakHistory, '...');
+    async function sendSpeakMessage(spokenText) {
+      const clean = String(spokenText || '').trim();
+      if (!clean) {
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.LISTENING;
+          renderAll();
+          listenNextCallTurn();
+        }
+        return;
+      }
 
-      const rpTopic = document.getElementById('rpScenarioSelect')?.value || '';
-      const lastCoach = [...speakHistory].reverse().find(m => m.role === 'assistant')?.content || '';
-      const action = speakMode === 'roleplay' ? 'role_play' : (speakMode === 'shadowing' ? 'shadowing' : 'chat');
+      const feedback = document.getElementById('speakCoachFeedback');
+      const actionMap = { practice: 'practice_speaking', roleplay: 'role_play', shadowing: 'shadowing' };
+      const topic = speakMode === 'roleplay'
+        ? (activeRolePlayTopic || (LEVEL_BANKS[app.level] || LEVEL_BANKS.B2).rolePlays[0])
+        : (speakMode === 'shadowing' ? currentShadowSentence : '');
+
+      if (callState !== CALL_STATE.IDLE) callState = CALL_STATE.THINKING;
+      if (feedback) feedback.textContent = 'Listening & preparing gentle feedback...';
+      renderAll();
 
       try {
         const reply = await callBloomAI({
-          action,
-          topic: speakMode === 'roleplay' ? rpTopic : lastCoach,
-          message: text,
-          history: speakHistory
+          action: actionMap[speakMode] || 'practice_speaking',
+          topic,
+          message: clean
         });
-        speakHistory.push({ role: 'assistant', content: reply });
-        redrawLog('speakChatLog', speakHistory);
+        lastCoachReply = reply;
+        if (feedback) feedback.textContent = reply;
         addSpeakMin(1);
-        speakCoachLine(reply, () => {
-          if (callState !== CALL_STATE.IDLE) {
-            callState = CALL_STATE.LISTENING;
-            renderAll();
-            startTimedVoiceCapture(120, 'speakTextInput', (spoken) => {
-              if (spoken && callState !== CALL_STATE.IDLE) {
-                callState = CALL_STATE.THINKING;
-                sendSpeakMessage(spoken);
-              } else {
-                callState = CALL_STATE.IDLE;
-                renderAll();
-              }
-            });
-          }
-        });
-      } catch (e) {
-        speakHistory.push({ role: 'assistant', content: e.message });
-        redrawLog('speakChatLog', speakHistory);
-      }
-    }
 
-    function startTimedVoiceCapture(maxSec, targetInputId, onComplete) {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return alert('Speech recognition is not supported in this browser; please type.');
-      stopAllAudioAndVideo();
-      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
-      const rec = new SR();
-      activeRec = rec;
-      rec.lang = tm.bcp47;
-      rec.interimResults = true;
-      rec.continuous = true;
-      recSecs = 0;
-
-      rec.onresult = (ev) => {
-        let out = '';
-        for (let i = 0; i < ev.results.length; i++) out += ev.results[i][0].transcript + ' ';
-        const el = document.getElementById(targetInputId);
-        if (el) el.value = out.trim();
-      };
-
-      const finish = () => {
-        clearInterval(recTimer); recTimer = null;
-        try { rec.onend = null; rec.stop(); } catch (_) {}
-        activeRec = null;
-        const val = document.getElementById(targetInputId)?.value.trim() || '';
-        if (onComplete) onComplete(val);
-      };
-
-      rec.onend = () => {
-        if (recSecs < maxSec && activeRec) { try { rec.start(); } catch (_) { finish(); } }
-        else { finish(); }
-      };
-      recTimer = setInterval(() => { recSecs += 1; if (recSecs >= maxSec) finish(); }, 1000);
-      try { rec.start(); } catch (_) { finish(); }
-    }
-
-    function handleRealCallToggle() {
-      if (callState !== CALL_STATE.IDLE) {
-        callState = CALL_STATE.IDLE;
-        stopAllAudioAndVideo();
-        renderAll();
-        return;
-      }
-      callState = CALL_STATE.LISTENING;
-      renderAll();
-      startTimedVoiceCapture(120, 'speakTextInput', async (spoken) => {
-        if (!spoken || callState === CALL_STATE.IDLE) {
-          callState = CALL_STATE.IDLE;
-          renderAll();
+        if (speakMode === 'shadowing') {
+          const nextLine = reply.split('\n').pop().replace(/^["']|["']$/g, '').trim() || reply;
+          currentShadowSentence = nextLine;
+          speakCoachLine(nextLine);
           return;
         }
-        callState = CALL_STATE.THINKING;
-        renderAll();
-        await sendSpeakMessage(spoken);
+
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.SPEAKING;
+          renderAll();
+          speakCoachLine(reply, () => {
+            if (callState !== CALL_STATE.IDLE) {
+              callState = CALL_STATE.LISTENING;
+              renderAll();
+              listenNextCallTurn();
+            }
+          }, true);
+        } else {
+          speakCoachLine(reply);
+        }
+      } catch (err) {
+        if (feedback) feedback.textContent = err.message || 'Voice request failed.';
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.LISTENING;
+          renderAll();
+          listenNextCallTurn();
+        }
+      }
+    }
+
+    function listenNextCallTurn() {
+      if (callState === CALL_STATE.IDLE) return;
+      startVoiceTurnWithSilence(120, async (fullSpoken) => {
+        if (callState === CALL_STATE.IDLE) return;
+        if (fullSpoken) {
+          await sendSpeakMessage(fullSpoken);
+        } else {
+          listenNextCallTurn();
+        }
       });
     }
 
-    function buildQuizQuestions(targetLevel) {
-      const banks = {
-        A1: { g: { q: 'Grammar: "___ you live here?"', opts: ['Do', 'Does', 'Are'], ans: 0 }, r: { q: 'Reading: "Anna reads every night." When?', opts: ['At night', 'In class', 'Never'], ans: 0 }, lp: 'I like coffee in the morning.', lq: 'Listening: What does the speaker like?', wp: 'Writing: Write 1–2 sentences about yourself.', sp: 'Speaking: Say a short sentence about your day.' },
-        A2: { g: { q: 'Grammar: Yesterday we ___ early.', opts: ['leave', 'left', 'leaving'], ans: 1 }, r: { q: 'Reading: "The bus was full so we walked." Why walk?', opts: ['Bus was full', 'Rain stopped', 'Shop closed'], ans: 0 }, lp: 'We meet at the station at five.', lq: 'Listening: Where and when is the meeting?', wp: 'Writing: Describe a recent weekend activity.', sp: 'Speaking: Talk about your favorite place.' },
-        B1: { g: { q: 'Grammar: If I ___ time, I would travel more.', opts: ['have', 'had', 'will have'], ans: 1 }, r: { q: 'Reading: "Short daily practice beats rare long sessions."', opts: ['Daily practice helps', 'Only long sessions work', 'Practice is optional'], ans: 0 }, lp: 'Speaking aloud helps me remember new phrases.', lq: 'Listening: What helps remember phrases?', wp: 'Writing: Write 2–3 sentences on learning habits.', sp: 'Speaking: Explain a goal you are working on.' },
-        B2: { g: { q: 'Grammar: Seldom ___ such a clear summary.', opts: ['I have seen', 'have I seen', 'I saw'], ans: 1 }, r: { q: 'Reading: "Active recall strengthens long-term retention."', opts: ['Active recall aids memory', 'Reading alone suffices', 'Tests prevent learning'], ans: 0 }, lp: 'We weighed the tradeoffs before deciding.', lq: 'Listening: What did they do before deciding?', wp: 'Writing: Write 3 sentences explaining a tradeoff.', sp: 'Speaking: Give your opinion and one reason.' },
-        C1: { g: { q: 'Grammar: Had we ___ sooner, we would have adapted.', opts: ['acted', 'act', 'acting'], ans: 0 }, r: { q: 'Reading: "Ambiguity slows execution when roles overlap."', opts: ['Unclear roles slow work', 'Overlapping roles speed work', 'Roles never overlap'], ans: 0 }, lp: 'Clarity of expectations prevents friction.', lq: 'Listening: What prevents friction?', wp: 'Writing: Write 3–4 sentences analyzing a system.', sp: 'Speaking: Summarize two perspectives concisely.' },
-        C2: { g: { q: 'Grammar: Not only ___ the point, she refined it.', opts: ['did she grasp', 'she grasped', 'grasped she'], ans: 0 }, r: { q: 'Reading: "Register shapes how intent is perceived."', opts: ['Register affects perception', 'Tone never matters', 'Words have one fixed tone'], ans: 0 }, lp: 'Subtle phrasing often carries the strongest weight.', lq: 'Listening: What carries strong weight?', wp: 'Writing: Write a concise, nuanced paragraph.', sp: 'Speaking: Deliver a structured spoken response.' }
-      };
-      return banks[targetLevel] || banks.B2;
+    async function handleRealCallToggle() {
+      if (callState !== CALL_STATE.IDLE) {
+        callState = CALL_STATE.IDLE;
+        stopAllAudioAndVideo(true);
+        document.getElementById('callStatusPill').textContent = 'Call Ended';
+        renderAll();
+        return;
+      }
+
+      stopAllAudioAndVideo(true);
+      callState = CALL_STATE.SPEAKING;
+      const tm = TUTORS_BY_LANG[app.lang] || TUTORS_BY_LANG.en;
+      const greeting = `Hi, I'm ${tm[app.tutorGender]}. Go ahead and speak whenever you're ready.`;
+      document.getElementById('callStatusPill').textContent = 'Connected • Tutor Speaking';
+      document.getElementById('speakCoachFeedback').textContent = greeting;
+      renderAll();
+
+      speakCoachLine(greeting, () => {
+        if (callState !== CALL_STATE.IDLE) {
+          callState = CALL_STATE.LISTENING;
+          document.getElementById('callStatusPill').textContent = 'Connected • Listening (Pause to Reply)';
+          renderAll();
+          listenNextCallTurn();
+        }
+      }, true);
     }
 
     function openUnlockQuiz(targetLevel) {
-      const qData = buildQuizQuestions(targetLevel);
-      activeQuizData = { targetLevel, qData };
-      document.getElementById('quizTitle').textContent = `${targetLevel} Unlock Quiz (20 min)`;
-      document.getElementById('quizModal').classList.add('open');
-
-      let secLeft = 20 * 60;
       if (quizInterval) clearInterval(quizInterval);
-      quizInterval = setInterval(() => {
-        secLeft = Math.max(0, secLeft - 1);
-        const mm = String(Math.floor(secLeft / 60)).padStart(2, '0');
-        const ss = String(secLeft % 60).padStart(2, '0');
-        document.getElementById('quizClock').textContent = `${mm}:${ss} remaining • 4 Skills + Grammar (Pass ≥ 70%)`;
-        if (secLeft === 0) clearInterval(quizInterval);
-      }, 1000);
+      const questions = [
+        { id: 'reading', label: '1. Reading', q: `Choose the clearest ${app.level} statement for a long-term goal:`, opts: ['I try sometimes when I feel like it.', 'I set a realistic daily schedule and adjust when needed.', 'I finish everything in one day without planning.'] },
+        { id: 'listening', label: '2. Listening Comprehension', q: 'In a fast conversation, what helps most when you miss one word?', opts: ['Stop the conversation and translate every word.', 'Use the surrounding context and ask a brief clarification.', 'Ignore the rest of the speaker’s point.'] },
+        { id: 'writing', label: '3. Writing', q: `Write 1–2 concise ${app.level} sentences explaining a decision you made recently:` },
+        { id: 'speaking', label: '4. Speaking (Voice)', q: `Speak 1–2 sentences on why consistent practice matters at ${app.level}:` },
+        { id: 'grammar', label: '5. Grammar', q: 'Select the grammatically accurate sentence:', opts: ['Despite of the rain, we walked home.', 'Although it rained, we walked home.', 'In spite the rain, we walked home.'] }
+      ];
+      activeQuizData = { targetLevel, questions };
+      let secLeft = 20 * 60;
+      document.getElementById('quizTitle').textContent = `Unlock ${targetLevel} Quiz (20 min)`;
+      document.getElementById('quizClock').textContent = `${fmtClock(secLeft)} remaining • 4 Skills + Grammar`;
 
-      document.getElementById('quizBody').innerHTML = `
-        <div style="margin-bottom:10px;"><div style="font-weight:700;font-size:13px;">1. ${esc(qData.g.q)}</div><select class="field" id="qGrammar" style="margin-top:4px;">${qData.g.opts.map((o,i)=>`<option value="${i}">${esc(o)}</option>`).join('')}</select></div>
-        <div style="margin-bottom:10px;"><div style="font-weight:700;font-size:13px;">2. ${esc(qData.r.q)}</div><select class="field" id="qReading" style="margin-top:4px;">${qData.r.opts.map((o,i)=>`<option value="${i}">${esc(o)}</option>`).join('')}</select></div>
-        <div style="margin-bottom:10px;"><div style="font-weight:700;font-size:13px;">3. ${esc(qData.lq)}</div><button class="btn btn-soft" style="margin:6px 0;" data-speak-line="${escAttr(qData.lp)}">🔊 Play Listening</button><input class="field" id="qListening" placeholder="Your answer..." /></div>
-        <div style="margin-bottom:10px;"><div style="font-weight:700;font-size:13px;">4. ${esc(qData.wp)}</div><textarea class="field" id="qWriting" rows="2" placeholder="Write response..."></textarea></div>
-        <div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;">5. ${esc(qData.sp)}</div><div style="display:flex;gap:8px;margin-top:4px;"><button class="btn btn-soft" data-rec-sec="60" data-rec-target="qSpeaking">🎙️ Record</button><input class="field" id="qSpeaking" placeholder="Speak or type response..." /></div></div>
-        <button class="btn btn-primary" style="width:100%;" id="submitQuizBtn" data-unlock-target="${escAttr(targetLevel)}">Submit Quiz</button>
-        <div id="quizResultBox" style="margin-top:10px;font-size:13px;line-height:1.5;"></div>
-      `;
+      document.getElementById('quizBody').innerHTML = questions.map(item => {
+        if (item.opts) {
+          return `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:6px;">${item.label}: ${esc(item.q)}</div>${item.opts.map(o => `<label style="display:block;font-size:13px;margin-bottom:4px;"><input type="radio" name="q_${item.id}" value="${escAttr(o)}"> ${esc(o)}</label>`).join('')}</div>`;
+        }
+        return `<div style="margin-bottom:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:6px;">${item.label}: ${esc(item.q)}</div><input type="text" class="field" id="q_${item.id}" placeholder="Type or speak your answer..." /></div>`;
+      }).join('') + `<button class="btn btn-primary" style="width:100%;" id="submitQuizBtn" data-unlock-target="${targetLevel}">Submit Quiz</button><div class="feedback-box" id="quizResultBox" style="display:none;margin-top:10px;"></div>`;
+
+      document.getElementById('quizModal').classList.add('open');
+      quizInterval = setInterval(() => {
+        secLeft -= 1;
+        const clk = document.getElementById('quizClock');
+        if (clk) clk.textContent = `${fmtClock(secLeft)} remaining • 4 Skills + Grammar`;
+        if (secLeft <= 0) {
+          clearInterval(quizInterval);
+          gradeAndSubmitQuiz(targetLevel);
+        }
+      }, 1000);
     }
 
     async function gradeAndSubmitQuiz(targetLevel) {
-      const { qData } = activeQuizData || {};
-      const gOk = Number(document.getElementById('qGrammar').value) === qData.g.ans;
-      const rOk = Number(document.getElementById('qReading').value) === qData.r.ans;
-      const lVal = document.getElementById('qListening').value.trim();
-      const wVal = document.getElementById('qWriting').value.trim();
-      const sVal = document.getElementById('qSpeaking').value.trim();
-
-      let score = 0;
-      if (gOk) score += 20;
-      if (rOk) score += 20;
-      if (lVal.length >= 3) score += 20;
-      if (wVal.length >= 12) score += 20;
-      if (sVal.length >= 6) score += 20;
-
-      const box = document.getElementById('quizResultBox');
-      box.textContent = 'Grading...';
+      if (quizInterval) { clearInterval(quizInterval); quizInterval = null; }
+      const answers = {};
+      (activeQuizData?.questions || []).forEach(q => {
+        if (q.opts) {
+          answers[q.id] = document.querySelector(`input[name="q_${q.id}"]:checked`)?.value || '';
+        } else {
+          answers[q.id] = document.getElementById(`q_${q.id}`)?.value.trim() || '';
+        }
+      });
+      const resBox = document.getElementById('quizResultBox');
+      resBox.style.display = 'block';
+      resBox.textContent = 'Grading your 4-skill + grammar quiz...';
 
       try {
-        const aiRaw = await callBloomAI({
-          action: 'grade_quiz',
-          message: 'Grade quiz',
-          quizAnswers: { gOk, rOk, listening: lVal, writing: wVal, speaking: sVal }
-        });
-        const parsed = JSON.parse(aiRaw.replace(/```json|```/g, '').trim());
-        if (typeof parsed.scorePercent === 'number') {
-          score = Math.round((score + parsed.scorePercent) / 2);
+        const raw = await callBloomAI({ action: 'grade_quiz', level: targetLevel, quizAnswers: answers });
+        const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+        const score = Number(parsed.scorePercent || 0);
+        const passed = score >= 70;
+        if (passed && !app.unlockedLevels.includes(targetLevel)) {
+          app.unlockedLevels.push(targetLevel);
+          app.level = targetLevel;
+          saveBloom();
         }
-      } catch (_) {}
-
-      if (score >= 70) {
-        if (!app.unlockedLevels.includes(targetLevel)) app.unlockedLevels.push(targetLevel);
-        app.level = targetLevel;
-        clearInterval(quizInterval);
-        saveBloom();
-        box.innerHTML = `<strong style="color:var(--success);">Passed (${score}%)! ${esc(targetLevel)} unlocked.</strong>`;
-      } else {
-        box.innerHTML = `<strong style="color:#B91C1C;">Score: ${score}%</strong> — Need 70% or higher to unlock ${esc(targetLevel)}.`;
+        resBox.textContent = `Score: ${score}% — ${passed ? `${targetLevel} Unlocked!` : 'Needs 70% to unlock.'}\n${parsed.feedback || ''}`;
+      } catch (err) {
+        resBox.textContent = err.message || 'Could not grade quiz.';
       }
     }
         </script>
           <script>
     function switchView(name) {
-      stopAllAudioAndVideo();
-      callState = CALL_STATE.IDLE;
+      const keepPlayer = name === 'watch';
+      stopAllAudioAndVideo(keepPlayer);
+      if (name !== 'speak') callState = CALL_STATE.IDLE;
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('view-' + name)?.classList.add('active');
       document.querySelector(`.nav-item[data-nav="${name}"]`)?.classList.add('active');
       if (name === 'watch' && app.activeVideoId) {
-        document.getElementById('ytPlayerFrame').src = `https://www.youtube.com/embed/${app.activeVideoId}?rel=0`;
+        loadYouTubePlayer(app.activeVideoId);
       }
       renderAll();
-    }
-
-    function redrawLog(elId, list, pendingText = '') {
-      const el = document.getElementById(elId);
-      if (!el) return;
-      el.innerHTML = list.map(m => `<div class="bubble ${m.role === 'assistant' ? 'ai' : 'user'}">${esc(m.content)}</div>`).join('') +
-        (pendingText ? `<div class="bubble ai">${esc(pendingText)}</div>` : '');
-      el.scrollTop = el.scrollHeight;
     }
 
     function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
@@ -1097,49 +1309,143 @@
       }).join('');
 
       const vid = getActiveVideo();
+      const unlocked = Boolean(vid && vid.completed);
       document.getElementById('activeVideoTitle').textContent = vid ? vid.title : 'No video loaded yet';
-      document.getElementById('activeVideoMeta').textContent = vid ? (vid.completed ? 'Completed — Vocabulary & Discuss unlocked!' : 'Watch and click Finish Video to unlock Vocabulary & Discuss.') : 'Click "Upload YouTube Video" and paste a link.';
+      document.getElementById('activeVideoMeta').textContent = vid
+        ? (unlocked ? 'Completed — In-video vocabulary & voice discussion unlocked.' : 'Watch until the video finishes to unlock vocabulary & discussion.')
+        : 'Click "Upload YouTube Video" and paste a link.';
+      const gateBadge = document.getElementById('watchGateStatus');
+      if (gateBadge) {
+        gateBadge.textContent = !vid ? 'No video' : (unlocked ? 'Unlocked ✓' : `Locked (${vid.watchedSec || 0}s / ${vid.durationSec || 60}s)`);
+      }
       const vocabBtn = document.getElementById('videoVocabBtn');
       const discussBtn = document.getElementById('videoDiscussBtn');
-      const unlocked = Boolean(vid && vid.completed);
       vocabBtn.disabled = !unlocked;
       discussBtn.disabled = !unlocked;
       vocabBtn.className = unlocked ? 'btn btn-success' : 'btn';
       discussBtn.className = unlocked ? 'btn btn-success' : 'btn';
+      if (!unlocked) {
+        document.getElementById('videoVocabPanel').style.display = 'none';
+        document.getElementById('videoDiscussPanel').style.display = 'none';
+      }
 
       document.getElementById('videoShelfList').innerHTML = app.videos.map(v => `
         <div class="card" style="cursor:pointer;" data-pick-video="${v.id}">
           <div style="font-weight:800;">${esc(v.title)}</div>
-          <div class="muted" style="font-size:12px;">${v.completed ? '✓ Completed' : 'In progress'}</div>
+          <div class="muted" style="font-size:12px;">${v.completed ? '✓ Completed' : 'Locked until finished'}</div>
         </div>
       `).join('');
 
       document.getElementById('speakActiveTutorLine').textContent = `${tm[app.tutorGender]} (${app.tutorGender === 'female' ? 'Woman' : 'Man'}) • ${app.level}`;
       document.getElementById('realCallLabel').textContent = callState === CALL_STATE.IDLE ? 'Real Call' : `In Call (${callState.toLowerCase()}) • End`;
-      redrawLog('speakChatLog', speakHistory);
+      if (callState !== CALL_STATE.IDLE) {
+        document.getElementById('callStatusPill').textContent = `Connected • ${callState}`;
+      }
       lucide.createIcons();
     }
 
+    async function runAutoEvaluatedRecording(el) {
+      const sec = Number(el.dataset.recSec) || 60;
+      const mode = el.dataset.recMode;
+      const badgeMap = {
+        flashcard: 'fcCountdown',
+        photo: 'photoCountdown',
+        topic: 'topicCountdown',
+        wordlink: 'wordlinkCountdown',
+        video_discuss: 'vidDiscussCountdown'
+      };
+
+      startTimedRecording(sec, badgeMap[mode] || null, async (spoken) => {
+        if (mode === 'flashcard') {
+          const evalBox = document.getElementById('fcEvalBox');
+          if (!evalBox) return;
+          evalBox.style.display = 'block';
+          evalBox.textContent = 'Evaluating your spoken recall...';
+          try {
+            const raw = await callBloomAI({
+              action: 'eval_flashcard',
+              direction: flashcardDirection,
+              cardTerm: el.dataset.fcTerm || '',
+              cardMeaning: el.dataset.fcMeaning || '',
+              message: spoken || '(no speech captured)'
+            });
+            const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+            evalBox.textContent = `${parsed.accurate ? '✓ Accurate' : '• Needs refinement'}\n${parsed.gentleCorrection || ''}\nExpected: ${parsed.expectedAnswer || el.dataset.fcMeaning || ''}`;
+          } catch (err) {
+            evalBox.textContent = err.message || 'Evaluation error.';
+          }
+          addSpeakMin(1);
+        } else if (mode === 'photo') {
+          const out = document.getElementById('photoFeedback');
+          if (!out) return;
+          out.textContent = 'Evaluating your photo description...';
+          out.textContent = await callBloomAI({
+            action: 'photo_chit_chat',
+            topic: el.dataset.photoHint || '',
+            message: spoken || '(no speech captured)'
+          });
+          addSpeakMin(1);
+        } else if (mode === 'topic') {
+          const out = document.getElementById('topicFeedback');
+          if (!out) return;
+          out.textContent = 'Evaluating your topic talk...';
+          out.textContent = await callBloomAI({
+            action: 'topic_talk',
+            topic: el.dataset.topicName || '',
+            message: spoken || '(no speech captured)'
+          });
+          addSpeakMin(1);
+        } else if (mode === 'wordlink') {
+          const out = document.getElementById('wordlinkFeedback');
+          if (!out) return;
+          const chainCheck = validateWordChain(el.dataset.startWord || '', spoken);
+          out.textContent = `${chainCheck} — Reviewing with coach...`;
+          const aiNote = await callBloomAI({
+            action: 'word_link',
+            word: el.dataset.startWord || '',
+            message: spoken || el.dataset.startWord || ''
+          });
+          out.textContent = `${chainCheck}\n\n${aiNote}`;
+          addSpeakMin(1);
+        } else if (mode === 'video_discuss') {
+          const out = document.getElementById('vidDiscussFeedback');
+          const vid = getActiveVideo();
+          if (!out || !vid) return;
+          out.textContent = 'Evaluating your spoken thoughts on the video...';
+          const reply = await callBloomAI({
+            action: 'discuss_video',
+            videoTitle: vid.title,
+            videoContext: `Video ID ${vid.id}`,
+            message: spoken || '(no speech captured)'
+          });
+          out.textContent = reply;
+          addSpeakMin(1);
+          speakCoachLine(reply);
+        }
+      }, false);
+    }
+
     document.addEventListener('click', async (e) => {
-      const el = e.target.closest('[data-nav],[data-action],[data-close],[data-gender],[data-learn-tool],[data-speak-mode],[data-rec-sec],[data-learn-eval],[data-speak-line],[data-quiz-unlock],[data-select-level],[data-pick-video],[data-auth-mode],[data-srs-rate]');
+      const el = e.target.closest('[data-nav],[data-action],[data-close],[data-gender],[data-learn-tool],[data-speak-mode],[data-rec-sec],[data-speak-line],[data-quiz-unlock],[data-select-level],[data-pick-video],[data-auth-mode],[data-srs-rate]');
       if (!el) return;
 
       if (el.dataset.nav) return switchView(el.dataset.nav);
       if (el.dataset.close) return document.getElementById(el.dataset.close)?.classList.remove('open');
-      if (el.dataset.gender) { stopAllAudioAndVideo(); app.tutorGender = el.dataset.gender; return saveBloom(); }
+      if (el.dataset.gender) { stopAllAudioAndVideo(true); app.tutorGender = el.dataset.gender; return saveBloom(); }
       if (el.dataset.learnTool) return openLearnTool(el.dataset.learnTool);
       if (el.dataset.speakMode) return setSpeakMode(el.dataset.speakMode);
       if (el.dataset.speakLine) return speakCoachLine(el.dataset.speakLine);
       if (el.dataset.quizUnlock) return openUnlockQuiz(el.dataset.quizUnlock);
       if (el.dataset.selectLevel) { app.level = el.dataset.selectLevel; return saveBloom(); }
       if (el.dataset.srsRate) return reviewFlashcardWithRating(el.dataset.srsTerm, el.dataset.srsRate);
+      if (el.dataset.recSec) return runAutoEvaluatedRecording(el);
 
       if (el.dataset.pickVideo) {
-        stopAllAudioAndVideo();
+        stopAllAudioAndVideo(false);
         app.activeVideoId = el.dataset.pickVideo;
-        videoDiscussHistory = [];
-        document.getElementById('ytPlayerFrame').src = `https://www.youtube.com/embed/${app.activeVideoId}?rel=0`;
-        return renderAll();
+        saveBloom();
+        loadYouTubePlayer(el.dataset.pickVideo);
+        return;
       }
 
       if (el.dataset.authMode) {
@@ -1149,62 +1455,47 @@
         return;
       }
 
-      if (el.dataset.recSec) {
-        return startTimedVoiceCapture(Number(el.dataset.recSec), el.dataset.recTarget, () => addSpeakMin(1));
-      }
-
-      if (el.dataset.learnEval) {
-        const kind = el.dataset.learnEval;
-        if (kind === 'photo') {
-          const txt = document.getElementById('photoText').value.trim();
-          const out = document.getElementById('photoFeedback');
-          out.textContent = '...';
-          out.textContent = await callBloomAI({ action: 'photo_chit_chat', topic: el.dataset.photoHint, message: txt || 'Photo description' });
-          addSpeakMin(1);
-        } else if (kind === 'topic') {
-          const txt = document.getElementById('topicText').value.trim();
-          const out = document.getElementById('topicFeedback');
-          out.textContent = '...';
-          out.textContent = await callBloomAI({ action: 'topic_talk', topic: el.dataset.topicName, message: txt || 'Topic speech' });
-          addSpeakMin(1);
-        } else if (kind === 'wordlink') {
-          const txt = document.getElementById('wordlinkText').value.trim();
-          const chainCheck = validateWordChain(el.dataset.startWord, txt);
-          const out = document.getElementById('wordlinkFeedback');
-          out.textContent = `${chainCheck} — Checking with coach...`;
-          const aiNote = await callBloomAI({ action: 'word_link', word: el.dataset.startWord, message: txt || el.dataset.startWord });
-          out.textContent = `${chainCheck}\n\n${aiNote}`;
-          addSpeakMin(1);
-        }
-        return;
-      }
-
       const act = el.dataset.action;
       if (act === 'cycle-level') {
         app.level = CEFR_ORDER[(CEFR_ORDER.indexOf(app.level) + 1) % CEFR_ORDER.length];
         saveBloom();
       } else if (act === 'open-yt-modal') {
-        stopAllAudioAndVideo();
+        stopAllAudioAndVideo(true);
         document.getElementById('ytModal').classList.add('open');
       } else if (act === 'add-yt-link') {
         handleAddYouTubeLink();
-      } else if (act === 'finish-video') {
-        finishCurrentVideo();
       } else if (act === 'open-video-vocab') {
         renderVideoVocabPanel();
       } else if (act === 'open-video-discuss') {
         renderVideoDiscussPanel();
-      } else if (act === 'send-video-discuss') {
-        sendVideoDiscussMessage();
+      } else if (act === 'start-video-call') {
+        const vid = getActiveVideo();
+        if (!vid || !vid.completed) return;
+        switchView('speak');
+        setSpeakMode('practice');
+        handleRealCallToggle();
+      } else if (act === 'toggle-flashcard-dir') {
+        flashcardDirection = flashcardDirection === 'target_to_meaning' ? 'meaning_to_target' : 'target_to_meaning';
+        flashcardRevealed = false;
+        openLearnTool('flashcards');
       } else if (act === 'reveal-flashcard') {
         flashcardRevealed = !flashcardRevealed;
         openLearnTool('flashcards');
-      } else if (act === 'rec-2min') {
-        startTimedVoiceCapture(120, 'speakTextInput', (val) => { if (val) sendSpeakMessage(val); });
+      } else if (act === 'toggle-rec-2min') {
+        if (recStopFn) {
+          recStopFn();
+          document.getElementById('rec2MinLabel').textContent = 'Record (2m)';
+        } else {
+          document.getElementById('rec2MinLabel').textContent = 'Stop & Send';
+          startTimedRecording(120, 'speakCountdownBadge', async (spoken) => {
+            document.getElementById('rec2MinLabel').textContent = 'Record (2m)';
+            if (spoken) await sendSpeakMessage(spoken);
+          }, false);
+        }
       } else if (act === 'toggle-real-call') {
         handleRealCallToggle();
-      } else if (act === 'send-speak-text') {
-        sendSpeakMessage();
+      } else if (act === 'replay-coach') {
+        if (lastCoachReply) speakCoachLine(lastCoachReply);
       } else if (act === 'next-shadow-sentence') {
         requestShadowSentence();
       } else if (act === 'open-auth') {
@@ -1219,14 +1510,15 @@
     });
 
     document.getElementById('langSwitcher').addEventListener('change', (e) => {
-      stopAllAudioAndVideo();
+      stopAllAudioAndVideo(true);
       app.lang = e.target.value;
       saveBloom();
     });
 
-    document.getElementById('speakTextInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sendSpeakMessage();
-    });
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
 
     renderAll();
   </script>

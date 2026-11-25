@@ -1,9 +1,11 @@
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
+
     if (url.pathname === '/api/bloom' && request.method === 'POST') {
       try {
         const body = await request.json();
@@ -11,18 +13,22 @@ export default {
         if (!apiKey) {
           return json({ error: 'Missing AI API key on worker.' }, 500);
         }
+
         const { systemPrompt, userPrompt, expectJson } = buildPrompt(body);
-        const raw = env.GEMINI_API_KEY
+        const reply = env.GEMINI_API_KEY
           ? await callGemini(env.GEMINI_API_KEY, systemPrompt, userPrompt, expectJson)
           : await callOpenAI(env.OPENAI_API_KEY, systemPrompt, userPrompt, expectJson);
-        return json({ reply: raw });
+
+        return json({ reply });
       } catch (err) {
         return json({ error: err?.message || 'Worker error' }, 500);
       }
     }
+
     if (env.ASSETS && typeof env.ASSETS.fetch === 'function') {
       return env.ASSETS.fetch(request);
     }
+
     return new Response('Not found', { status: 404 });
   }
 };
@@ -42,7 +48,7 @@ function json(data, status = 200) {
   });
 }
 
-function buildPrompt(body) {
+function buildPrompt(body = {}) {
   const langMap = { en: 'English', de: 'German', fr: 'French', es: 'Spanish' };
   const langName = langMap[body.lang] || 'English';
   const level = body.level || 'B2';
@@ -52,14 +58,15 @@ function buildPrompt(body) {
   const systemPrompt = [
     `You are ${tutorName}, a ${tutorGender === 'female' ? 'woman' : 'man'} language coach inside Bloom.`,
     `Target language: ${langName}. Learner CEFR level: ${level}.`,
-    `Focus on speaking, listening, and gentle, clear corrections on mistakes in ${langName}. Keep responses concise and natural.`
+    `Focus strictly on speaking, listening, and gentle, clear corrections on mistakes in ${langName}.`,
+    `Keep spoken responses natural, encouraging, and concise.`
   ].join(' ');
 
   if (body.action === 'video_vocab') {
     return {
       expectJson: true,
       systemPrompt,
-      userPrompt: `Create 6 useful vocabulary items matching a ${langName} ${level} video titled "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Each object must have "term" (in ${langName}), "meaningInLang" (clear meaning in ${langName}), and "example" (natural example sentence in ${langName}). Return ONLY valid JSON: {"words":[{"term":"","meaningInLang":"","example":""}]}`
+      userPrompt: `Extract 6 authentic vocabulary items fitting a ${langName} ${level} video titled "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Each item needs "term" (in ${langName}), "meaningInLang" (clear meaning in ${langName}), and "example" (natural sentence using the term in ${langName}). Return ONLY JSON: {"words":[{"term":"","meaningInLang":"","example":""}]}`
     };
   }
 
@@ -67,7 +74,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Spoken video discussion for "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Learner said: "${body.message || ''}". Gently correct any mistake in 1 brief line if needed, reply in 1-2 short spoken sentences, and ask one focused follow-up question in ${langName}.`
+      userPrompt: `Voice discussion on "${body.videoTitle || 'Video'}" (${body.videoContext || ''}). Learner said: "${body.message || ''}". Gently correct any mistake in 1 short line if needed, reply in 1-2 short spoken sentences, and ask one focused follow-up question in ${langName}.`
     };
   }
 
@@ -75,7 +82,7 @@ function buildPrompt(body) {
     return {
       expectJson: true,
       systemPrompt,
-      userPrompt: `Evaluate active recall. Direction: "${body.direction || 'target_to_meaning'}". Card term: "${body.cardTerm || ''}". Expected meaning: "${body.cardMeaning || ''}". Learner spoke: "${body.message || ''}". Return ONLY valid JSON: {"accurate":true,"gentleCorrection":"","expectedAnswer":""}`
+      userPrompt: `Evaluate spoken flashcard recall. Direction: ${body.direction || 'target_to_meaning'}. Target term: "${body.cardTerm || ''}". Meaning: "${body.cardMeaning || ''}". Learner spoke: "${body.message || ''}". Return ONLY JSON: {"accurate":true,"gentleCorrection":"","expectedAnswer":""}`
     };
   }
 
@@ -83,7 +90,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Learner described a photo (${body.topic || ''}) in ${langName} at ${level}: "${body.message || ''}". Give gentle corrections on mistakes, 2 natural phrasing upgrades, and 2 quick conversation ideas in ${langName}.`
+      userPrompt: `Photo prompt context: "${body.topic || ''}". Learner spoke: "${body.message || ''}". Give gentle corrections, 1-2 natural phrasing improvements in ${langName}, and a brief follow-up prompt.`
     };
   }
 
@@ -91,7 +98,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Learner spoke on "${body.topic || ''}" in ${langName} at ${level}: "${body.message || ''}". Provide gentle written corrections for mistakes, a clean improved version, and one next point to explore in ${langName}.`
+      userPrompt: `Topic: "${body.topic || ''}". Learner spoke in ${langName}: "${body.message || ''}". Give gentle written/spoken feedback, fix key grammar/wording issues, and suggest one stronger ${level} expression.`
     };
   }
 
@@ -99,7 +106,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Word Link starting with "${body.word || ''}" in ${langName} at ${level}. Learner spoke: "${body.message || ''}". Gently note any word-linking or grammar mistakes in ${langName} and give 3 strong next words.`
+      userPrompt: `Word Link starting word: "${body.word || ''}". Learner spoke: "${body.message || ''}". Briefly evaluate word chain flow and vocabulary accuracy in ${langName}.`
     };
   }
 
@@ -108,13 +115,13 @@ function buildPrompt(body) {
       return {
         expectJson: false,
         systemPrompt,
-        userPrompt: `Give ONE natural, clear ${langName} sentence at CEFR ${level} for shadowing practice. Output ONLY the sentence.`
+        userPrompt: `Provide ONE natural, idiomatic ${langName} sentence at ${level} level suitable for shadowing practice. Output ONLY the sentence with no quotes or numbering.`
       };
     }
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Target sentence: "${body.topic || ''}". Learner shadowed: "${body.message || ''}". Give a brief, gentle pronunciation or wording correction if needed, then give ONE next ${langName} sentence at ${level}.`
+      userPrompt: `Target sentence was: "${body.topic || ''}". Learner attempted: "${body.message || ''}". Give 1 brief pronunciation/rhythm tip in ${langName}, then provide ONE new ${level} sentence on the last line for the next shadowing turn.`
     };
   }
 
@@ -122,7 +129,7 @@ function buildPrompt(body) {
     return {
       expectJson: false,
       systemPrompt,
-      userPrompt: `Live voice role-play scenario: "${body.topic || 'Everyday situation'}" at ${level} in ${langName}. Learner said: "${body.message || ''}". Gently correct any mistake in 1 brief clause, reply in character in 1-2 short spoken sentences, and stay in the scene.`
+      userPrompt: `Role play scenario: "${body.topic || 'Everyday conversation'}". Learner said: "${body.message || ''}". Stay in character as ${tutorName}, gently correct any clear mistake in 1 short phrase, and reply in 1-2 natural spoken sentences in ${langName}.`
     };
   }
 
@@ -130,56 +137,66 @@ function buildPrompt(body) {
     return {
       expectJson: true,
       systemPrompt,
-      userPrompt: `Grade ${level} assessment: ${JSON.stringify(body.quizAnswers || {})}. Return ONLY valid JSON: {"scorePercent":75,"feedback":"short summary"}`
+      userPrompt: `Grade this ${level} CEFR placement/unlock quiz (reading, listening, writing, speaking, grammar): ${JSON.stringify(body.quizAnswers || {})}. Return ONLY JSON: {"scorePercent":80,"feedback":"concise summary"}`
     };
   }
 
   return {
     expectJson: false,
     systemPrompt,
-    userPrompt: `Live spoken call turn at ${level} in ${langName}. Learner said: "${body.message || ''}". Gently correct any mistake briefly, reply naturally in 1-2 short spoken sentences, and ask one concise question.`
+    userPrompt: `Learner said in ${langName}: "${body.message || ''}". Respond conversationally in 1-2 short spoken sentences in ${langName}, gently correcting any mistake if needed.`
   };
 }
 
 async function callGemini(apiKey, systemPrompt, userPrompt, expectJson) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          ...(expectJson ? { responseMimeType: 'application/json' } : {})
-        }
-      })
-    }
-  );
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const generationConfig = expectJson ? { responseMimeType: 'application/json' } : {};
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      generationConfig
+    })
+  });
+
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || 'Gemini request failed');
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  if (!res.ok) {
+    throw new Error(data?.error?.message || `Gemini API error (${res.status})`);
+  }
+
+  const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('').trim();
+  if (!text) throw new Error('Empty response from Gemini.');
+  return text;
 }
 
 async function callOpenAI(apiKey, systemPrompt, userPrompt, expectJson) {
+  const payload = {
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ]
+  };
+  if (expectJson) payload.response_format = { type: 'json_object' };
+
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`
     },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      temperature: 0.4,
-      ...(expectJson ? { response_format: { type: 'json_object' } } : {}),
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
+    body: JSON.stringify(payload)
   });
+
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || 'OpenAI request failed');
-  return data.choices?.[0]?.message?.content || '';
+  if (!res.ok) {
+    throw new Error(data?.error?.message || `OpenAI API error (${res.status})`);
+  }
+
+  const text = data?.choices?.[0]?.message?.content?.trim();
+  if (!text) throw new Error('Empty response from OpenAI.');
+  return text;
 }

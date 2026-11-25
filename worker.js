@@ -2,11 +2,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Handle AI Tutor requests
     if (url.pathname === "/api/speak" && request.method === "POST") {
       try {
-        const { mode, message, videoTranscript, savedWords, crosstalk, corrections, nativeLang } =
-          await request.json();
+        const {
+          mode,
+          message,
+          videoTranscript,
+          savedWords,
+          crosstalk,
+          corrections,
+          nativeLang
+        } = await request.json();
 
         let modePrompt = "Have a natural, engaging English conversation on any topic.";
         if (mode === "discuss_video") {
@@ -36,20 +42,47 @@ ${crosstalkRule}
 ${correctionRule}
 Keep your reply short and conversational (2–3 sentences) and end with an engaging follow-up question.`;
 
-        const aiResponse = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+        const payload = {
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: message }
           ]
-        });
+        };
 
-        return Response.json({ reply: aiResponse.response });
+        const models = [
+          "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+          "@cf/mistralai/mistral-small-3.1-24b-instruct",
+          "@cf/meta/llama-3.2-3b-instruct"
+        ];
+
+        let replyText = "";
+        let lastError = "";
+
+        for (const modelName of models) {
+          try {
+            const aiResponse = await env.AI.run(modelName, payload);
+            if (aiResponse && (aiResponse.response || aiResponse.result)) {
+              replyText = aiResponse.response || aiResponse.result;
+              break;
+            }
+          } catch (modelErr) {
+            lastError = modelErr.message;
+          }
+        }
+
+        if (!replyText) {
+          return Response.json(
+            { error: `Workers AI model error: ${lastError || "No active model responded"}` },
+            { status: 500 }
+          );
+        }
+
+        return Response.json({ reply: replyText });
       } catch (err) {
         return Response.json({ error: err.message }, { status: 500 });
       }
     }
 
-    // Serve index.html and static files for all other routes
     return env.ASSETS.fetch(request);
   }
 };

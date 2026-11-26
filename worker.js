@@ -54,34 +54,71 @@ export default {
     }
 
     if (url.pathname === "/api/ai" && request.method === "POST") {
-      if (!env.GEMINI_API_KEY) {
-        return new Response(JSON.stringify({ error: "GEMINI_API_KEY not set in Cloudflare" }), { status: 500, headers: cors });
+      try {
+        const body = await request.json();
+        const prompt = String(body.prompt || "");
+        const imageBase64 = String(body.image || "");
+
+        // 1. Try Google AI Studio if a valid AIza... key is set
+        if (env.GEMINI_API_KEY && env.GEMINI_API_KEY.startsWith("AIza")) {
+          const parts = [{ text: prompt }];
+          if (imageBase64.startsWith("data:image/")) {
+            const commaIdx = imageBase64.indexOf(",");
+            const mime = imageBase64.slice(5, imageBase64.indexOf(";"));
+            const data = imageBase64.slice(commaIdx + 1);
+            parts.push({ inline_data: { mime_type: mime, data } });
+          }
+          const geminiUrl = "https://googleapis.com" + env.GEMINI_API_KEY;
+          const aiRes = await fetch(geminiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts }],
+              generationConfig: { responseMimeType: "application/json" },
+            }),
+          });
+          if (aiRes.ok) {
+            const aiJson = await aiRes.json();
+            const rawText = aiJson?.candidates?.at(0)?.content?.parts?.at(0)?.text || "{}";
+            return new Response(rawText, { headers: cors });
+          }
+        }
+
+        // 2. Fallback to built-in Cloudflare Workers AI (env.AI)
+        if (env.AI) {
+          let visualHint = "";
+          if (imageBase64.startsWith("data:image/")) {
+            const base64Data = imageBase64.slice(imageBase64.indexOf(",") + 1);
+            const binStr = atob(base64Data);
+            const bytes = new Uint8Array(binStr.length);
+            for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+            const visionRes = await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
+              image: Array.from(bytes),
+              prompt: "Describe this product concisely in one sentence.",
+              max_tokens: 100,
+            }).catch(() => null);
+            if (visionRes && visionRes.description) {
+              visualHint = " Visual appearance: " + visionRes.description;
+            }
+          }
+
+          const cfRes = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+            messages: [
+              { role: "system", content: "Return ONLY valid JSON with keys: name_en, desc_en, name_ar, desc_ar, name_fr, desc_fr, name_de, desc_de, category. No markdown." },
+              { role: "user", content: prompt + visualHint },
+            ],
+          });
+          const text = String(cfRes.response || "{}");
+          const start = text.indexOf("{");
+          const end = text.lastIndexOf("}");
+          const cleanJson = start !== -1 && end !== -1 ? text.slice(start, end + 1) : "{}";
+          return new Response(cleanJson, { headers: cors });
+        }
+
+        return new Response(JSON.stringify({ error: "No AI binding available" }), { status: 500, headers: cors });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: cors });
       }
-      const body = await request.json();
-      const prompt = String(body.prompt || "");
-      const imageBase64 = String(body.image || "");
-
-      const parts = [{ text: prompt }];
-      if (imageBase64.startsWith("data:image/")) {
-        const commaIdx = imageBase64.indexOf(",");
-        const mime = imageBase64.slice(5, imageBase64.indexOf(";"));
-        const data = imageBase64.slice(commaIdx + 1);
-        parts.push({ inline_data: { mime_type: mime, data } });
-      }
-
-      const geminiUrl = "https://googleapis.com" + env.GEMINI_API_KEY;
-      const aiRes = await fetch(geminiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: { responseMimeType: "application/json" },
-        }),
-      });
-
-      const aiJson = await aiRes.json();
-      const rawText = aiJson?.candidates?.at(0)?.content?.parts?.at(0)?.text || "{}";
-      return new Response(rawText, { headers: cors });
     }
 
     return env.ASSETS.fetch(request);

@@ -2,684 +2,690 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#EFF7FF" />
-  <title>Bloom — Voice-First Language Immersion</title>
-  <link rel="preconnect" href="https://googleapis.com">
-  <link rel="preconnect" href="https://gstatic.com" crossorigin>
-  <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AMVISAT · Private Control Center</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <script src="https://tailwindcss.com"></script>
+  <link href="https://googleapis.com" rel="stylesheet" />
   <style>
-    :root {
-      --bg-surface: #FFFFFF;
-      --bg-sky-soft: #E5F1FF;
-      --primary: #0284C7;
-      --primary-deep: #0C4A6E;
-      --accent-ice: #38BDF8;
-      --success: #0D9488;
-      --danger: #DC2626;
-      --text-main: #0F172A;
-      --text-muted: #52647A;
-      --border: #D9E8F7;
-      --shadow-sm: 0 2px 10px rgba(2, 132, 199, 0.06);
-      --shadow-lg: 0 18px 42px rgba(12, 74, 110, 0.16);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(180deg, #EFF7FF 0%, #F9FCFF 45%, #F2F8FF 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding-top: 82px;
-      padding-bottom: 88px;
-      overflow-x: hidden;
-    }
-    .topbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 40;
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-    }
-    .topbar-inner {
-      max-width: 900px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-    }
-    .brand-mark { display: flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 800; color: var(--primary-deep); cursor: pointer; }
-    .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-ice)); }
-        .timers-cluster, .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .timer-chip {
-      background: var(--bg-sky-soft); border: 1px solid var(--border); border-radius: 999px;
-      padding: 6px 12px; display: flex; align-items: center; gap: 7px;
-      font-size: 12px; font-weight: 700; color: var(--primary-deep);
-    }
-    .timer-mini-bar { width: 44px; height: 5px; background: #CBE2FA; border-radius: 999px; overflow: hidden; }
-    .timer-mini-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.25s ease; }
-    .select-pill {
-      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 999px;
-      padding: 6px 12px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--primary-deep);
-    }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border);
-      background: var(--bg-surface); color: var(--text-main);
-      font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn-primary { background: var(--primary); border-color: var(--primary); color: #FFF; box-shadow: var(--shadow-sm); }
-    .btn-success { background: var(--success); border-color: var(--success); color: #FFF; }
-    .btn-danger { background: var(--danger); border-color: var(--danger); color: #FFF; }
-    .btn-soft { background: var(--bg-sky-soft); border-color: #C7E0FA; color: var(--primary-deep); }
-    .container { max-width: 900px; margin: 0 auto; padding: 14px 16px 24px; }
-    .card {
-      background: var(--bg-surface); border: 1px solid var(--border);
-      border-radius: 22px; padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 14px;
-    }
-    .section-title { font-size: 22px; font-weight: 800; color: var(--primary-deep); margin-bottom: 6px; }
-    .muted { color: var(--text-muted); font-size: 13px; line-height: 1.5; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    @media (max-width: 680px) { .grid-2 { grid-template-columns: 1fr; } body { padding-top: 122px; } }
-    .view { display: none; }
-    .view.active { display: block; animation: fadeUp 0.18s ease; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    .tutor-card {
-      border: 2px solid var(--border); border-radius: 18px; padding: 14px;
-      background: var(--bg-surface); cursor: pointer; display: flex; align-items: center; gap: 12px;
-    }
-    .tutor-card.selected { border-color: var(--primary); background: var(--bg-sky-soft); }
-    .video-box { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #0B192C; }
-    .video-box iframe, #ytPlayerHost { width: 100%; height: 100%; border: 0; }
-    .voice-stage {
-      background: linear-gradient(180deg, #F4F9FF 0%, #FFFFFF 100%);
-      border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-align: center;
-    }
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-      background: rgba(255,255,255,0.97); border-top: 1px solid var(--border);
-      display: flex; justify-content: space-around; padding: 10px;
-    }
-    .nav-btn {
-      background: none; border: none; font-family: inherit; font-size: 13px; font-weight: 800;
-      color: var(--text-muted); cursor: pointer; padding: 6px 18px; border-radius: 999px;
-    }
-    .nav-btn.active { color: var(--primary); background: var(--bg-sky-soft); }
-    .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 60;
-      display: none; align-items: center; justify-content: center; padding: 16px;
-    }
-    .modal-backdrop.open { display: flex; }
-    .modal-card {
-      background: #FFF; border-radius: 24px; max-width: 440px; width: 100%;
-      padding: 24px; box-shadow: var(--shadow-lg);
-    }
-    .input-field {
-      width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border);
-      font-family: inherit; font-size: 14px; margin-bottom: 10px; outline: none;
-    }
-    .input-field:focus { border-color: var(--primary); }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F6F5F3; color: #121212; }
+    .brand-font { font-family: 'Cormorant Garamond', serif; }
   </style>
 </head>
-<body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand-mark" onclick="switchTab('home')">
-        <span class="brand-dot"></span><span>Bloom</span>
-      </div>
-      <div class="timers-cluster">
-        <div class="timer-chip">
-          <span>Watch: <strong id="watchMinLabel">0</strong>/60m</span>
-          <div class="timer-mini-bar"><div class="timer-mini-fill" id="watchBarFill"></div></div>
-        </div>
-        <div class="timer-chip">
-          <span>Speak: <strong id="speakMinLabel">0</strong>/60m</span>
-          <div class="timer-mini-bar"><div class="timer-mini-fill" id="speakBarFill"></div></div>
-        </div>
-      </div>
-      <div class="top-actions">
-        <select id="langSelect" class="select-pill" onchange="setLanguage(this.value)">
-          <option value="en">English</option>
-          <option value="de">Deutsch</option>
-          <option value="fr">Français</option>
-          <option value="es">Español</option>
-        </select>
-        <button class="btn btn-primary" id="authHeaderBtn" onclick="openModal('authModal', 'signin')">Sign In</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <section id="view-home" class="view active">
-      <div class="card" id="guestHeroCard">
-        <h1 class="section-title">Bloom — Voice-First Language Immersion</h1>
-        <p class="muted" style="margin-bottom:14px;">Watch real YouTube videos and discuss them by voice, or hold natural hands-free calls with human-sounding AI tutors.</p>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="openModal('authModal', 'signup')">Create Account</button>
-          <button class="btn btn-soft" onclick="openModal('authModal', 'signin')">Sign In</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-          <div>
-            <h2 class="section-title" id="welcomeHeading">Welcome to Bloom</h2>
-            <p class="muted">Daily Streak: <strong id="streakLabel">1 day</strong></p>
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="switchTab('watch')">Watch & Discuss</button>
-            <button class="btn btn-success" onclick="switchTab('speak')">Start Speaking</button>
-          </div>
-        </div>
-
-        <p style="font-size:13px; font-weight:700; margin-bottom:8px;">Choose Your AI Tutor (Human Neural Voice)</p>
-        <div class="grid-2" style="margin-bottom:14px;">
-          <div class="tutor-card selected" id="tutor-claire" onclick="selectTutor('Claire','female')">
-            <div><strong>Claire</strong><div class="muted">Woman • Warm Natural Feminine Voice</div></div>
-          </div>
-          <div class="tutor-card" id="tutor-julian" onclick="selectTutor('Julian','male')">
-            <div><strong>Julian</strong><div class="muted">Man • Natural Masculine Voice</div></div>
-          </div>
-        </div>
-
-        <label style="font-size:12px; font-weight:700; color:var(--primary-deep);">Tutor Correction Style:</label>
-        <select id="correctionStyleSelect" class="select-pill" style="margin-left:6px;" onchange="state.correctionMode=this.value; saveState();">
-          <option value="gentle">Gentle Recast & Flow</option>
-          <option value="repeat">Ask Me to Repeat Corrections</option>
-          <option value="none">Conversation Flow Only</option>
-        </select>
-      </div>
-    </section>
-
-    <section id="view-watch" class="view">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-          <div>
-            <h2 class="section-title">Watch & Discuss YouTube Videos</h2>
-            <p class="muted" id="videoStatusText">Paste any YouTube link and watch to the end to unlock a live voice discussion with your tutor.</p>
-          </div>
-          <button class="btn btn-primary" onclick="openModal('ytModal')">Load YouTube Video</button>
-        </div>
-
-        <div class="video-box" style="margin-bottom:12px;">
-          <div id="ytPlayerHost" style="display:flex; align-items:center; justify-content:center; color:#CBD5E1; font-size:14px;">
-            No video loaded yet — tap "Load YouTube Video"
-          </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <span class="muted" id="videoProgressLabel">Discussion locked until video finishes (0%)</span>
-          <button class="btn btn-primary" id="btnDiscussVideo" disabled onclick="startVideoDiscussion()">Discuss the Video by Voice</button>
-        </div>
-      </div>
-    </section>
-        <section id="view-speak" class="view">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
-          <div>
-            <h2 class="section-title">Speak with <span id="activeTutorHeading">Claire</span></h2>
-            <p class="muted" id="speakContextBanner">General Voice Conversation</p>
-          </div>
-          <button class="btn btn-soft" id="btnResetTopic" style="display:none;" onclick="resetToGeneralSpeak()">Switch to General Speaking</button>
-        </div>
-
-        <div class="voice-stage">
-          <div style="margin-bottom:12px;">
-            <span class="timer-chip" id="speakTimerDisplay" style="font-size:15px; padding:8px 16px;">02:00</span>
-          </div>
-
-          <p id="voiceStatusPill" style="font-size:15px; font-weight:700; color:var(--primary-deep); margin-bottom:14px;">
-            Voice Ready • Tap "Start Real Call" or "Record Turn (2m)"
-          </p>
-
-          <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
-            <button class="btn btn-success" id="btnRealCall" onclick="toggleRealCall()">Start Real Call</button>
-            <button class="btn btn-danger" id="btnInterrupt" style="display:none;" onclick="interruptTutorAndSpeak()">Interrupt & Speak</button>
-            <button class="btn btn-primary" id="btnRecordTurn" onclick="toggleRecordTurn()">Record Turn (2m)</button>
-            <button class="btn btn-soft" onclick="replayLastTutor()">Replay Voice</button>
-            <button class="btn btn-soft" onclick="getReplySuggestions()">Help Me Respond</button>
-          </div>
-
-          <div id="suggestionsBox" style="display:none; margin-bottom:12px;"></div>
-
-          <div id="tutorFeedbackCard" style="background:#FFF; border:1px solid var(--border); border-radius:16px; padding:14px; text-align:left;">
-            <div style="font-size:11px; font-weight:800; color:var(--primary); text-transform:uppercase; margin-bottom:4px;">Latest Tutor Voice & Gentle Note</div>
-            <p id="latestTutorNote" style="font-size:14px; line-height:1.55; color:var(--text-main);">
-              Tap <strong>Start Real Call</strong> for a continuous hands-free conversation, or press <strong>Record Turn (2m)</strong> to speak up to 2 minutes.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <nav class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" onclick="switchTab('home')">Home</button>
-    <button class="nav-btn" id="nav-watch" onclick="switchTab('watch')">Watch</button>
-    <button class="nav-btn" id="nav-speak" onclick="switchTab('speak')">Speak</button>
-  </nav>
-
-  <div class="modal-backdrop" id="ytModal">
-    <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <strong style="font-size:17px; color:var(--primary-deep);">Load YouTube Video</strong>
-        <button class="btn" onclick="closeModal('ytModal')">✕</button>
-      </div>
-      <input id="ytUrlInput" class="input-field" placeholder="Paste YouTube link (e.g. https://youtu.be...)" />
-      <p id="ytErrorMsg" style="color:var(--danger); font-size:12px; margin-bottom:8px; display:none;"></p>
-      <button class="btn btn-primary" style="width:100%;" onclick="loadYouTubeVideo()">Load Video</button>
-    </div>
+<body class="min-h-screen">
+  <div id="lockScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#121212] p-4">
+    <form onsubmit="unlockApp(event)" class="w-full max-w-sm rounded-3xl bg-white p-8 text-center shadow-2xl">
+      <p class="brand-font text-3xl font-bold tracking-[0.22em] uppercase">AMVISAT</p>
+      <p class="mt-1 text-xs tracking-widest text-neutral-500 uppercase">Private Control Center</p>
+      <input id="passInput" type="password" placeholder="Enter Passcode" class="mt-6 w-full rounded-xl border border-neutral-300 px-4 py-3 text-center text-sm focus:border-[#121212] focus:outline-none" />
+      <button type="submit" class="mt-3 w-full rounded-xl bg-[#121212] py-3 text-xs font-bold tracking-widest text-white uppercase">Unlock Workspace</button>
+    </form>
   </div>
 
-  <div class="modal-backdrop" id="authModal">
-    <div class="modal-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-        <strong id="authModalTitle" style="font-size:19px; color:var(--primary-deep);">Welcome Back</strong>
-        <button class="btn" onclick="closeModal('authModal')">✕</button>
+  <div id="appShell" class="hidden">
+    <header class="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
+        <div class="flex items-center gap-3">
+          <span class="brand-font text-2xl font-bold tracking-[0.2em] uppercase">AMVISAT</span>
+          <span class="rounded-full bg-[#121212] px-2.5 py-0.5 text-[10px] font-semibold tracking-wider text-white uppercase">Control Hub</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <button onclick="switchTab('products')" id="tabBtn-products" class="rounded-full bg-[#121212] px-3.5 py-1.5 font-semibold text-white">Inventory &amp; AI</button>
+          <button onclick="switchTab('orders')" id="tabBtn-orders" class="rounded-full bg-neutral-100 px-3.5 py-1.5 font-semibold text-neutral-700">Orders (<span id="orderBadge">0</span>)</button>
+          <button onclick="switchTab('calc')" id="tabBtn-calc" class="rounded-full bg-neutral-100 px-3.5 py-1.5 font-semibold text-neutral-700">Calculator</button>
+          <button onclick="switchTab('hero')" id="tabBtn-hero" class="rounded-full bg-neutral-100 px-3.5 py-1.5 font-semibold text-neutral-700">Hero Banner</button>
+          <button onclick="lockApp()" class="rounded-full border border-neutral-300 px-3 py-1.5 font-semibold text-neutral-600">Lock</button>
+        </div>
       </div>
-      <p class="muted" style="margin-bottom:14px;">Sign in to sync your speaking progress and preferences.</p>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">
-        <button class="btn btn-primary" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
-        <button class="btn btn-soft" id="tabSignUp" onclick="switchAuthTab('signup')">Create Account</button>
+    </header>
+        <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <!-- TAB 1: PRODUCTS + GEMINI AI -->
+      <section id="tab-products" class="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
+        <form onsubmit="saveProductForm(event)" class="space-y-3.5 rounded-2xl border border-neutral-200 bg-white p-5 text-xs shadow-xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-3">
+            <h2 id="formHeading" class="text-base font-bold">Add New Product</h2>
+            <button type="button" id="aiBtn" onclick="generateWithGemini()" class="rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-3.5 py-1.5 text-[11px] font-bold text-white shadow-xs hover:opacity-90">
+              ✨ Ask Gemini AI (Titles &amp; 4 Languages)
+            </button>
+          </div>
+
+          <div class="flex gap-1">
+            <button type="button" onclick="setEditLang('en')" id="langBtn-en" class="rounded-md bg-[#121212] px-2.5 py-1 text-[11px] font-bold text-white">EN</button>
+            <button type="button" onclick="setEditLang('ar')" id="langBtn-ar" class="rounded-md border border-neutral-200 px-2.5 py-1 text-[11px] font-bold">عربي</button>
+            <button type="button" onclick="setEditLang('fr')" id="langBtn-fr" class="rounded-md border border-neutral-200 px-2.5 py-1 text-[11px] font-bold">FR</button>
+            <button type="button" onclick="setEditLang('de')" id="langBtn-de" class="rounded-md border border-neutral-200 px-2.5 py-1 text-[11px] font-bold">DE</button>
+          </div>
+
+          <input id="pName" oninput="syncLangField('name', this.value)" placeholder="Product Name (English) *" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5" />
+          <textarea id="pDesc" rows="2" oninput="syncLangField('description', this.value)" placeholder="Product Description (or leave blank and tap Ask Gemini AI)" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5"></textarea>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <select id="pCat" class="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2.5">
+              <option>Kitchenware</option>
+              <option>Detergents</option>
+              <option>Deodorants</option>
+              <option>Skincare</option>
+              <option>Stationery</option>
+              <option>Home Decor</option>
+              <option>Bath &amp; Body</option>
+              <option>Cleaning Tools</option>
+              <option>Storage &amp; Organization</option>
+              <option>Electronics &amp; Accessories</option>
+              <option>Baby &amp; Kids</option>
+              <option>Gifts &amp; Lifestyle</option>
+            </select>
+            <input id="pBadge" placeholder="Badge (e.g. Best Seller, New)" class="w-full rounded-xl border border-neutral-300 px-3 py-2.5" />
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label class="mb-1 block font-semibold text-neutral-500">Lebanon ($ USD) *</label>
+              <input id="pPriceLb" required type="number" step="0.01" placeholder="12.00" class="w-full rounded-xl border border-neutral-300 px-3 py-2" />
+            </div>
+            <div>
+              <label class="mb-1 block font-semibold text-neutral-500">Europe (€ EUR)</label>
+              <input id="pPriceEu" type="number" step="0.01" placeholder="14.00" class="w-full rounded-xl border border-neutral-300 px-3 py-2" />
+            </div>
+            <div>
+              <label class="mb-1 block font-semibold text-neutral-500">Stock Qty *</label>
+              <input id="pStockQty" required type="number" min="0" value="10" class="w-full rounded-xl border border-neutral-300 px-3 py-2 font-bold" />
+            </div>
+          </div>
+
+          <div class="space-y-2 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-neutral-600">Photos &amp; Cropper (<span id="mediaCount">0</span>)</span>
+              <label class="cursor-pointer rounded-full bg-[#121212] px-3 py-1.5 text-[11px] font-bold text-white">
+                + Upload Photos
+                <input type="file" accept="image/*" multiple onchange="handlePhotoUpload(event)" class="hidden" />
+              </label>
+            </div>
+            <div class="flex gap-1.5">
+              <input id="pUrlInput" placeholder="Or paste image URL (https://...)" class="flex-1 rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-[11px]" />
+              <button type="button" onclick="addMediaUrl()" class="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-[11px] font-semibold">Add</button>
+            </div>
+            <div id="mediaGrid" class="grid grid-cols-4 gap-2 pt-1"></div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div class="flex gap-1.5">
+              <button type="button" onclick="toggleReg('LB')" id="regBtn-LB" class="rounded-lg border border-[#121212] bg-[#121212] px-3 py-1.5 font-semibold text-white">🇱🇧 LB</button>
+              <button type="button" onclick="toggleReg('FR')" id="regBtn-FR" class="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 font-semibold text-neutral-600">🇫🇷 FR</button>
+              <button type="button" onclick="toggleReg('DE')" id="regBtn-DE" class="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 font-semibold text-neutral-600">🇩🇪 DE</button>
+            </div>
+            <label class="flex items-center gap-2 font-semibold">
+              <input id="pInStock" type="checkbox" checked /> Available for Sale
+            </label>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button type="submit" id="saveProdBtn" class="flex-1 rounded-xl bg-[#121212] py-3 font-bold tracking-wider text-white uppercase">Save &amp; Sync to Amvisat</button>
+            <button type="button" id="cancelEditBtn" onclick="resetProdForm()" class="hidden rounded-xl border border-neutral-300 px-4 py-3 font-semibold">Cancel</button>
+          </div>
+        </form>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-between rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-xs">
+            <input id="prodSearch" oninput="renderProducts()" placeholder="Search inventory..." class="w-full focus:outline-none" />
+            <span id="invSummary" class="shrink-0 font-bold text-neutral-500">0 items</span>
+          </div>
+          <div id="productList" class="space-y-2.5"></div>
+        </div>
+      </section>
+            <!-- TAB 2: ORDERS -->
+      <section id="tab-orders" class="hidden space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200 bg-white p-4 text-xs">
+          <div class="flex gap-1.5">
+            <button onclick="setOrderFilter('all')" class="rounded-full bg-[#121212] px-3 py-1.5 font-semibold text-white">All</button>
+            <button onclick="setOrderFilter('pending')" class="rounded-full bg-neutral-100 px-3 py-1.5 font-semibold">Pending</button>
+            <button onclick="setOrderFilter('confirmed')" class="rounded-full bg-neutral-100 px-3 py-1.5 font-semibold">Confirmed</button>
+            <button onclick="setOrderFilter('delivered')" class="rounded-full bg-neutral-100 px-3 py-1.5 font-semibold">Delivered</button>
+          </div>
+          <span id="revenueTotal" class="font-bold text-neutral-700"></span>
+        </div>
+        <div id="ordersList" class="space-y-3"></div>
+      </section>
+
+      <!-- TAB 3: PROFIT & PRICING CALCULATOR -->
+      <section id="tab-calc" class="mx-auto hidden max-w-2xl rounded-2xl border border-neutral-200 bg-white p-6 text-xs shadow-xs">
+        <h2 class="text-lg font-bold">Profit &amp; Retail Pricing Calculator</h2>
+        <p class="mt-1 text-neutral-500">Calculate your supplier costs, shipping, profit margin, and apply prices directly to the product form.</p>
+
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block font-semibold">Supplier Unit Cost ($ USD)</label>
+            <input id="cCost" type="number" step="0.01" value="5.00" oninput="runCalc()" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="mb-1 block font-semibold">Shipping / Customs per Unit ($)</label>
+            <input id="cShip" type="number" step="0.01" value="1.50" oninput="runCalc()" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="mb-1 block font-semibold">Target Profit Margin (%)</label>
+            <input id="cMargin" type="number" step="1" value="50" oninput="runCalc()" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="mb-1 block font-semibold">EU Markup / EUR Multiplier</label>
+            <input id="cEuMult" type="number" step="0.05" value="1.15" oninput="runCalc()" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5 text-sm" />
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-3 gap-3 rounded-2xl bg-[#F6F5F3] p-4 text-center">
+          <div>
+            <p class="text-[11px] text-neutral-500">Total Landed Cost</p>
+            <p id="resCost" class="mt-1 text-lg font-bold">$6.50</p>
+          </div>
+          <div>
+            <p class="text-[11px] text-neutral-500">Lebanon Price ($)</p>
+            <p id="resLb" class="mt-1 text-lg font-bold text-emerald-700">$9.75</p>
+          </div>
+          <div>
+            <p class="text-[11px] text-neutral-500">Europe Price (€)</p>
+            <p id="resEu" class="mt-1 text-lg font-bold text-indigo-700">€11.21</p>
+          </div>
+        </div>
+        <p id="resProfit" class="mt-3 text-center font-semibold text-neutral-700">Net Profit per Unit: $3.25</p>
+
+        <button type="button" onclick="applyCalcToProduct()" class="mt-5 w-full rounded-xl bg-[#121212] py-3 font-bold tracking-wider text-white uppercase">Apply Prices to Product Form</button>
+      </section>
+
+      <!-- TAB 4: HERO BANNER -->
+      <section id="tab-hero" class="mx-auto hidden max-w-2xl rounded-2xl border border-neutral-200 bg-white p-6 text-xs shadow-xs">
+        <h2 class="text-lg font-bold">Amvisat Homepage Hero Banner</h2>
+        <div class="mt-4 space-y-3">
+          <div class="flex items-center gap-3">
+            <label class="cursor-pointer rounded-xl bg-[#121212] px-4 py-2.5 font-bold text-white">
+              Upload Hero Image
+              <input type="file" accept="image/*" onchange="uploadHeroImg(event)" class="hidden" />
+            </label>
+            <button type="button" onclick="clearHeroImg()" class="rounded-xl border border-red-200 px-3 py-2 font-semibold text-red-600">Remove Photo</button>
+          </div>
+          <img id="heroPreview" class="hidden h-40 w-full rounded-xl border border-neutral-200 object-contain bg-[#F6F5F3]" />
+          <input id="hEyebrow" placeholder="Top Tag (e.g. AMVISAT · HOME & DAILY CARE)" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5" />
+          <input id="hTitle" placeholder="Main Headline" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5" />
+          <textarea id="hSub" rows="2" placeholder="Brand Message / Subtitle" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5"></textarea>
+          <input id="hCta" placeholder="Button Label (e.g. Shop Collection)" class="w-full rounded-xl border border-neutral-300 px-3.5 py-2.5" />
+          <button type="button" onclick="saveHero()" class="w-full rounded-xl bg-[#121212] py-3 font-bold tracking-wider text-white uppercase">Save Live Banner</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- TABLET PHOTO CROPPER MODAL -->
+  <div id="cropModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 p-4">
+    <div class="w-full max-w-md rounded-2xl bg-white p-5 text-xs">
+      <div class="flex items-center justify-between pb-3">
+        <h3 class="text-sm font-bold">Crop &amp; Center Photo</h3>
+        <button type="button" onclick="closeCropper()" class="font-bold text-neutral-500">✕</button>
       </div>
-      <div id="authNameWrap" style="display:none;"><input id="authNameInput" class="input-field" placeholder="Full Name" /></div>
-      <input id="authEmailInput" type="email" class="input-field" placeholder="Email address (e.g. name@gmail.com)" />
-      <div id="authPassWrap"><input id="authPassInput" type="password" class="input-field" placeholder="Password (min. 6 characters)" /></div>
-      <p id="authErrorMsg" style="color:var(--danger); font-size:12px; font-weight:600; margin-bottom:10px; display:none;"></p>
-      <button class="btn btn-primary" style="width:100%; padding:11px; margin-bottom:8px;" id="authSubmitBtn" onclick="submitAuthForm()">Sign In</button>
-      <div style="text-align:center; font-size:12px; color:var(--text-muted); margin:6px 0;">or</div>
-      <button class="btn btn-soft" style="width:100%; padding:11px;" id="gmailModeBtn" onclick="toggleGmailFastSignIn()">Continue with Gmail Address</button>
+      <div class="flex justify-center bg-neutral-100 p-2 rounded-xl">
+        <canvas id="cropCanvas" class="max-h-72 max-w-full rounded-lg"></canvas>
+      </div>
+      <div class="mt-3 space-y-2">
+        <label class="flex justify-between font-semibold"><span>Zoom</span><span id="zoomVal">100%</span></label>
+        <input id="cropZoom" type="range" min="1" max="2.5" step="0.05" value="1" oninput="drawCropPreview()" class="w-full" />
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold">Horizontal Pan</label>
+            <input id="cropX" type="range" min="-100" max="100" value="0" oninput="drawCropPreview()" class="w-full" />
+          </div>
+          <div>
+            <label class="block font-semibold">Vertical Pan</label>
+            <input id="cropY" type="range" min="-100" max="100" value="0" oninput="drawCropPreview()" class="w-full" />
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-2">
+        <button type="button" onclick="applyCrop()" class="flex-1 rounded-xl bg-[#121212] py-2.5 font-bold text-white">Apply Square Crop</button>
+        <button type="button" onclick="closeCropper()" class="rounded-xl border border-neutral-300 px-4 py-2.5 font-semibold">Cancel</button>
+      </div>
     </div>
   </div>
-    <script src="https://youtube.com"></script>
+    <div id="toast" class="fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 rounded-full bg-[#121212] px-5 py-2.5 text-xs font-bold text-white shadow-lg"></div>
+
   <script>
-    const LANG_LOCALE = { en: 'en-US', de: 'de-DE', fr: 'fr-FR', es: 'es-ES' };
-    const savedRaw = JSON.parse(localStorage.getItem('bloom_v4_state') || 'null') || {};
-    const state = {
-      user: savedRaw.user || null,
-      lang: savedRaw.lang || 'en',
-      tutorName: savedRaw.tutorName || 'Claire',
-      tutorGender: savedRaw.tutorGender || 'female',
-      correctionMode: savedRaw.correctionMode || 'gentle',
-      watchSec: Number(savedRaw.watchSec) || 0,
-      speakSec: Number(savedRaw.speakSec) || 0,
-      streak: Number(savedRaw.streak) || 1,
-      videos: Array.isArray(savedRaw.videos) ? savedRaw.videos : [],
-      activeVideoId: savedRaw.activeVideoId || null
-    };
+    const PASSCODE = "maison2026";
+    let products = [];
+    let orders = [];
+    let heroCfg = {};
+    let editingId = null;
+    let editLang = "en";
+    let langData = { en: { name: "", description: "" }, ar: { name: "", description: "" }, fr: { name: "", description: "" }, de: { name: "", description: "" } };
+    let mediaList = [];
+    let selRegions = ["LB"];
+    let orderFilter = "all";
+    let cropIdx = null;
+    let cropImgObj = null;
 
-    let speakMode = 'general', chatHistory = [], lastTutorText = '', lastAudioUrl = null, currentAudio = null;
-    let isRecording = false, isRealCall = false, recCountdown = null, recSecLeft = 120;
-    let authMode = 'signin', gmailFastMode = false, ytPlayer = null, ytTimer = null;
-    let speechRate = 1.0, isTutorSpeaking = false;
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 2800);
+    }
 
-    function saveState() {
-      localStorage.setItem('bloom_v4_state', JSON.stringify(state));
-      renderTopStats();
-      if (state.user && state.user.email) {
-        fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: 'sync', email: state.user.email, progress: state }) }).catch(() => {});
+    function unlockApp(e) {
+      if (e) e.preventDefault();
+      if (document.getElementById("passInput").value === PASSCODE) {
+        sessionStorage.setItem("amvisat_hub_auth", "1");
+        document.getElementById("lockScreen").classList.add("hidden");
+        document.getElementById("appShell").classList.remove("hidden");
+        loadAllData();
+      } else {
+        toast("Incorrect passcode");
       }
     }
 
-    function renderTopStats() {
-      document.getElementById('watchMinLabel').textContent = Math.floor(state.watchSec / 60);
-      document.getElementById('speakMinLabel').textContent = Math.floor(state.speakSec / 60);
-      document.getElementById('watchBarFill').style.width = Math.min(100, (state.watchSec / 3600) * 100) + '%';
-      document.getElementById('speakBarFill').style.width = Math.min(100, (state.speakSec / 3600) * 100) + '%';
-      document.getElementById('langSelect').value = state.lang;
-      document.getElementById('streakLabel').textContent = state.streak + (state.streak === 1 ? ' day' : ' days');
-      document.getElementById('activeTutorHeading').textContent = state.tutorName;
-      document.getElementById('correctionStyleSelect').value = state.correctionMode;
-      document.getElementById('tutor-claire').classList.toggle('selected', state.tutorName === 'Claire');
-      document.getElementById('tutor-julian').classList.toggle('selected', state.tutorName === 'Julian');
-      const authBtn = document.getElementById('authHeaderBtn'), hero = document.getElementById('guestHeroCard');
-      if (state.user) { authBtn.textContent = state.user.name + ' • Sign Out'; authBtn.onclick = signOutUser; hero.style.display = 'none'; document.getElementById('welcomeHeading').textContent = 'Welcome back, ' + state.user.name; }
-      else { authBtn.textContent = 'Sign In'; authBtn.onclick = () => openModal('authModal', 'signin'); hero.style.display = 'block'; document.getElementById('welcomeHeading').textContent = 'Welcome to Bloom'; }
+    function lockApp() {
+      sessionStorage.removeItem("amvisat_hub_auth");
+      location.reload();
     }
 
-    function switchTab(tab) {
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('view-' + tab).classList.add('active');
-      document.getElementById('nav-' + tab).classList.add('active');
-    }
-    function selectTutor(name, gender) { state.tutorName = name; state.tutorGender = gender; saveState(); }
-    function setLanguage(lang) { state.lang = lang; chatHistory = []; saveState(); }
-
-    function interruptTutorAndSpeak() {
-      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-      window.speechSynthesis?.cancel();
-      isTutorSpeaking = false;
-      const btnInt = document.getElementById('btnInterrupt');
-      if (btnInt) btnInt.style.display = 'none';
-      if (isRealCall) startListening(true);
+    if (sessionStorage.getItem("amvisat_hub_auth") === "1") {
+      document.getElementById("lockScreen").classList.add("hidden");
+      document.getElementById("appShell").classList.remove("hidden");
+      setTimeout(loadAllData, 50);
     }
 
-    async function speakHumanVoice(text, onDone) {
-      lastTutorText = text;
-      isTutorSpeaking = true;
-      const statusEl = document.getElementById('voiceStatusPill');
-      if (statusEl) statusEl.textContent = state.tutorName + ' is speaking...';
-      const btnInt = document.getElementById('btnInterrupt');
-      if (btnInt && isRealCall) btnInt.style.display = 'inline-flex';
-      if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-      window.speechSynthesis?.cancel();
-
-      const finishSpeech = () => {
-        isTutorSpeaking = false;
-        if (btnInt) btnInt.style.display = 'none';
-        if (statusEl) statusEl.textContent = isRealCall ? 'Hands-Free Call • Speak as long as you want...' : 'Voice Ready';
-        if (onDone) onDone();
-      };
-
-      try {
-        const res = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, tutorGender: state.tutorGender, lang: state.lang }) });
-        const data = await res.json();
-        if (data.audioBase64) {
-          const bin = atob(data.audioBase64);
-          const bytes = new Uint8Array(bin.length);
-          for (let i = 0; i < bin.length; i++) bytes.set([bin.charCodeAt(i)], i);
-          if (lastAudioUrl) URL.revokeObjectURL(lastAudioUrl);
-          lastAudioUrl = URL.createObjectURL(new Blob([bytes], { type: data.mimeType || 'audio/wav' }));
-          currentAudio = new Audio(lastAudioUrl);
-          currentAudio.playbackRate = speechRate;
-          currentAudio.onended = finishSpeech;
-          await currentAudio.play();
-          return;
-        }
-      } catch (_) {}
-
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = LANG_LOCALE[state.lang] || 'en-US';
-        u.rate = 0.97 * speechRate;
-        u.onend = finishSpeech;
-        speechSynthesis.speak(u);
-      } else finishSpeech();
-    }
-
-    function replayLastTutor() { if (lastTutorText) speakHumanVoice(lastTutorText); }
-
-    async function callBloomAI(payload) {
-      const res = await fetch('/api/bloom', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang: state.lang, tutorName: state.tutorName, tutorGender: state.tutorGender, correctionMode: state.correctionMode, speechRate, history: chatHistory, ...payload })
+    function switchTab(name) {
+      ["products", "orders", "calc", "hero"].forEach((t) => {
+        document.getElementById("tab-" + t).classList.toggle("hidden", t !== name);
+        const btn = document.getElementById("tabBtn-" + t);
+        btn.className = t === name
+          ? "rounded-full bg-[#121212] px-3.5 py-1.5 font-semibold text-white"
+          : "rounded-full bg-neutral-100 px-3.5 py-1.5 font-semibold text-neutral-700";
       });
-      const data = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error || 'Tutor connection failed');
-      if (data.speechRate) speechRate = Number(data.speechRate) || speechRate;
-      return data.reply;
-    }
-        let mediaStream = null, mediaRecorder = null, audioChunks = [], vadInterval = null, audioCtx = null;
-
-    function updateTimerUI(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, '0');
-      const s = String(sec % 60).padStart(2, '0');
-      document.getElementById('speakTimerDisplay').textContent = m + ':' + s;
     }
 
-    function stopRecorderTimer() {
-      if (recCountdown) { clearInterval(recCountdown); recCountdown = null; }
-      recSecLeft = 120;
-      updateTimerUI(120);
-    }
-
-    function cleanupMicHardware() {
-      if (vadInterval) { clearInterval(vadInterval); vadInterval = null; }
-      if (audioCtx) { try { audioCtx.close(); } catch (_) {} audioCtx = null; }
-      if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
-    }
-
-    async function handleUserAudioBlob(blob, mimeType) {
-      if (!blob || blob.size < 1500) {
-        if (isRealCall) startListening(true);
-        return;
-      }
-      document.getElementById('suggestionsBox').style.display = 'none';
-      document.getElementById('voiceStatusPill').textContent = state.tutorName + ' is listening to your voice & thinking...';
+    async function loadAllData() {
       try {
-        const base64 = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(String(reader.result || '').split(',').at(1) || '');
-          reader.readAsDataURL(blob);
-        });
-        const vid = state.videos.find(v => v.id === state.activeVideoId);
-        const res = await fetch('/api/bloom', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            lang: state.lang, tutorName: state.tutorName, tutorGender: state.tutorGender,
-            correctionMode: state.correctionMode, speechRate, history: chatHistory,
-            action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
-            audioBase64: base64, audioMime: mimeType || 'audio/webm',
-            videoTitle: vid ? vid.title : '', videoContext: vid ? vid.transcript : ''
-          })
-        });
-        const data = await res.json();
-        if (!res.ok || data.error) throw new Error(data.error || 'Tutor connection failed');
-        if (data.speechRate) speechRate = Number(data.speechRate) || speechRate;
-        if (data.transcript) chatHistory.push({ role: 'user', text: data.transcript });
-        chatHistory.push({ role: 'assistant', text: data.reply });
-        document.getElementById('latestTutorNote').textContent = data.reply;
-        state.speakSec += 20;
-        saveState();
-        speakHumanVoice(data.reply, () => { if (isRealCall) startListening(true); });
+        const [pRes, oRes, sRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/orders"),
+          fetch("/api/settings"),
+        ]);
+        if (pRes.ok) products = await pRes.json();
+        if (oRes.ok) orders = await oRes.json();
+        if (sRes.ok) heroCfg = await sRes.json();
       } catch (err) {
-        document.getElementById('voiceStatusPill').textContent = 'Error: ' + err.message;
-        if (isRealCall) setTimeout(() => startListening(true), 1500);
+        toast("Error loading store data");
       }
+      renderProducts();
+      renderOrders();
+      fillHeroForm();
+      runCalc();
     }
 
-    async function startListening(autoLoop = false) {
-      cleanupMicHardware();
-      audioChunks = [];
-      try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (_) {
-        document.getElementById('voiceStatusPill').textContent = 'Microphone permission denied — please allow mic access.';
+    function setEditLang(l) {
+      editLang = l;
+      ["en", "ar", "fr", "de"].forEach((code) => {
+        const btn = document.getElementById("langBtn-" + code);
+        btn.className = code === l
+          ? "rounded-md bg-[#121212] px-2.5 py-1 text-[11px] font-bold text-white"
+          : "rounded-md border border-neutral-200 px-2.5 py-1 text-[11px] font-bold";
+      });
+      const nEl = document.getElementById("pName");
+      const dEl = document.getElementById("pDesc");
+      nEl.dir = l === "ar" ? "rtl" : "ltr";
+      dEl.dir = l === "ar" ? "rtl" : "ltr";
+      nEl.value = langData[l].name || "";
+      dEl.value = langData[l].description || "";
+    }
+
+    function syncLangField(field, val) {
+      langData[editLang][field] = val;
+    }
+
+    function toggleReg(r) {
+      if (selRegions.includes(r)) {
+        if (selRegions.length > 1) selRegions = selRegions.filter((x) => x !== r);
+      } else {
+        selRegions.push(r);
+      }
+      ["LB", "FR", "DE"].forEach((code) => {
+        const b = document.getElementById("regBtn-" + code);
+        b.className = selRegions.includes(code)
+          ? "rounded-lg border border-[#121212] bg-[#121212] px-3 py-1.5 font-semibold text-white"
+          : "rounded-lg border border-neutral-300 bg-white px-3 py-1.5 font-semibold text-neutral-600";
+      });
+    }
+
+    function handlePhotoUpload(e) {
+      const files = Array.from(e.target.files || []);
+      files.forEach((file) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const scale = Math.min(1, 900 / Math.max(img.width, img.height));
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          mediaList.push(canvas.toDataURL("image/jpeg", 0.82));
+          renderMediaGrid();
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    function addMediaUrl() {
+      const inp = document.getElementById("pUrlInput");
+      if (!inp.value.trim()) return;
+      mediaList.push(inp.value.trim());
+      inp.value = "";
+      renderMediaGrid();
+    }
+
+    function renderMediaGrid() {
+      document.getElementById("mediaCount").textContent = mediaList.length;
+      const grid = document.getElementById("mediaGrid");
+      grid.innerHTML = mediaList.map((src, idx) => `
+        <div class="relative aspect-square overflow-hidden rounded-lg border border-neutral-300 bg-white">
+          <img src="${src}" class="h-full w-full object-cover" />
+          <button type="button" onclick="openCropper(${idx})" class="absolute bottom-1 left-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-bold text-white">Crop</button>
+          <button type="button" onclick="removeMedia(${idx})" class="absolute right-1 top-1 rounded bg-red-600 px-1.5 py-0.5 text-[9px] font-bold text-white">✕</button>
+        </div>
+      `).join("");
+    }
+
+    function removeMedia(idx) {
+      mediaList.splice(idx, 1);
+      renderMediaGrid();
+    }
+
+    function openCropper(idx) {
+      cropIdx = idx;
+      cropImgObj = new Image();
+      cropImgObj.crossOrigin = "anonymous";
+      cropImgObj.onload = () => {
+        document.getElementById("cropZoom").value = 1;
+        document.getElementById("cropX").value = 0;
+        document.getElementById("cropY").value = 0;
+        document.getElementById("cropModal").classList.remove("hidden");
+        document.getElementById("cropModal").classList.add("flex");
+        drawCropPreview();
+      };
+      cropImgObj.src = mediaList.at(idx);
+    }
+
+    function closeCropper() {
+      document.getElementById("cropModal").classList.add("hidden");
+      document.getElementById("cropModal").classList.remove("flex");
+    }
+
+    function drawCropPreview() {
+      if (!cropImgObj) return;
+      const canvas = document.getElementById("cropCanvas");
+      const size = 600;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, size, size);
+      const zoom = Number(document.getElementById("cropZoom").value);
+      const panX = Number(document.getElementById("cropX").value) * 2;
+      const panY = Number(document.getElementById("cropY").value) * 2;
+      document.getElementById("zoomVal").textContent = Math.round(zoom * 100) + "%";
+      const baseScale = Math.max(size / cropImgObj.width, size / cropImgObj.height) * zoom;
+      const w = cropImgObj.width * baseScale;
+      const h = cropImgObj.height * baseScale;
+      ctx.drawImage(cropImgObj, (size - w) / 2 + panX, (size - h) / 2 + panY, w, h);
+    }
+
+    function applyCrop() {
+      const canvas = document.getElementById("cropCanvas");
+      mediaList[cropIdx] = canvas.toDataURL("image/jpeg", 0.85);
+      renderMediaGrid();
+      closeCropper();
+      toast("Photo cropped!");
+    }
+
+    async function generateWithGemini() {
+      const btn = document.getElementById("aiBtn");
+      const currentTitle = langData.en.name || document.getElementById("pName").value;
+      const firstImg = mediaList.at(0) || "";
+      if (!currentTitle && !firstImg) {
+        toast("Add a photo or product name first");
         return;
       }
-
-      const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
-      mediaRecorder = mime ? new MediaRecorder(mediaStream, { mimeType: mime }) : new MediaRecorder(mediaStream);
-      isRecording = true;
-
-      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-        cleanupMicHardware();
-        isRecording = false;
-        stopRecorderTimer();
-        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
-        handleUserAudioBlob(blob, blob.type);
-      };
-
-      mediaRecorder.start(250);
-
-      if (!autoLoop) {
-        document.getElementById('btnRecordTurn').textContent = 'Stop & Send';
-        document.getElementById('voiceStatusPill').textContent = 'Recording (up to 2m)... Tap "Stop & Send" when done';
-        recSecLeft = 120;
-        updateTimerUI(120);
-        recCountdown = setInterval(() => {
-          recSecLeft -= 1;
-          updateTimerUI(recSecLeft);
-          if (recSecLeft <= 0 && mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-        }, 1000);
-      } else {
-        document.getElementById('btnRecordTurn').textContent = 'Record Turn (2m)';
-        document.getElementById('voiceStatusPill').textContent = 'Hands-Free Call • Speak as long as you want...';
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const src = audioCtx.createMediaStreamSource(mediaStream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 512;
-        src.connect(analyser);
-        const dataArr = new Uint8Array(analyser.frequencyBinCount);
-        let hasSpoken = false, lastSoundTime = Date.now();
-
-        vadInterval = setInterval(() => {
-          analyser.getByteFrequencyData(dataArr);
-          let sum = 0;
-          for (let i = 0; i < dataArr.length; i++) sum += dataArr.at(i);
-          if ((sum / dataArr.length) > 14) {
-            hasSpoken = true;
-            lastSoundTime = Date.now();
-            document.getElementById('voiceStatusPill').textContent = 'Hearing you... Keep speaking as long as you want';
-          } else if (hasSpoken && (Date.now() - lastSoundTime) > 2600) {
-            if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-          }
-        }, 150);
-      }
-    }
-
-    function toggleRecordTurn() {
-      if (isRecording && !isRealCall && mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-      else if (!isRealCall) startListening(false);
-    }
-
-    async function toggleRealCall() {
-      isRealCall = !isRealCall;
-      const btn = document.getElementById('btnRealCall');
-      if (isRealCall) {
-        btn.textContent = 'End Call';
-        btn.className = 'btn btn-danger';
-        document.getElementById('voiceStatusPill').textContent = 'Connecting to ' + state.tutorName + '...';
-        try {
-          const vid = state.videos.find(v => v.id === state.activeVideoId);
-          const greet = await callBloomAI({
-            action: speakMode === 'video' ? 'discuss_video' : 'free_chat',
-            message: speakMode === 'video' ? '__START_VIDEO_TALK__' : '__GREET__',
-            videoTitle: vid ? vid.title : '', videoContext: vid ? vid.transcript : ''
-          });
-          chatHistory.push({ role: 'assistant', text: greet });
-          document.getElementById('latestTutorNote').textContent = greet;
-          speakHumanVoice(greet, () => { if (isRealCall) startListening(true); });
-        } catch (err) {
-          document.getElementById('voiceStatusPill').textContent = 'Error: ' + err.message;
-        }
-      } else {
-        btn.textContent = 'Start Real Call';
-        btn.className = 'btn btn-success';
-        isRecording = false;
-        stopRecorderTimer();
-        if (mediaRecorder && mediaRecorder.state === 'recording') { mediaRecorder.onstop = null; mediaRecorder.stop(); }
-        cleanupMicHardware();
-        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-        window.speechSynthesis?.cancel();
-        document.getElementById('btnInterrupt').style.display = 'none';
-        document.getElementById('voiceStatusPill').textContent = 'Call ended';
-      }
-    }
-        async function getReplySuggestions() {
-      const box = document.getElementById('suggestionsBox');
-      box.style.display = 'block';
-      box.innerHTML = '<span class="muted">Preparing natural spoken ideas...</span>';
+      btn.textContent = "✨ Gemini is writing...";
+      btn.disabled = true;
       try {
-        const vid = state.videos.find(v => v.id === state.activeVideoId);
-        const raw = await callBloomAI({ action: 'suggest_reply', lastTutorMessage: lastTutorText, topic: speakMode === 'video' && vid ? vid.title : 'General conversation' });
-        const parsed = JSON.parse(raw);
-        box.innerHTML = (parsed.suggestions || []).map(s =>
-          '<button class="btn btn-soft" style="margin:4px;" onclick="speakHumanVoice(\'' + s.text.replace(/'/g, "\\'") + '\')">🔊 ' + s.text + '</button>'
-        ).join('');
-      } catch (_) { box.innerHTML = '<span class="muted">Could not load suggestions right now.</span>'; }
-    }
-
-    function openModal(id, mode) { if (id === 'authModal' && mode) switchAuthTab(mode); document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-    function switchAuthTab(mode) {
-      authMode = mode; gmailFastMode = false;
-      document.getElementById('tabSignIn').className = mode === 'signin' ? 'btn btn-primary' : 'btn btn-soft';
-      document.getElementById('tabSignUp').className = mode === 'signup' ? 'btn btn-primary' : 'btn btn-soft';
-      document.getElementById('authNameWrap').style.display = mode === 'signup' ? 'block' : 'none';
-      document.getElementById('authPassWrap').style.display = 'block';
-      document.getElementById('authModalTitle').textContent = mode === 'signup' ? 'Create Your Bloom Account' : 'Welcome Back';
-      document.getElementById('authSubmitBtn').textContent = mode === 'signup' ? 'Create Account' : 'Sign In';
-      document.getElementById('gmailModeBtn').style.display = 'block';
-      document.getElementById('authErrorMsg').style.display = 'none';
-    }
-
-    function toggleGmailFastSignIn() {
-      gmailFastMode = true;
-      document.getElementById('authNameWrap').style.display = 'none';
-      document.getElementById('authPassWrap').style.display = 'none';
-      document.getElementById('authModalTitle').textContent = 'Continue with Gmail';
-      document.getElementById('authSubmitBtn').textContent = 'Continue with Gmail';
-      document.getElementById('gmailModeBtn').style.display = 'none';
-      document.getElementById('authEmailInput').focus();
-    }
-
-    async function submitAuthForm() {
-      const email = document.getElementById('authEmailInput').value.trim();
-      const password = document.getElementById('authPassInput').value;
-      const name = document.getElementById('authNameInput').value.trim();
-      const errEl = document.getElementById('authErrorMsg');
-      errEl.style.display = 'none';
-      try {
-        const payload = gmailFastMode ? { mode: 'google', email, progress: state } : { mode: authMode, email, password, name, progress: state };
-        const res = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (!res.ok || data.error) throw new Error(data.error || 'Authentication failed');
-        state.user = data.user;
-        if (data.progress) Object.assign(state, data.progress, { user: data.user, watchSec: Number(data.progress.watchSec) || state.watchSec, speakSec: Number(data.progress.speakSec) || state.speakSec, streak: Number(data.progress.streak) || state.streak });
-        saveState(); closeModal('authModal');
-      } catch (e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
-    }
-
-    function signOutUser() { state.user = null; saveState(); }
-    function extractYtId(url) { const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/); return m ? m.at(1) : null; }
-
-    async function loadYouTubeVideo() {
-      const id = extractYtId(document.getElementById('ytUrlInput').value.trim());
-      const errEl = document.getElementById('ytErrorMsg');
-      if (!id) { errEl.textContent = 'Please paste a valid YouTube video URL.'; errEl.style.display = 'block'; return; }
-      errEl.style.display = 'none'; closeModal('ytModal');
-      document.getElementById('videoStatusText').textContent = 'Loading video title & captions...';
-      const meta = await fetch('/api/youtube', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ videoId: id }) }).then(r => r.json()).catch(() => ({ videoId: id, title: 'YouTube Video', transcript: '' }));
-      let vid = state.videos.find(v => v.id === id);
-      if (!vid) { vid = { id, title: meta.title, transcript: meta.transcript || '', finished: false }; state.videos.unshift(vid); }
-      state.activeVideoId = id; saveState(); mountYouTubePlayer(vid);
-    }
-
-    function mountYouTubePlayer(vid) {
-      document.getElementById('videoStatusText').textContent = 'Watching: ' + vid.title;
-      document.getElementById('ytPlayerHost').innerHTML = '<div id="ytFrameTarget"></div>';
-      document.getElementById('btnDiscussVideo').disabled = !vid.finished;
-      if (ytTimer) clearInterval(ytTimer);
-      const initYt = () => {
-        ytPlayer = new YT.Player('ytFrameTarget', {
-          videoId: vid.id, playerVars: { rel: 0, modestbranding: 1 },
-          events: {
-            onStateChange: (ev) => {
-              if (ev.data === YT.PlayerState.PLAYING) {
-                ytTimer = setInterval(() => {
-                  state.watchSec += 1;
-                  const dur = ytPlayer.getDuration?.() || 0, cur = ytPlayer.getCurrentTime?.() || 0;
-                  const pct = dur > 0 ? Math.min(100, Math.round((cur / dur) * 100)) : 0;
-                  document.getElementById('videoProgressLabel').textContent = vid.finished ? 'Completed! Ready to discuss by voice' : 'Watching (' + pct + '%) — Finish video to unlock discussion';
-                  if (pct >= 92 && !vid.finished) { vid.finished = true; document.getElementById('btnDiscussVideo').disabled = false; }
-                  saveState();
-                }, 1000);
-              } else { clearInterval(ytTimer); if (ev.data === YT.PlayerState.ENDED) { vid.finished = true; document.getElementById('btnDiscussVideo').disabled = false; document.getElementById('videoProgressLabel').textContent = 'Completed! Ready to discuss by voice'; saveState(); } }
-            }
-          }
+        const prompt = "You are an e-commerce copywriter for AMVISAT (clean minimalist home, kitchen, and everyday care brand). Based on the attached photo and/or product hint '" + currentTitle + "', return a strict JSON object with keys: name_en, desc_en, name_ar, desc_ar, name_fr, desc_fr, name_de, desc_de, category (choose one: Kitchenware, Detergents, Deodorants, Skincare, Stationery, Home Decor, Bath & Body, Cleaning Tools, Storage & Organization, Electronics & Accessories, Baby & Kids, Gifts & Lifestyle). Keep titles concise and descriptions 1-2 elegant sentences.";
+        const res = await fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt, image: firstImg }),
         });
+        const data = await res.json();
+        if (data.name_en) {
+          langData.en = { name: data.name_en, description: data.desc_en || "" };
+          langData.ar = { name: data.name_ar || "", description: data.desc_ar || "" };
+          langData.fr = { name: data.name_fr || "", description: data.desc_fr || "" };
+          langData.de = { name: data.name_de || "", description: data.desc_de || "" };
+          if (data.category) document.getElementById("pCat").value = data.category;
+          setEditLang("en");
+          toast("Gemini generated all 4 languages!");
+        } else {
+          toast("AI could not parse response");
+        }
+      } catch (e) {
+        toast("Gemini request failed");
+      }
+      btn.textContent = "✨ Ask Gemini AI (Titles & 4 Languages)";
+      btn.disabled = false;
+    }
+
+    async function saveProductForm(e) {
+      e.preventDefault();
+      const nameEn = (langData.en.name || document.getElementById("pName").value).trim();
+      const priceLb = Number(document.getElementById("pPriceLb").value);
+      const stockQty = Number(document.getElementById("pStockQty").value || 0);
+      if (!nameEn || !priceLb) return;
+      const item = {
+        id: editingId || "prod-" + Date.now(),
+        name: nameEn,
+            category: document.getElementById("pCat").value,
+        description: (langData.en.description || "Thoughtfully curated home & everyday essential from AMVISAT.").trim(),
+        price_lb: priceLb,
+        price_eu: Number(document.getElementById("pPriceEu").value || priceLb),
+        stock_qty: stockQty,
+        image_url: mediaList.at(0) || "",
+        images: [...mediaList],
+        translations: { ar: langData.ar, fr: langData.fr, de: langData.de },
+        regions: [...selRegions],
+        badge: document.getElementById("pBadge").value.trim() || undefined,
+        in_stock: document.getElementById("pInStock").checked && stockQty > 0,
       };
-      if (window.YT && YT.Player) initYt(); else setTimeout(initYt, 900);
+      await fetch("/api/products", { method: "POST", body: JSON.stringify(item) });
+      if (editingId) {
+        products = products.map((p) => (p.id === editingId ? item : p));
+      } else {
+        products.unshift(item);
+      }
+      resetProdForm();
+      renderProducts();
+      toast("Synced live to Amvisat.com!");
     }
 
-    function startVideoDiscussion() {
-      const vid = state.videos.find(v => v.id === state.activeVideoId);
-      speakMode = 'video'; chatHistory = [];
-      document.getElementById('speakContextBanner').textContent = 'Discussing Video: ' + (vid ? vid.title : 'Video');
-      document.getElementById('btnResetTopic').style.display = 'inline-flex';
-      switchTab('speak'); toggleRealCall();
+    function editProd(id) {
+      const p = products.find((x) => x.id === id);
+      if (!p) return;
+      editingId = p.id;
+      document.getElementById("formHeading").textContent = "Edit Product";
+      document.getElementById("cancelEditBtn").classList.remove("hidden");
+      const tr = p.translations || {};
+      langData = {
+        en: { name: p.name, description: p.description },
+        ar: tr.ar || { name: "", description: "" },
+        fr: tr.fr || { name: "", description: "" },
+        de: tr.de || { name: "", description: "" },
+      };
+      setEditLang("en");
+      document.getElementById("pCat").value = p.category;
+      document.getElementById("pBadge").value = p.badge || "";
+      document.getElementById("pPriceLb").value = p.price_lb;
+      document.getElementById("pPriceEu").value = p.price_eu;
+      document.getElementById("pStockQty").value = p.stock_qty ?? 10;
+      document.getElementById("pInStock").checked = p.in_stock;
+      mediaList = Array.isArray(p.images) && p.images.length ? [...p.images] : (p.image_url ? [p.image_url] : []);
+      renderMediaGrid();
+      selRegions = [...(p.regions || ["LB"])];
+      ["LB", "FR", "DE"].forEach((code) => {
+        const b = document.getElementById("regBtn-" + code);
+        b.className = selRegions.includes(code)
+          ? "rounded-lg border border-[#121212] bg-[#121212] px-3 py-1.5 font-semibold text-white"
+          : "rounded-lg border border-neutral-300 bg-white px-3 py-1.5 font-semibold text-neutral-600";
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function resetToGeneralSpeak() {
-      speakMode = 'general'; chatHistory = [];
-      document.getElementById('speakContextBanner').textContent = 'General Voice Conversation';
-      document.getElementById('btnResetTopic').style.display = 'none';
+    function resetProdForm() {
+      editingId = null;
+      document.getElementById("formHeading").textContent = "Add New Product";
+      document.getElementById("cancelEditBtn").classList.add("hidden");
+      langData = { en: { name: "", description: "" }, ar: { name: "", description: "" }, fr: { name: "", description: "" }, de: { name: "", description: "" } };
+      setEditLang("en");
+      document.getElementById("pBadge").value = "";
+      document.getElementById("pPriceLb").value = "";
+      document.getElementById("pPriceEu").value = "";
+      document.getElementById("pStockQty").value = 10;
+      document.getElementById("pInStock").checked = true;
+      mediaList = [];
+      renderMediaGrid();
     }
 
-    renderTopStats();
+    async function delProd(id) {
+      await fetch("/api/products?id=" + encodeURIComponent(id), { method: "DELETE" });
+      products = products.filter((p) => p.id !== id);
+      renderProducts();
+      toast("Product deleted");
+    }
+
+    function renderProducts() {
+      const q = (document.getElementById("prodSearch").value || "").toLowerCase();
+      const list = products.filter((p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      document.getElementById("invSummary").textContent = list.length + " items";
+      document.getElementById("productList").innerHTML = list.map((p) => {
+        const qty = p.stock_qty ?? "—";
+        const cover = (Array.isArray(p.images) && p.images.at(0)) || p.image_url || "";
+        return `
+          <div class="flex items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white p-3 text-xs">
+            ${cover ? `<img src="${cover}" class="h-12 w-12 rounded-xl object-cover" />` : `<div class="h-12 w-12 rounded-xl bg-neutral-100"></div>`}
+            <div class="min-w-0 flex-1">
+              <p class="truncate font-bold">${p.name}</p>
+              <p class="text-neutral-500">${p.category} · $${p.price_lb} / €${p.price_eu} · Stock: <strong>${qty}</strong> · ${(p.regions || []).join(", ")}</p>
+            </div>
+            <div class="flex gap-1.5">
+              <button onclick="editProd('${p.id}')" class="rounded-lg border border-neutral-300 px-2.5 py-1.5 font-semibold">Edit</button>
+              <button onclick="delProd('${p.id}')" class="rounded-lg border border-red-200 px-2.5 py-1.5 font-semibold text-red-600">Del</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+        }
+        function setOrderFilter(st) {
+      orderFilter = st;
+      renderOrders();
+    }
+
+    async function setOrdStatus(id, status) {
+      orders = orders.map((o) => (o.id === id ? { ...o, status } : o));
+      await fetch("/api/orders", { method: "POST", body: JSON.stringify(orders) });
+      renderOrders();
+      toast("Order marked " + status);
+    }
+
+    async function delOrder(id) {
+      orders = orders.filter((o) => o.id !== id);
+      await fetch("/api/orders", { method: "POST", body: JSON.stringify(orders) });
+      renderOrders();
+      toast("Order deleted");
+    }
+
+    function renderOrders() {
+      document.getElementById("orderBadge").textContent = orders.length;
+      const list = orderFilter === "all" ? orders : orders.filter((o) => o.status === orderFilter);
+      const rev = orders.reduce((s, o) => s + Number(o.total || 0), 0);
+      document.getElementById("revenueTotal").textContent = "Total Orders Value: $" + rev.toFixed(2);
+      document.getElementById("ordersList").innerHTML = list.map((o) => {
+        const ref = String(o.id || "").slice(-6).toUpperCase();
+        const itemsHtml = (o.items || []).map((it) => "<div>• " + it.name + " × " + it.qty + "</div>").join("");
+        return '<div class="rounded-2xl border border-neutral-200 bg-white p-4 text-xs">' +
+          '<div class="flex flex-wrap items-center justify-between gap-2">' +
+          '<span class="font-bold">#' + ref + ' · ' + o.customer_name + ' (' + o.customer_phone + ')</span>' +
+          '<span class="rounded-full bg-neutral-100 px-2.5 py-0.5 font-bold uppercase">' + o.status + '</span>' +
+          '</div>' +
+          '<p class="mt-1 text-neutral-500">' + o.region + ' · ' + o.city + ', ' + o.address + (o.notes ? ' · ' + o.notes : '') + '</p>' +
+          '<div class="mt-2 border-t border-neutral-100 pt-2">' + itemsHtml + '</div>' +
+          '<div class="mt-3 flex flex-wrap gap-2">' +
+          '<button onclick="setOrdStatus(\'' + o.id + '\',\'confirmed\')" class="rounded-full bg-blue-600 px-3 py-1 font-semibold text-white">Confirm</button>' +
+          '<button onclick="setOrdStatus(\'' + o.id + '\',\'delivered\')" class="rounded-full bg-emerald-600 px-3 py-1 font-semibold text-white">Delivered</button>' +
+          '<button onclick="delOrder(\'' + o.id + '\')" class="rounded-full border border-red-200 px-3 py-1 font-semibold text-red-600">Delete</button>' +
+          '</div></div>';
+      }).join("");
+    }
+
+    function runCalc() {
+      const cost = Number(document.getElementById("cCost").value || 0);
+      const ship = Number(document.getElementById("cShip").value || 0);
+      const margin = Number(document.getElementById("cMargin").value || 0);
+      const mult = Number(document.getElementById("cEuMult").value || 1);
+      const landed = cost + ship;
+      const lb = landed * (1 + margin / 100);
+      const eu = lb * mult;
+      document.getElementById("resCost").textContent = "$" + landed.toFixed(2);
+      document.getElementById("resLb").textContent = "$" + lb.toFixed(2);
+      document.getElementById("resEu").textContent = "€" + eu.toFixed(2);
+      document.getElementById("resProfit").textContent = "Net Profit per Unit: $" + (lb - landed).toFixed(2);
+    }
+
+    function applyCalcToProduct() {
+      const lb = document.getElementById("resLb").textContent.replace("$", "");
+      const eu = document.getElementById("resEu").textContent.replace("€", "");
+      document.getElementById("pPriceLb").value = lb;
+      document.getElementById("pPriceEu").value = eu;
+      switchTab("products");
+      toast("Prices applied to product form!");
+    }
+
+    function fillHeroForm() {
+      document.getElementById("hEyebrow").value = heroCfg.eyebrow || "";
+      document.getElementById("hTitle").value = heroCfg.title || "";
+      document.getElementById("hSub").value = heroCfg.subtitle || "";
+      document.getElementById("hCta").value = heroCfg.cta || "";
+      const prev = document.getElementById("heroPreview");
+      if (heroCfg.image) { prev.src = heroCfg.image; prev.classList.remove("hidden"); }
+    }
+
+    function uploadHeroImg(e) {
+      const file = e.target.files ? e.target.files.item(0) : null;
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        const s = Math.min(1, 1200 / img.width);
+        c.width = img.width * s;
+        c.height = img.height * s;
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        heroCfg.image = c.toDataURL("image/jpeg", 0.85);
+        fillHeroForm();
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
+    function clearHeroImg() {
+      heroCfg.image = "";
+      document.getElementById("heroPreview").classList.add("hidden");
+    }
+
+    async function saveHero() {
+      heroCfg.eyebrow = document.getElementById("hEyebrow").value;
+      heroCfg.title = document.getElementById("hTitle").value;
+      heroCfg.subtitle = document.getElementById("hSub").value;
+      heroCfg.cta = document.getElementById("hCta").value;
+      await fetch("/api/settings", { method: "POST", body: JSON.stringify(heroCfg) });
+      toast("Live homepage banner updated!");
+    }
   </script>
 </body>
 </html>

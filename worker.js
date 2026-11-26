@@ -52,14 +52,12 @@ export default {
         return new Response(JSON.stringify({ ok: true }), { headers: cors });
       }
     }
-
-    if (url.pathname === "/api/ai" && request.method === "POST") {
+        if (url.pathname === "/api/ai" && request.method === "POST") {
       try {
         const body = await request.json();
         const prompt = String(body.prompt || "");
         const imageBase64 = String(body.image || "");
 
-        // 1. Try Google AI Studio if a valid AIza... key is set
         if (env.GEMINI_API_KEY && env.GEMINI_API_KEY.startsWith("AIza")) {
           const parts = [{ text: prompt }];
           if (imageBase64.startsWith("data:image/")) {
@@ -84,7 +82,6 @@ export default {
           }
         }
 
-        // 2. Fallback to built-in Cloudflare Workers AI (env.AI)
         if (env.AI) {
           let visualHint = "";
           if (imageBase64.startsWith("data:image/")) {
@@ -94,24 +91,32 @@ export default {
             for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
             const visionRes = await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
               image: Array.from(bytes),
-              prompt: "Describe this product concisely in one sentence.",
-              max_tokens: 100,
+              prompt: "What is this product? Describe it in 10 words.",
+              max_tokens: 60,
             }).catch(() => null);
             if (visionRes && visionRes.description) {
-              visualHint = " Visual appearance: " + visionRes.description;
+              visualHint = "Product photo shows: " + visionRes.description + ". ";
             }
           }
 
           const cfRes = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
             messages: [
-              { role: "system", content: "Return ONLY valid JSON with keys: name_en, desc_en, name_ar, desc_ar, name_fr, desc_fr, name_de, desc_de, category. No markdown." },
-              { role: "user", content: prompt + visualHint },
+              {
+                role: "system",
+                content: "Output ONLY a single valid JSON object with these exact string keys: name_en, desc_en, name_ar, desc_ar, name_fr, desc_fr, name_de, desc_de, category. Do not include markdown, backticks, or extra text.",
+              },
+              {
+                role: "user",
+                content: visualHint + prompt,
+              },
             ],
+            max_tokens: 600,
           });
-          const text = String(cfRes.response || "{}");
-          const start = text.indexOf("{");
-          const end = text.lastIndexOf("}");
-          const cleanJson = start !== -1 && end !== -1 ? text.slice(start, end + 1) : "{}";
+
+          const raw = typeof cfRes.response === "object" ? JSON.stringify(cfRes.response) : String(cfRes.response || "{}");
+          const start = raw.indexOf("{");
+          const end = raw.lastIndexOf("}");
+          const cleanJson = start !== -1 && end !== -1 ? raw.slice(start, end + 1) : "{}";
           return new Response(cleanJson, { headers: cors });
         }
 

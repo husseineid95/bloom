@@ -52,7 +52,7 @@ export default {
         return new Response(JSON.stringify({ ok: true }), { headers: cors });
       }
     }
-        if (url.pathname === "/api/ai" && request.method === "POST") {
+            if (url.pathname === "/api/ai" && request.method === "POST") {
       try {
         const body = await request.json();
         const prompt = String(body.prompt || "");
@@ -75,11 +75,12 @@ export default {
               generationConfig: { responseMimeType: "application/json" },
             }),
           });
-          if (aiRes.ok) {
-            const aiJson = await aiRes.json();
-            const rawText = aiJson?.candidates?.at(0)?.content?.parts?.at(0)?.text || "{}";
-            return new Response(rawText, { headers: cors });
+          const aiJson = await aiRes.json();
+          if (!aiRes.ok) {
+            return new Response(JSON.stringify({ error: aiJson?.error?.message || "Gemini API error" }), { status: 500, headers: cors });
           }
+          const rawText = aiJson?.candidates?.at(0)?.content?.parts?.at(0)?.text || "{}";
+          return new Response(rawText, { headers: cors });
         }
 
         if (env.AI) {
@@ -91,11 +92,11 @@ export default {
             for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
             const visionRes = await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
               image: Array.from(bytes),
-              prompt: "What is this product? Describe it in 10 words.",
-              max_tokens: 60,
+              prompt: "Describe this item in 8 words.",
+              max_tokens: 40,
             }).catch(() => null);
             if (visionRes && visionRes.description) {
-              visualHint = "Product photo shows: " + visionRes.description + ". ";
+              visualHint = "Item looks like: " + visionRes.description + ". ";
             }
           }
 
@@ -103,22 +104,31 @@ export default {
             messages: [
               {
                 role: "system",
-                content: "Output ONLY a single valid JSON object with these exact string keys: name_en, desc_en, name_ar, desc_ar, name_fr, desc_fr, name_de, desc_de, category. Do not include markdown, backticks, or extra text.",
+                content: "Return ONLY valid JSON with keys: name_en, desc_en, name_ar, desc_ar, name_fr, desc_fr, name_de, desc_de, category.",
               },
               {
                 role: "user",
                 content: visualHint + prompt,
               },
             ],
+            response_format: { type: "json_object" },
             max_tokens: 600,
           });
 
           const raw = typeof cfRes.response === "object" ? JSON.stringify(cfRes.response) : String(cfRes.response || "{}");
-          const start = raw.indexOf("{");
-          const end = raw.lastIndexOf("}");
-          const cleanJson = start !== -1 && end !== -1 ? raw.slice(start, end + 1) : "{}";
-          return new Response(cleanJson, { headers: cors });
+          return new Response(raw, { headers: cors });
         }
+
+        return new Response(JSON.stringify({ error: "Add AIza... GEMINI_API_KEY in Cloudflare" }), { status: 500, headers: cors });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: cors });
+      }
+    }
+
+    return env.ASSETS.fetch(request);
+  },
+};
+
 
         return new Response(JSON.stringify({ error: "No AI binding available" }), { status: 500, headers: cors });
       } catch (err) {

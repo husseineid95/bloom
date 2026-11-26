@@ -660,7 +660,7 @@
       await fetch("/api/settings", { method: "POST", body: JSON.stringify(heroCfg) });
       toast("Live homepage banner updated!");
     }
-        function renderLogo(theme = "dark") {
+            function renderLogo(theme = "dark") {
       const bg = theme === "light" ? "#F6F5F3" : "#121212";
       const fg = theme === "light" ? "#121212" : theme === "gold" ? "#D4AF37" : "#F6F5F3";
       ["logoCanvas", "logoCirclePreview"].forEach((id) => {
@@ -673,14 +673,13 @@
         ctx.lineWidth = 14;
         ctx.strokeRect(72, 72, 880, 880);
         ctx.fillStyle = fg;
-        ctx.font = "600 480px Georgia, serif";
+        ctx.font = "700 132px Georgia, serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("A", 512, 470);
-        ctx.font = "700 68px system-ui, sans-serif";
-        ctx.fillText("A M V I S A T", 512, 790);
+        ctx.fillText("AMVISAT", 512, 512);
       });
     }
+
 
     function downloadLogoPng() {
       const c = document.getElementById("logoCanvas");

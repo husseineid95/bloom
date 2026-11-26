@@ -83,24 +83,23 @@ export default {
           return new Response(rawText, { headers: cors });
         }
 
-        if (env.AI) {
+                if (env.AI) {
           let visualHint = "";
           if (imageBase64.startsWith("data:image/")) {
             const base64Data = imageBase64.slice(imageBase64.indexOf(",") + 1);
             const binStr = atob(base64Data);
             const bytes = new Uint8Array(binStr.length);
             for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
-            const visionRes = await env.AI.run("@cf/llava-hf/llava-1.5-7b-hf", {
+            const visionRes = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", {
               image: Array.from(bytes),
-              prompt: "Describe this item in 8 words.",
-              max_tokens: 40,
+              prompt: "Identify this product and its material/color in 12 words.",
+              max_tokens: 60,
             }).catch(() => null);
-            if (visionRes && visionRes.description) {
-              visualHint = "Item looks like: " + visionRes.description + ". ";
-            }
+            const vText = visionRes?.response || visionRes?.description || "";
+            if (vText) visualHint = "Product photo shows: " + vText + ". ";
           }
 
-          const cfRes = await env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
+          const cfRes = await env.AI.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
             messages: [
               {
                 role: "system",
@@ -119,7 +118,7 @@ export default {
           return new Response(raw, { headers: cors });
         }
 
-        return new Response(JSON.stringify({ error: "Add AIza... GEMINI_API_KEY in Cloudflare" }), { status: 500, headers: cors });
+        return new Response(JSON.stringify({ error: "AI binding missing" }), { status: 500, headers: cors });
       } catch (err) {
         return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: cors });
       }

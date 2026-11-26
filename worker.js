@@ -124,4 +124,13 @@ export default {
           const raw = typeof cfRes.response === "object" ? JSON.stringify(cfRes.response) : String(cfRes.response || "{}");
           return new Response(raw, { headers: cors });
         }
+        return new Response(JSON.stringify({ error: "AI binding missing" }), { status: 500, headers: cors });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: cors });
+      }
+    }
+
+    return env.ASSETS.fetch(request);
+  },
+};
 

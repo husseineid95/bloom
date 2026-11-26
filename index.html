@@ -434,7 +434,7 @@
           setEditLang("en");
           toast("Gemini generated all 4 languages!");
         } else {
-          toast("AI could not parse response");
+          toast(data.error || "AI could not parse response");
         }
       } catch (e) {
         toast("Gemini request failed");

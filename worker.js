@@ -52,7 +52,7 @@ export default {
         return new Response(JSON.stringify({ ok: true }), { headers: cors });
       }
     }
-            if (url.pathname === "/api/ai" && request.method === "POST") {
+        if (url.pathname === "/api/ai" && request.method === "POST") {
       try {
         const body = await request.json();
         const prompt = String(body.prompt || "");
@@ -120,17 +120,6 @@ export default {
         }
 
         return new Response(JSON.stringify({ error: "Add AIza... GEMINI_API_KEY in Cloudflare" }), { status: 500, headers: cors });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: cors });
-      }
-    }
-
-    return env.ASSETS.fetch(request);
-  },
-};
-
-
-        return new Response(JSON.stringify({ error: "No AI binding available" }), { status: 500, headers: cors });
       } catch (err) {
         return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: cors });
       }

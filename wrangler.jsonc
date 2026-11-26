@@ -6,6 +6,9 @@
     "directory": "./",
     "binding": "ASSETS"
   },
+  "ai": {
+    "binding": "AI"
+  },
   "kv_namespaces": [
     {
       "binding": "STORE_KV",
